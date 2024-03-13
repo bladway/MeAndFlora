@@ -30,8 +30,8 @@
 
 ### Документация
 
-- Техническое задание [(.docx)](Documentation/Техническое задание.docx) [(.pdf)](Documentation/Техническое задание.pdf)
-- Перечень задач [(.pdf)](Documentation/перечень задачь.pdf)
+- Техническое задание [(.docx)](Documentation/Техническое_задание.docx) [(.pdf)](Documentation/Техническое_задание.pdf)
+- Перечень задач [(.pdf)](Documentation/перечень_задач.pdf)
 - Презентация проекта [(.pptx)](Documentation/Green-Modern-Nature-Presentation.pptx) [(.pdf)](Documentation/Green-Modern-Nature-Presentation.pdf)
 - [Сопроводительное письмо (к 1 атте)](Documentation/Сопроводительное-письмо.docx)
 
@@ -43,4 +43,4 @@
 
 ### Медиафайлы
 
-- [Видео-презентация]()
+- [Видео-презентация](https://www.youtube.com/watch?v=Q0l6ruiaE5Q)
