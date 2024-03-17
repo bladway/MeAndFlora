@@ -39,7 +39,8 @@
 
 - [Use Case](Diagrams/Диаграммы-прецедентов)  
 - [Sequence](Diagrams/Диаграммы-последовательностей)  
-- [Statechart](Diagrams/Диаграммы-состояний)  
+- [Statechart](Diagrams/Диаграммы-состояний)
+- [Deployment](Diagrams/Диаграммы-развертывания)
 
 ### Медиафайлы
 
