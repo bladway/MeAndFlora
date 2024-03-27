@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+
+  postgres:
+    image: postgres:16.2-alpine
+    container_name: MeAndFlora-Database
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=MeAndFlora
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=tyesl124
+    volumes:
+      - /server/MeAndFlora-Database:/var/lib/postgresql/data
+      
+  redis:
+    image: redis:7.2.4-alpine
+    container_name: MeAndFlora-Cachebase
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_DATABASES=16
+      - REDIS_PASSWORD=tyesl124
+      - REDIS_PORT=6379
+    volumes:
+      - /server/MeAndFlora-Cachebase:/root/redis  
+    # command: ["redis-server", "--bind", "0.0.0.0"]
+
+  zookeeper:
+    image: zookeeper:3.9.2
+    container_name: MeAndFlora-Zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: bitnami/kafka:3.4.1
+    container_name: MeAndFlora-Kafka
+    restart: always
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
