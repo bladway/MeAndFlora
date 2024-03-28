@@ -43,6 +43,7 @@ services:
     ports:
       - "9092:9092"
     environment:
+      KAFKA_ADVERTISED_HOST_NAME: 25.41.235.94
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
@@ -53,4 +54,16 @@ services:
 
 volumes:
   MeAndFlora-Database:
+    name: MeAndFlora-Database
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: /server/MeAndFlora-Database
   MeAndFlora-Cachebase:
+    name: MeAndFlora-Cachebase
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: /server/MeAndFlora-Cachebase
