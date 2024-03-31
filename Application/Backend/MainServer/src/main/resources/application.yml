@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: MainServer
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://postgres:5432/MeAndFlora
+    username: admin
+    password: tyesl124
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+docker:
+  repository: bladway/maf-mainserver
+  tag: 1.0
