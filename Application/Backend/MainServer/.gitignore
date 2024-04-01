@@ -7,6 +7,7 @@ log/
 
 ### Hidden file with personal information ###
 src/main/resources/application-hidden.yml
+src/main/resources/META-INF/
 
 ### STS ###
 .apt_generated
