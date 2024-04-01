@@ -5,6 +5,9 @@ log/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Hidden file with personal information ###
+src/main/resources/application-hidden.yml
+
 ### STS ###
 .apt_generated
 .classpath

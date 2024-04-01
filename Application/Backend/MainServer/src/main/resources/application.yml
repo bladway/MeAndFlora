@@ -1,11 +1,12 @@
 spring:
   application:
     name: MainServer
+  profiles:
+    include: hidden
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres:5432/MeAndFlora
+    url: jdbc:postgresql://25.41.235.94:5432/MeAndFlora
     username: admin
-    password: tyesl124
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,3 +17,4 @@ spring:
 docker:
   repository: bladway/maf-mainserver
   tag: 1.0
+  login: bladway

@@ -1,3 +1,3 @@
 
 #UploadNewVersionOfImageWithDockerfile : 
-#mvn compile jib:dockerBuild
+#mvn compile jib:build
