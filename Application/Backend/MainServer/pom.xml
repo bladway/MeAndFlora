@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ru.vsu.cs.MeAndFlora</groupId>
 	<artifactId>MainServer</artifactId>
-	<version>1.0</version>
+	<version>test</version>
 	<name>MainServer</name>
 	<description>Main springboot Server of the MeAndFlora project</description>
 	<properties>
@@ -84,7 +84,6 @@
 						</auth>
 					</from>
 					<to>
-						<image>${docker.repository}:${docker.tag}</image>
 						<auth>
 							<username>${docker.login}</username>
 							<password>${docker.password}</password>
