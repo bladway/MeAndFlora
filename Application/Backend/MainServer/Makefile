@@ -1,4 +1,6 @@
 # on windows needs to install mingw32-make.exe from mingw
+# before using application you need to receive or define application-hidden.yml
+# file in resources folder
 
 # usage: mingw32-make.exe jib-build tag=<tag>
 jib-build:
