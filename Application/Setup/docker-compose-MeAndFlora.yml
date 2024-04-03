@@ -9,9 +9,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${USER}
-      - POSTGRES_PASSWORD=${PASSWORD}
+      - POSTGRES_DB=MeAndFlora
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - MeAndFlora-Database:/var/lib/postgresql/data
       
@@ -23,7 +23,7 @@ services:
       - "6379:6379"
     environment:
       - REDIS_DATABASES=16
-      - REDIS_PASSWORD=${PASSWORD}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_PORT=6379
     volumes:
       - MeAndFlora-Cachebase:/data
@@ -58,6 +58,13 @@ services:
       # KAFKA_LOG4J_LOGGERS: org.apache.zookeeper=ERROR, org.apache.kafka=ERROR, kafka=ERROR, kafka.cluster=ERROR, kafka.controller=ERROR, kafka.coordinator=ERROR, kafka.log=ERROR, kafka.server=ERROR, kafka.zookeeper=ERROR, state.change.logger=ERROR
     depends_on:
       - zookeeper
+
+  MainServer:
+    image: bladway/maf-mainserver
+    container_name: MeAndFlora-MainServer
+    restart: always
+    ports:
+      - "8080:8080"
 
 volumes:
   MeAndFlora-Database:
