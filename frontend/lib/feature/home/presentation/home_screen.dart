@@ -18,7 +18,7 @@ class HomeScreen extends StatelessWidget {
 
     return BlocProvider<PlantBloc>(
       lazy: false,
-      create: (context) => PlantBloc()..add(PlantHomePageRequested()),
+      create: (context) => PlantBloc()..add(HomePageRequested()),
       child: Stack(children: [
         Image.asset(
           "assets/images/homeBackground.png",
@@ -26,84 +26,121 @@ class HomeScreen extends StatelessWidget {
           width: width,
           fit: BoxFit.cover,
         ),
+        Container(
+          height: height,
+          width: width,
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black])),
+        ),
         Scaffold(
           backgroundColor: Colors.transparent,
-          body: BlocBuilder<PlantBloc, PlantState>(builder: (context, state) {
-            if (state is PlantLoadSuccess && state.plantList.isNotEmpty) {
-              return SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.only(top: 90, bottom: 70),
-                        child: TextField(
-                          style: Theme.of(context).textTheme.bodySmall,
-                          cursorColor: Colors.white,
-                          decoration: InputDecoration(
-                            hintText: 'Поиск',
-                            hintStyle: Theme.of(context).textTheme.bodySmall,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: colors.white
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            prefixIcon: const Icon(
-                              Icons.search_rounded,
-                              size: 24,
-                              weight: 3,
-                              color: Colors.white,
-                            ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(top: 90, bottom: 70),
+                    child: BlocBuilder<PlantBloc, PlantState>(
+                        builder: (context, state) {
+                      return TextField(
+                        style: Theme.of(context).textTheme.bodySmall,
+                        cursorColor: Colors.white,
+                        decoration: InputDecoration(
+                          hintText: 'Поиск',
+                          hintStyle: Theme.of(context).textTheme.bodySmall,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          onTap: () {
-                            showSearch(
-                                context: context,
-                                delegate: MySearchDelegate((query) =>
-                                BlocProvider.of<PlantBloc>(context)
-                                  ..add(PlantDetailsRequested())));
-                          },
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(width: 2, color: colors.white),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.search_rounded,
+                            size: 24,
+                            weight: 3,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      PlantList(plantList: state.plantList, title: 'Цветы'),
-                      const SizedBox(
-                        height: 24,
-                      ),
-                      PlantList(
+                        onTap: () {
+                          showSearch(
+                              context: context,
+                              delegate: MySearchDelegate((query) =>
+                                  BlocProvider.of<PlantBloc>(context)
+                                    ..add(PlantDetailsRequested())));
+                        },
+                      );
+                    }),
+                  ),
+                  BlocBuilder<PlantBloc, PlantState>(builder: (context, state) {
+                    if (state is PlantLoadSuccess) {
+                      return PlantList(
+                        plantList: state.plantList,
+                        title: 'Цветы',
+                      );
+                    } else {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  }),
+                  const SizedBox(
+                    height: 24,
+                  ),
+                  BlocBuilder<PlantBloc, PlantState>(builder: (context, state) {
+                    if (state is PlantLoadSuccess) {
+                      return PlantList(
                         plantList: state.plantList,
                         title: 'Деревья',
-                      ),
-                      const SizedBox(
-                        height: 24,
-                      ),
-                      PlantList(
+                      );
+                    } else {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  }),
+                  const SizedBox(
+                    height: 24,
+                  ),
+                  BlocBuilder<PlantBloc, PlantState>(builder: (context, state) {
+                    if (state is PlantLoadSuccess) {
+                      return PlantList(
                         plantList: state.plantList,
                         title: 'Трава',
-                      ),
-                      const SizedBox(
-                        height: 24,
-                      ),
-                      PlantList(
+                      );
+                    } else {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  }),
+                  const SizedBox(
+                    height: 24,
+                  ),
+                  BlocBuilder<PlantBloc, PlantState>(builder: (context, state) {
+                    if (state is PlantLoadSuccess) {
+                      return PlantList(
                         plantList: state.plantList,
                         title: 'Мох',
-                      ),
-                      const SizedBox(
-                        height: 24,
-                      ),
-                    ],
+                      );
+                    } else {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  }),
+                  const SizedBox(
+                    height: 24,
                   ),
-                ),
-              );
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          }),
+                ],
+              ),
+            ),
+          ),
         ),
       ]),
     );

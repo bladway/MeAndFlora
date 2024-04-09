@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:me_and_flora/core/presentation/widgets/plant_tile.dart';
 
 import '../../../core/domain/models/models.dart';
 import 'widgets/plant_description.dart';
@@ -60,9 +62,9 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                           ),
                           IconButton(
                             icon: Icon(
-                              widget.plant.isLiked
-                                  ? Icons.location_on
-                                  : Icons.location_on_outlined,
+                              widget.plant.isTracked
+                                  ? Iconsax.location
+                                  : Iconsax.location_copy,
                               size: 24,
                               color: Colors.white,
                             ),
@@ -83,6 +85,19 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                   Text(widget.plant.name,
                     textAlign: TextAlign.left,
                     style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  SizedBox(height: height * 0.02,),
+                  PlantTile(
+                    titleText: widget.plant.lon != null && widget.plant.lat != null
+                        ? "lon: ${widget.plant.lon} lat: ${widget.plant.lat}"
+                        : "Местоположение неизвестно",
+                    icon: Iconsax.location,
+                  ),
+                  PlantTile(
+                    titleText: widget.plant.date != null
+                        ? widget.plant.date!.day.toString()
+                        : "Дата неизвестна",
+                    icon: Icons.timer_rounded,
                   ),
                   SizedBox(height: height * 0.03,),
                   PlantDescription(desc: widget.plant.description),

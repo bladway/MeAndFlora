@@ -1,15 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:me_and_flora/core/app_router/app_router.dart';
 import 'package:me_and_flora/core/theme/theme.dart';
 
 import '../../domain/models/models.dart';
 
 class PlantElement extends StatefulWidget {
-  const PlantElement({
-    super.key,
-    required this.plant
-  });
+  const PlantElement({super.key, required this.plant});
 
   final Plant plant;
 
@@ -18,7 +16,6 @@ class PlantElement extends StatefulWidget {
 }
 
 class _PlantElementState extends State<PlantElement> {
-
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.sizeOf(context).width;
@@ -28,8 +25,7 @@ class _PlantElementState extends State<PlantElement> {
       width: width * 0.42,
       decoration: BoxDecoration(
           color: colors.gray,
-          borderRadius: const BorderRadius.all(Radius.circular(8))
-      ),
+          borderRadius: const BorderRadius.all(Radius.circular(8))),
       child: InkWell(
         onTap: () {
           AutoRouter.of(context).push(PlantDetailsRoute(plant: widget.plant));
@@ -49,13 +45,17 @@ class _PlantElementState extends State<PlantElement> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        Image.network(widget.plant.imageUrl,
+                        Image.network(
+                          widget.plant.imageUrl,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
                               color: colors.lightGray,
                               alignment: Alignment.center,
-                              child: const Icon(Icons.photo_camera, size: 40,),
+                              child: const Icon(
+                                Icons.photo_camera,
+                                size: 35,
+                              ),
                             );
                           },
                         ),
@@ -63,10 +63,10 @@ class _PlantElementState extends State<PlantElement> {
                           alignment: Alignment.topRight,
                           child: IconButton(
                             icon: Icon(
-                              widget.plant.isLiked
-                                  ? Icons.location_on
-                                  : Icons.location_on_outlined,
-                              size: 24,
+                              widget.plant.isTracked
+                                  ? Iconsax.location
+                                  : Iconsax.location_copy,
+                              size: height * 0.1 * width * 0.39 * 0.0019,
                               color: Colors.white,
                             ),
                             onPressed: () {
@@ -106,8 +106,7 @@ class _PlantElementState extends State<PlantElement> {
                   ),
                 ),
               ),
-            ]
-        ),
+            ]),
       ),
     );
   }

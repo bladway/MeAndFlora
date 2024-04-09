@@ -1,5 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:me_and_flora/core/app_router/app_router.dart';
+import 'package:me_and_flora/core/theme/theme.dart';
+
+import '../../domain/models/models.dart';
 
 class MySearchDelegate extends SearchDelegate {
   late String selectedResult;
@@ -8,12 +12,28 @@ class MySearchDelegate extends SearchDelegate {
   MySearchDelegate(this.callback);
 
   @override
+  ThemeData appBarTheme(BuildContext context) {
+    return ThemeData(
+      hintColor: colors.white,
+      scaffoldBackgroundColor: colors.black,
+      brightness: Brightness.dark,
+      primaryColor: colors.black,
+      //textSelectionTheme: TextSelectionThemeData(cursorColor: Colors.white),
+      textTheme: Theme.of(context).textTheme
+    );
+  }
+
+  @override
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: const Icon(Icons.close, size: 24, color: Colors.black,),
+        icon: const Icon(
+          Icons.close,
+          size: 24,
+          color: Colors.white,
+        ),
         onPressed: () {
-          Navigator.of(context).pop();
+          AutoRouter.of(context).pop();
         },
       ),
     ];
@@ -22,9 +42,21 @@ class MySearchDelegate extends SearchDelegate {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.search_rounded, size: 24, color: Colors.black,),
+      icon: const Icon(
+        Icons.search_rounded,
+        size: 24,
+        color: Colors.white,
+      ),
       onPressed: () {
-        Navigator.pop(context);
+        AutoRouter.of(context).push(PlantDetailsRoute(
+            plant: Plant(
+                name: selectedResult.toString(),
+                type: "Дерево",
+                description:
+                "fvjnsjnsdjfnsjkfnsjdbkjbilnbknlknjlkmlmjljmlknjknjkbjkbhnv kbjlkjbnlknklnjcnsdjcnscjsdc",
+                isTracked: true,
+                imageUrl: "something")));
+        //Navigator.pop(context);
       },
     );
   }
@@ -33,22 +65,36 @@ class MySearchDelegate extends SearchDelegate {
   Widget buildResults(BuildContext context) {
     return Center(
       child: Text(selectedResult),
-    ); ///Поменять на страницу с информацией
+    );
+
+    ///Поменять на страницу с информацией
   }
 
   @override
   void showResults(BuildContext context) {
     selectedResult = query;
     callback(query);
-    close(context, query);
+    AutoRouter.of(context).push(PlantDetailsRoute(
+        plant: Plant(
+            name: selectedResult.toString(),
+            type: "Дерево",
+            description:
+            "fvjnsjnsdjfnsjkfnsjdbkjbilnbknlknjlkmlmjljmlknjknjkbjkbhnv kbjlkjbnlknklnjcnsdjcnscjsdc",
+            isTracked: true,
+            imageUrl: "something")));
+    //close(context, query);
   }
-
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    List<String> searchResults = ["Flower1", "Flower2", "Flower3", "Flower4", "Flower5", query]
-        .where((element) => element.contains(query))
-        .toList();
+    List<String> searchResults = [
+      "Flower1",
+      "Flower2",
+      "Flower3",
+      "Flower4",
+      "Flower5",
+      query
+    ].where((element) => element.contains(query)).toList();
 
     return ListView.separated(
       itemCount: searchResults.length,
@@ -60,16 +106,24 @@ class MySearchDelegate extends SearchDelegate {
       ),
       itemBuilder: (BuildContext context, int index) {
         return ListTile(
-          leading: const Icon(
+          leading: Icon(
             Icons.search_rounded,
             size: 24,
-            color: Color.fromARGB(100, 181, 181, 190),
+            color: colors.white,
           ),
-          title: Text(searchResults[index]),
+          title: Text(searchResults[index], style: Theme.of(context).textTheme.labelLarge,),
           onTap: () {
             selectedResult = searchResults[index];
             callback(selectedResult);
-            AutoRouter.of(context).back();
+            AutoRouter.of(context).push(PlantDetailsRoute(
+                plant: Plant(
+                    name: selectedResult.toString(),
+                    type: "Дерево",
+                    description:
+                        "fvjnsjnsdjfnsjkfnsjdbkjbilnbknlknjlkmlmjljmlknjknjkbjkbhnv kbjlkjbnlknklnjcnsdjcnscjsdc",
+                    isTracked: true,
+                    imageUrl: "something")));
+            //AutoRouter.of(context).back();
           },
         );
       },
