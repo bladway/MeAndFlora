@@ -23,7 +23,10 @@ mixin _$Plant {
   String get name => throw _privateConstructorUsedError;
   String get type => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
-  bool get isLiked => throw _privateConstructorUsedError;
+  String? get lon => throw _privateConstructorUsedError;
+  String? get lat => throw _privateConstructorUsedError;
+  DateTime? get date => throw _privateConstructorUsedError;
+  bool get isTracked => throw _privateConstructorUsedError;
   String get imageUrl => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -40,7 +43,10 @@ abstract class $PlantCopyWith<$Res> {
       {String name,
       String type,
       String description,
-      bool isLiked,
+      String? lon,
+      String? lat,
+      DateTime? date,
+      bool isTracked,
       String imageUrl});
 }
 
@@ -60,7 +66,10 @@ class _$PlantCopyWithImpl<$Res, $Val extends Plant>
     Object? name = null,
     Object? type = null,
     Object? description = null,
-    Object? isLiked = null,
+    Object? lon = freezed,
+    Object? lat = freezed,
+    Object? date = freezed,
+    Object? isTracked = null,
     Object? imageUrl = null,
   }) {
     return _then(_value.copyWith(
@@ -76,9 +85,21 @@ class _$PlantCopyWithImpl<$Res, $Val extends Plant>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
-      isLiked: null == isLiked
-          ? _value.isLiked
-          : isLiked // ignore: cast_nullable_to_non_nullable
+      lon: freezed == lon
+          ? _value.lon
+          : lon // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lat: freezed == lat
+          ? _value.lat
+          : lat // ignore: cast_nullable_to_non_nullable
+              as String?,
+      date: freezed == date
+          ? _value.date
+          : date // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      isTracked: null == isTracked
+          ? _value.isTracked
+          : isTracked // ignore: cast_nullable_to_non_nullable
               as bool,
       imageUrl: null == imageUrl
           ? _value.imageUrl
@@ -99,7 +120,10 @@ abstract class _$$PlantImplCopyWith<$Res> implements $PlantCopyWith<$Res> {
       {String name,
       String type,
       String description,
-      bool isLiked,
+      String? lon,
+      String? lat,
+      DateTime? date,
+      bool isTracked,
       String imageUrl});
 }
 
@@ -117,7 +141,10 @@ class __$$PlantImplCopyWithImpl<$Res>
     Object? name = null,
     Object? type = null,
     Object? description = null,
-    Object? isLiked = null,
+    Object? lon = freezed,
+    Object? lat = freezed,
+    Object? date = freezed,
+    Object? isTracked = null,
     Object? imageUrl = null,
   }) {
     return _then(_$PlantImpl(
@@ -133,9 +160,21 @@ class __$$PlantImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
-      isLiked: null == isLiked
-          ? _value.isLiked
-          : isLiked // ignore: cast_nullable_to_non_nullable
+      lon: freezed == lon
+          ? _value.lon
+          : lon // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lat: freezed == lat
+          ? _value.lat
+          : lat // ignore: cast_nullable_to_non_nullable
+              as String?,
+      date: freezed == date
+          ? _value.date
+          : date // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      isTracked: null == isTracked
+          ? _value.isTracked
+          : isTracked // ignore: cast_nullable_to_non_nullable
               as bool,
       imageUrl: null == imageUrl
           ? _value.imageUrl
@@ -152,7 +191,10 @@ class _$PlantImpl extends _Plant with DiagnosticableTreeMixin {
       {required this.name,
       required this.type,
       required this.description,
-      required this.isLiked,
+      this.lon,
+      this.lat,
+      this.date,
+      this.isTracked = false,
       required this.imageUrl})
       : super._();
 
@@ -166,13 +208,20 @@ class _$PlantImpl extends _Plant with DiagnosticableTreeMixin {
   @override
   final String description;
   @override
-  final bool isLiked;
+  final String? lon;
+  @override
+  final String? lat;
+  @override
+  final DateTime? date;
+  @override
+  @JsonKey()
+  final bool isTracked;
   @override
   final String imageUrl;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Plant(name: $name, type: $type, description: $description, isLiked: $isLiked, imageUrl: $imageUrl)';
+    return 'Plant(name: $name, type: $type, description: $description, lon: $lon, lat: $lat, date: $date, isTracked: $isTracked, imageUrl: $imageUrl)';
   }
 
   @override
@@ -183,7 +232,10 @@ class _$PlantImpl extends _Plant with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('type', type))
       ..add(DiagnosticsProperty('description', description))
-      ..add(DiagnosticsProperty('isLiked', isLiked))
+      ..add(DiagnosticsProperty('lon', lon))
+      ..add(DiagnosticsProperty('lat', lat))
+      ..add(DiagnosticsProperty('date', date))
+      ..add(DiagnosticsProperty('isTracked', isTracked))
       ..add(DiagnosticsProperty('imageUrl', imageUrl));
   }
 
@@ -196,15 +248,19 @@ class _$PlantImpl extends _Plant with DiagnosticableTreeMixin {
             (identical(other.type, type) || other.type == type) &&
             (identical(other.description, description) ||
                 other.description == description) &&
-            (identical(other.isLiked, isLiked) || other.isLiked == isLiked) &&
+            (identical(other.lon, lon) || other.lon == lon) &&
+            (identical(other.lat, lat) || other.lat == lat) &&
+            (identical(other.date, date) || other.date == date) &&
+            (identical(other.isTracked, isTracked) ||
+                other.isTracked == isTracked) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, name, type, description, isLiked, imageUrl);
+  int get hashCode => Object.hash(runtimeType, name, type, description, lon,
+      lat, date, isTracked, imageUrl);
 
   @JsonKey(ignore: true)
   @override
@@ -225,7 +281,10 @@ abstract class _Plant extends Plant {
       {required final String name,
       required final String type,
       required final String description,
-      required final bool isLiked,
+      final String? lon,
+      final String? lat,
+      final DateTime? date,
+      final bool isTracked,
       required final String imageUrl}) = _$PlantImpl;
   const _Plant._() : super._();
 
@@ -238,7 +297,13 @@ abstract class _Plant extends Plant {
   @override
   String get description;
   @override
-  bool get isLiked;
+  String? get lon;
+  @override
+  String? get lat;
+  @override
+  DateTime? get date;
+  @override
+  bool get isTracked;
   @override
   String get imageUrl;
   @override
