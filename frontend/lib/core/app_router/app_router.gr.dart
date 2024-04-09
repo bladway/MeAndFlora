@@ -15,10 +15,44 @@ abstract class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
+    AccountRoute.name: (routeData) {
+      final args = routeData.argsAs<AccountRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: AccountScreen(
+          key: args.key,
+          account: args.account,
+        ),
+      );
+    },
+    CameraRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const CameraScreen(),
+      );
+    },
+    HistoryRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const HistoryScreen(),
+      );
+    },
     HomeRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const HomeScreen(),
+      );
+    },
+    NavBarAuthUserRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const NavBarAuthUserScreen(),
+      );
+    },
+    NavigationBarDefaultRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const NavigationBarDefaultScreen(),
       );
     },
     PlantDetailsRoute.name: (routeData) {
@@ -43,7 +77,79 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const SignUpScreen(),
       );
     },
+    TrackRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const TrackScreen(),
+      );
+    },
   };
+}
+
+/// generated route for
+/// [AccountScreen]
+class AccountRoute extends PageRouteInfo<AccountRouteArgs> {
+  AccountRoute({
+    Key? key,
+    required Account account,
+    List<PageRouteInfo>? children,
+  }) : super(
+          AccountRoute.name,
+          args: AccountRouteArgs(
+            key: key,
+            account: account,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'AccountRoute';
+
+  static const PageInfo<AccountRouteArgs> page =
+      PageInfo<AccountRouteArgs>(name);
+}
+
+class AccountRouteArgs {
+  const AccountRouteArgs({
+    this.key,
+    required this.account,
+  });
+
+  final Key? key;
+
+  final Account account;
+
+  @override
+  String toString() {
+    return 'AccountRouteArgs{key: $key, account: $account}';
+  }
+}
+
+/// generated route for
+/// [CameraScreen]
+class CameraRoute extends PageRouteInfo<void> {
+  const CameraRoute({List<PageRouteInfo>? children})
+      : super(
+          CameraRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'CameraRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [HistoryScreen]
+class HistoryRoute extends PageRouteInfo<void> {
+  const HistoryRoute({List<PageRouteInfo>? children})
+      : super(
+          HistoryRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'HistoryRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
@@ -56,6 +162,34 @@ class HomeRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'HomeRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [NavBarAuthUserScreen]
+class NavBarAuthUserRoute extends PageRouteInfo<void> {
+  const NavBarAuthUserRoute({List<PageRouteInfo>? children})
+      : super(
+          NavBarAuthUserRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'NavBarAuthUserRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [NavigationBarDefaultScreen]
+class NavigationBarDefaultRoute extends PageRouteInfo<void> {
+  const NavigationBarDefaultRoute({List<PageRouteInfo>? children})
+      : super(
+          NavigationBarDefaultRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'NavigationBarDefaultRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
@@ -122,6 +256,20 @@ class SignUpRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'SignUpRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [TrackScreen]
+class TrackRoute extends PageRouteInfo<void> {
+  const TrackRoute({List<PageRouteInfo>? children})
+      : super(
+          TrackRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'TrackRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }

@@ -29,6 +29,13 @@ dependencies:
   equatable: ^2.0.0
   auto_route: '7.8.4'
   auto_route_generator: ^7.3.2
+  iconsax_flutter: ^1.0.0
+  camera: ^0.10.5+9
+  image_picker: ^1.0.7
+  get_it: ^7.2.0
+  dio: ^5.4.0
+  geolocator: ^10.1.0
+  geocoding: ^2.1.1
 
 dev_dependencies:
   flutter_test:

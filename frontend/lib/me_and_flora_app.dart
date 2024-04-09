@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:me_and_flora/core/theme/theme.dart';
 
 import 'core/app_router/app_router.dart';
-import 'feature/home/presentation/home_screen.dart';
 
 class MeAndFloraApp extends StatefulWidget {
   const MeAndFloraApp({super.key});
