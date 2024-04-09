@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:me_and_flora/core/app_router/app_router.dart';
 import 'package:me_and_flora/core/theme/theme.dart';
 
-import '../../sign_up/presentation/sign_up_screen.dart';
+import '../../../core/presentation/widgets/unauth_notification.dart';
 
 @RoutePage()
 class SignInScreen extends StatefulWidget {
@@ -50,8 +50,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.black.withOpacity(0.1), Colors.black])
-            ),
+                    colors: [Colors.black.withOpacity(0.1), Colors.black])),
           ),
           SingleChildScrollView(
             padding: EdgeInsets.only(
@@ -65,11 +64,15 @@ class _SignInScreenState extends State<SignInScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Авторизация',
+                  Text(
+                    'Авторизация',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const SizedBox(height: 20,),
-                  Text('Введите логин',
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    'Введите логин',
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   TextFormField(
@@ -80,25 +83,24 @@ class _SignInScreenState extends State<SignInScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            width: 1.5,
-                            color: colors.grayGreen
-                        ),
+                        borderSide:
+                            BorderSide(width: 1.5, color: colors.grayGreen),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      counterStyle:
-                      Theme.of(context).textTheme.bodySmall,
+                      counterStyle: Theme.of(context).textTheme.bodySmall,
                     ),
-                    autovalidateMode:
-                    AutovalidateMode.onUserInteraction,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) {
                       return value != null && value.length < 6
                           ? 'Введите минимум 6 символов'
                           : null;
                     },
                   ),
-                  const SizedBox(height: 10,),
-                  Text('Введите пароль',
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Введите пароль',
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   TextFormField(
@@ -110,22 +112,21 @@ class _SignInScreenState extends State<SignInScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            width: 1.5,
-                            color: colors.grayGreen
-                        ),
+                        borderSide:
+                            BorderSide(width: 1.5, color: colors.grayGreen),
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    autovalidateMode:
-                    AutovalidateMode.onUserInteraction,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) {
                       return value != null && value.length < 6
                           ? "Введите минимум 6 символов"
                           : null;
                     },
                   ),
-                  const SizedBox(height: 20,),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Container(
@@ -134,21 +135,23 @@ class _SignInScreenState extends State<SignInScreen> {
                           gradient: LinearGradient(
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
-                              colors: [colors.lightGreen, colors.blueGreen])
-                      ),
+                              colors: [colors.lightGreen, colors.blueGreen])),
                       child: TextButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             _authenticateWithEmailAndPassword(context);
                           }
                         },
-                        child: Text('Авторизоваться',
+                        child: Text(
+                          'Авторизоваться',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10,),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -156,30 +159,36 @@ class _SignInScreenState extends State<SignInScreen> {
                       Expanded(
                         child: Container(
                             margin: const EdgeInsets.only(right: 10),
-                            child: const Divider(color: Colors.white,)
-                        ),
+                            child: const Divider(
+                              color: Colors.white,
+                            )),
                       ),
-                      Text("или",
+                      Text(
+                        "или",
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                       Expanded(
                         child: Container(
                             margin: const EdgeInsets.only(left: 10),
-                            child: const Divider(color: Colors.white,)
-                        ),
+                            child: const Divider(
+                              color: Colors.white,
+                            )),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10,),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       GestureDetector(
                         onTap: () {
-                          AutoRouter.of(context).push(const HomeRoute());
+                          _showNotification();
                         },
-                        child: Text("Войти без регистрации",
+                        child: Text(
+                          "Войти без регистрации",
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
                       ),
@@ -196,14 +205,16 @@ class _SignInScreenState extends State<SignInScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text("Ещё нет аккаунта? ",
+                Text(
+                  "Ещё нет аккаунта? ",
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
                 GestureDetector(
                   onTap: () {
                     AutoRouter.of(context).push(const SignUpRoute());
                   },
-                  child: Text("Зарегистрироваться",
+                  child: Text(
+                    "Зарегистрироваться",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -220,5 +231,16 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   void _authenticateWithEmailAndPassword(context) {
+    AutoRouter.of(context).push(const NavBarAuthUserRoute());
+  }
+
+  Future<void> _showNotification() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const UnauthNotification();
+      },
+    );
   }
 }
