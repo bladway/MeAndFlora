@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:me_and_flora/core/app_router/app_router.dart';
+import 'package:me_and_flora/core/presentation/widgets/unauth_notification.dart';
 import 'package:me_and_flora/core/theme/theme.dart';
-import 'package:me_and_flora/feature/sign_in/presentation/sign_in_screen.dart';
 
 @RoutePage()
 class SignUpScreen extends StatefulWidget {
@@ -17,6 +17,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
   final _copyPasswordController = TextEditingController();
+
+  bool isChecked = false;
 
   @override
   void dispose() {
@@ -49,8 +51,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.black.withOpacity(0.1), Colors.black])
-            ),
+                    colors: [Colors.black.withOpacity(0.1), Colors.black])),
           ),
           SingleChildScrollView(
             padding: EdgeInsets.only(
@@ -64,11 +65,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Регистрация',
+                  Text(
+                    'Регистрация',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const SizedBox(height: 20,),
-                  Text('Введите логин',
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    'Введите логин',
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   TextFormField(
@@ -79,25 +84,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            width: 1.5,
-                            color: colors.grayGreen
-                        ),
+                        borderSide:
+                            BorderSide(width: 1.5, color: colors.grayGreen),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      counterStyle:
-                      Theme.of(context).textTheme.bodySmall,
+                      counterStyle: Theme.of(context).textTheme.bodySmall,
                     ),
-                    autovalidateMode:
-                    AutovalidateMode.onUserInteraction,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) {
                       return value != null && value.length < 6
                           ? 'Введите минимум 6 символов'
                           : null;
                     },
                   ),
-                  const SizedBox(height: 10,),
-                  Text('Введите пароль',
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Введите пароль',
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   TextFormField(
@@ -109,23 +113,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            width: 1.5,
-                            color: colors.grayGreen
-                        ),
+                        borderSide:
+                            BorderSide(width: 1.5, color: colors.grayGreen),
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    autovalidateMode:
-                    AutovalidateMode.onUserInteraction,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) {
                       return value != null && value.length < 6
                           ? "Введите минимум 6 символов"
                           : null;
                     },
                   ),
-                  const SizedBox(height: 10,),
-                  Text('Повторите пароль',
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Повторите пароль',
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   TextFormField(
@@ -137,23 +141,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            width: 1.5,
-                            color: colors.grayGreen
-                        ),
+                        borderSide:
+                            BorderSide(width: 1.5, color: colors.grayGreen),
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    autovalidateMode:
-                    AutovalidateMode.onUserInteraction,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) {
-                      return value != null &&
-                          value != _passwordController.text
+                      return value != null && value != _passwordController.text
                           ? "Пароли не совпадают"
                           : null;
                     },
                   ),
-                  const SizedBox(height: 20,),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Checkbox(
+                        activeColor: colors.lightGreen,
+                        //checkColor: colors.lightGreen,
+                        value: isChecked,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            isChecked = !isChecked;
+                          });
+                        },
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          _showDocument();
+                        },
+                        child: Text(
+                          "Пользовательское соглашение",
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Container(
@@ -162,52 +191,60 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           gradient: LinearGradient(
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
-                              colors: [colors.lightGreen, colors.blueGreen])
-                      ),
+                              colors: [colors.lightGreen, colors.blueGreen])),
                       child: TextButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             _authenticateWithEmailAndPassword(context);
                           }
                         },
-                        child: Text('Зарегистрироваться',
+                        child: Text(
+                          'Зарегистрироваться',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10,),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Expanded(
-                          child: Container(
+                        child: Container(
                             margin: const EdgeInsets.only(right: 10),
-                              child: const Divider(color: Colors.white,)
-                          ),
+                            child: const Divider(
+                              color: Colors.white,
+                            )),
                       ),
-                      Text("или",
-                          style: Theme.of(context).textTheme.titleSmall,
+                      Text(
+                        "или",
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
                       Expanded(
-                          child: Container(
+                        child: Container(
                             margin: const EdgeInsets.only(left: 10),
-                              child: const Divider(color: Colors.white,)
-                          ),
+                            child: const Divider(
+                              color: Colors.white,
+                            )),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10,),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       GestureDetector(
                         onTap: () {
-                          AutoRouter.of(context).push(const HomeRoute());
+                          _showNotification();
                         },
-                        child: Text("Войти без регистрации",
+                        child: Text(
+                          "Войти без регистрации",
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
                       ),
@@ -224,14 +261,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text("Уже есть аккаунт? ",
+                Text(
+                  "Уже есть аккаунт? ",
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
                 GestureDetector(
                   onTap: () {
                     AutoRouter.of(context).push(const SignInRoute());
                   },
-                  child: Text("Авторизоваться",
+                  child: Text(
+                    "Авторизоваться",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -247,6 +286,59 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  void _authenticateWithEmailAndPassword(context) {
+  void _authenticateWithEmailAndPassword(context) {}
+
+  Future<void> _showNotification() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const UnauthNotification();
+      },
+    );
+  }
+
+  Future<void> _showDocument() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          surfaceTintColor: Colors.transparent,
+          title: Text(
+            'Пользовательское соглашение',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  'текст',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+                onPressed: () {
+                  setState(() {
+                    isChecked = true;
+                  });
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Согласен",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: colors.lightGreen,
+                  ),
+                )),
+          ],
+        );
+      },
+    );
   }
 }
