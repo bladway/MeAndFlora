@@ -15,6 +15,20 @@ services:
       - POSTGRES_PASSWORD=${PG_PASSWORD}
     volumes:
       - MeAndFlora-Database:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:7.0.8
+    container_name: MeAndFlora-Mongo
+    hostname: mongo
+    restart: always
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_DATABASE=MeAndFlora
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=${MG_PASSWORD}
+    volumes:
+      - MeAndFlora-Mongo:/data/db
       
   redis:
     image: bitnami/redis:7.2.4
@@ -63,6 +77,8 @@ services:
       - ./kafka_server_jaas.conf:/etc/kafka/configs/kafka_server_jaas.conf
     depends_on:
       - zookeeper
+    
+  
 
   MainServer:
     image: bladway/maf-mainserver
@@ -80,6 +96,13 @@ volumes:
       type: none
       o: bind
       device: /server/MeAndFlora-Database
+  MeAndFlora-Mongo:
+    name: MeAndFlora-Mongo
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: /server/MeAndFlora-Mongo
   MeAndFlora-Cachebase:
     name: MeAndFlora-Cachebase
     driver: local

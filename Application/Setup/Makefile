@@ -11,12 +11,14 @@ rm:
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./hidden.env stop && \
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./hidden.env rm -f && \
 	docker volume rm MeAndFlora-Database && \
+	docker volume rm MeAndFlora-Mongo && \
 	docker volume rm MeAndFlora-Cachebase
 
 
 up:
 	sudo mkdir /server
 	sudo mkdir  /server/MeAndFlora-Database && \
+	sudo mkdir /server/MeAndFlora-Mongo && \
 	sudo mkdir /server/MeAndFlora-Cachebase && \
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./hidden.env up -d
 
