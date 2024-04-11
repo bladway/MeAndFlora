@@ -77,8 +77,6 @@ services:
       - ./kafka_server_jaas.conf:/etc/kafka/configs/kafka_server_jaas.conf
     depends_on:
       - zookeeper
-    
-  
 
   MainServer:
     image: bladway/maf-mainserver
@@ -87,6 +85,9 @@ services:
     restart: always
     ports:
       - "8080:8080"
+    volumes:
+      - MeAndFlora-Images:/images
+    command: ["mkdir", "/images"]
 
 volumes:
   MeAndFlora-Database:
@@ -110,3 +111,10 @@ volumes:
       type: none
       o: bind
       device: /server/MeAndFlora-Cachebase
+  MeAndFlora-Images:
+    name: MeAndFlora-Images
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: /server/MeAndFlora-Images
