@@ -1,29 +1,42 @@
 package ru.vsu.cs.MeAndFlora.MainServer.entity;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "MAF_USER")
-@AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class MafUser {
+
+    public MafUser(String login, String password, boolean isAdmin, boolean isBotanist) {
+        this.login = login;
+        this.password = password;
+        this.isAdmin = isAdmin;
+        this.isBotanist = isBotanist;
+    }
+
     @Id
     @Column(name = "LOGIN", nullable = false)
-    String login;
+    private String login;
+
+    @OneToMany(mappedBy = "user")
+    private List<USession> sessionList;
 
     @Column(name = "PASSWORD", nullable = false)
-    String password;
+    private String password;
 
     @Column(name = "IS_ADMIN", nullable = false)
-    boolean isAdmin;
+    private boolean isAdmin;
 
     @Column(name = "IS_BOTANIST", nullable = false)
-    boolean isBotanist;
+    private boolean isBotanist;
+
 }
