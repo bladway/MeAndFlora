@@ -2,6 +2,8 @@ package ru.vsu.cs.MeAndFlora.MainServer.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.exception.ApplicationException;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
@@ -14,34 +16,59 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @RequiredArgsConstructor
 @RestController
+@Tag(name = "Сontroller responsible for user authorization and working with sessions")
 @RequestMapping(path = "/auth")
 class AuthorizationController {
 
     private final AuthorizationService authorizationService;
 
+    @Operation(description = "User registration and automatic login. Returns sessionid + httpstatus - ok if successful"
+    + "and error message + httpstatus - unauthorized otherwise")
     @PostMapping("/register")
     public ResponseEntity<?> regiter(@RequestParam String login, @RequestParam String password, @RequestParam String ipAddress) {
         try {
-            authorizationService.register(login, password, ipAddress);
-            return new ResponseEntity<>(HttpStatus.OK);
+            Long sessionId = authorizationService.register(login, password, ipAddress);
+            return new ResponseEntity<>(sessionId, HttpStatus.OK);
         } catch (ApplicationException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         }
     }
 
-    /*@PostMapping("/login")
+    @Operation(description = "User login. Returns sessionid + httpstatus - ok if successful" 
+    + "and error message + httpstatus - unauthorized otherwise")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestParam String login, @RequestParam String password, @RequestParam String ipAddress) {
-        return new ResponseEntity<>(authorizationService.login(login, password, ipAddress));
+        try {
+            Long sessionId = authorizationService.login(login, password, ipAddress);
+            return new ResponseEntity<>(sessionId, HttpStatus.OK);
+        } catch (ApplicationException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
     }
 
+    @Operation(description = "Anonymus login. Returns sessionid + httpstatus - ok if successful" 
+    + "and error message + httpstatus - unauthorized otherwise")
     @PostMapping("/anonymus")
     public ResponseEntity<?> anonymusLogin(@RequestParam String ipAddress) {
-        return new ResponseEntity<>(authorizationService.anonymusLogin(ipAddress));
+        try {
+            Long sessionId = authorizationService.anonymusLogin(ipAddress);
+            return new ResponseEntity<>(sessionId, HttpStatus.OK);
+        } catch (ApplicationException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
     }
 
+    @Operation(description = "Notifying the server that the user has disconnected from the session."  
+    + "Returns sessionid + httpstatus - ok if successful" 
+    + "and error message + httpstatus - unauthorized otherwise")
     @PostMapping("/exited")
-    public ResponseEntity<?> userExit(@RequestParam String ipAddress) {
-        return new ResponseEntity<>(authorizationService.userExit(ipAddress));
-    }*/
+    public ResponseEntity<?> userExit(@RequestParam Long sessionId) {
+        try {
+            Long thisSessionId = authorizationService.userExit(sessionId);
+            return new ResponseEntity<>(thisSessionId, HttpStatus.OK);
+        } catch (ApplicationException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+    }
     
 }

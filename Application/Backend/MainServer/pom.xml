@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ru.vsu.cs.MeAndFlora</groupId>
 	<artifactId>MainServer</artifactId>
-	<version>test</version>
+	<version>${spring.version}</version>
 	<name>MainServer</name>
 	<description>Main springboot Server of the MeAndFlora project</description>
 	<properties>
@@ -58,9 +58,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-boot-starter</artifactId>
-			<version>3.0.0</version>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

@@ -1,6 +1,7 @@
 spring:
   application:
     name: MainServer
+  version: 1.1-test-4
   profiles:
     include: hidden
   datasource:
@@ -12,6 +13,14 @@ spring:
       ddl-auto: update
     show-sql: true
     database: postgresql
+  error-messages:
+    badlogin: badlogin
+    badpassword: badpassword
+    badip: badip
+    usrnotfound: usrnotfound
+    sessionidproblem: sessionidproblem
+    doublelogin: doublelogin
 
 docker:
   login: bladway
+
