@@ -5,6 +5,8 @@ server:
     key-store-password: ${MAINSERVER_SSL_PASSWORD}
   port: ${MAINSERVER_PORT}
 logging:
+  level:
+    '[org.springframework.security]': trace
   file:
     name: MainServer.log
 spring:
@@ -18,10 +20,14 @@ spring:
       ddl-auto: update
     show-sql: true
     database: postgresql
-  error-messages:
+error-messages:
+  auth:
     badlogin: badlogin
     badpassword: badpassword
     badip: badip
     usrnotfound: usrnotfound
     sessionidproblem: sessionidproblem
     doublelogin: doublelogin
+jwt:
+  password: ${MAINSERVER_JWT_PASSWORD}
+  lifetime: ${MAINSERVER_JWT_LIFETIME}

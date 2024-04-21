@@ -3,9 +3,9 @@ package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 import java.util.Optional;
 
 import org.apache.commons.validator.routines.InetAddressValidator;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import ru.vsu.cs.MeAndFlora.MainServer.config.AuthPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.entity.MafUser;
 import ru.vsu.cs.MeAndFlora.MainServer.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.exception.ApplicationException;
@@ -16,48 +16,46 @@ import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
 @Service
 public class AuthorizationServiceImpl implements AuthorizationService {
 
-    public AuthorizationServiceImpl(MafUserRepository mafUserRepository, USessionRepository uSessionRepository) {
+    public AuthorizationServiceImpl(
+        MafUserRepository mafUserRepository, 
+        USessionRepository uSessionRepository,
+        AuthPropertiesConfig authPropertiesConfig
+    ) {
         this.mafUserRepository = mafUserRepository;
         this.uSessionRepository = uSessionRepository;
+        this.authPropertiesConfig = authPropertiesConfig;
     }
 
     private final MafUserRepository mafUserRepository;
     
     private final USessionRepository uSessionRepository;
 
-    @Value("${spring.error-messages.badlogin}")
-    private String badlogin;
-
-    @Value("${spring.error-messages.badpassword}")
-    private String badpassword;
-
-    @Value("${spring.error-messages.badip}")
-    private String badip;
-
-    @Value("${spring.error-messages.usrnotfound}")
-    private String usrnotfound;
-
-    @Value("${spring.error-messages.sessionidproblem}")
-    private String sessionidproblem;
-
-    @Value("${spring.error-messages.doublelogin}")
-    private String doublelogin;
+    private final AuthPropertiesConfig authPropertiesConfig;
 
     private void loginValidation(String login) {
         if (login.length() < 6 || login.length() > 25) {
-            throw new ApplicationException(badlogin);
+            throw new ApplicationException(
+                authPropertiesConfig.getBadlogin(), 
+            "login does not match expected length: 6 - 25"
+            );
         }
     }
 
     private void passwordValidation(String password) {
         if (password.length() < 6 || password.length() > 25) {
-            throw new ApplicationException(badpassword);
+            throw new ApplicationException(
+                authPropertiesConfig.getBadpassword(),
+                "password does not match expected length: 6 - 25"    
+            );
         }
     }
 
     private void ipAddressValidation(String ipAddress) {
         if (!InetAddressValidator.getInstance().isValidInet4Address(ipAddress)) {
-            throw new ApplicationException(badip);
+            throw new ApplicationException(
+                authPropertiesConfig.getBadip(),
+                "ip address does not match expected template: 0-255.0-255.0-255.0-255"
+            );
         }
     }
 
@@ -65,7 +63,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public Long register(String login, String password, String ipAddress) {
         loginValidation(login);
         mafUserRepository.findById(login).ifPresent(
-            mafUser -> {throw new ApplicationException(doublelogin);}
+            mafUser -> {
+                throw new ApplicationException(
+                    authPropertiesConfig.getDoublelogin(),
+                    "such login exists in the database"
+                );
+            }
         );
         passwordValidation(password);
         ipAddressValidation(ipAddress);
@@ -80,7 +83,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         ipAddressValidation(ipAddress);
         Optional<MafUser> user = mafUserRepository.findById(login);
         if (!user.isPresent()) {
-            throw new ApplicationException(usrnotfound);
+            throw new ApplicationException(
+                authPropertiesConfig.getUsrnotfound(),
+                "this user has not found in the database"
+            );
         }
         return uSessionRepository.save(new USession(user.get(), ipAddress, false)).getSessionId();
     }
@@ -95,7 +101,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public Long userExit(Long sessionId) {
         Optional<USession> sessionToClose = uSessionRepository.findById(sessionId);
         if (!sessionToClose.isPresent() || sessionToClose.get().isClosed()) {
-            throw new ApplicationException(sessionidproblem);
+            throw new ApplicationException(
+                authPropertiesConfig.getSessionidproblem(),
+                "session has already closed or does not exists in the database"
+            );
         }
         USession lastSession = sessionToClose.get();
         lastSession.setClosed(true);
