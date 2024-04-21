@@ -1,6 +1,6 @@
 # Attention, before using commands
 # make sure you have received or done the correct files:
-# hidden.env, kafka_server_jaas.conf
+# deployment.env, kafka_server_jaas.conf
 
 include deployment.env
 
