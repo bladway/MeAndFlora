@@ -1,6 +1,6 @@
 server:
   ssl:
-    key-store: src/main/resources/ssl/MeAndFlora-SSL.p12
+    key-store: ${MAINSERVER_SSL_PATH}
     key-store-type: PKCS12
     key-store-password: ${MAINSERVER_SSL_PASSWORD}
   port: ${MAINSERVER_PORT}
