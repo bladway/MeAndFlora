@@ -6,8 +6,14 @@ log/
 !**/src/test/**/target/
 
 ### Hidden file with personal information ###
-src/main/resources/application-hidden.yml
+*.env
+
+### Hidden spring profile for tests ###
+src/test/resources/application-test.yml
+
 src/main/resources/META-INF/
+MainServer.log
+
 
 ### STS ###
 .apt_generated

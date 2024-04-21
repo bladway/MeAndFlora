@@ -10,9 +10,9 @@
 	</parent>
 	<groupId>ru.vsu.cs.MeAndFlora</groupId>
 	<artifactId>MainServer</artifactId>
-	<version>${spring.version}</version>
 	<name>MainServer</name>
 	<description>Main springboot Server of the MeAndFlora project</description>
+	<packaging>jar</packaging>
 	<properties>
 		<java.version>19</java.version>
 	</properties>
@@ -75,6 +75,7 @@
 	</dependencies>
 
 	<build>
+   		<finalName>MainServer-${MAINSERVER_VERSION}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -85,40 +86,6 @@
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>jib-maven-plugin</artifactId>
 				<version>3.4.1</version>
-				<configuration>
-					<from>
-						<image>openjdk:22-ea-19-slim-bullseye</image>
-						<auth>
-							<username>${docker.login}</username>
-							<password>${docker.password}</password>
-						</auth>
-					</from>
-					<to>
-						<auth>
-							<username>${docker.login}</username>
-							<password>${docker.password}</password>
-    					</auth>
-					</to>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>it.ozimov</groupId>
-				<artifactId>yaml-properties-maven-plugin</artifactId>
-				<version>1.1.3</version>
-				<executions>
-					<execution>
-						<phase>initialize</phase>
-						<goals>
-							<goal>read-project-properties</goal>
-						</goals>
-						<configuration>
-							<files>
-								<file>src/main/resources/application.yml</file>
-								<file>src/main/resources/application-hidden.yml</file>
-							</files>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

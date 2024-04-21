@@ -8,12 +8,12 @@ import io.swagger.v3.oas.annotations.info.Info;
     info = @Info(
         contact = @Contact(
             name = "bladway",
-            email = "shepliakov_vlad@mai.ru",
+            email = "shepliakov_vlad@mail.ru",
             url = "https://github.com/bladway"
         ),
         description = "Swagger documentation for MeAndFlora-MainServer",
         title = "Swagger - MainServer",
-        version = "${spring.version}"
+        version = "${MAINSERVER_VERSION}"
     ) 
 )
 public class SwaggerConfig {

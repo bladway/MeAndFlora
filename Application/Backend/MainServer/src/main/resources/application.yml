@@ -1,13 +1,18 @@
+server:
+  ssl:
+    key-store: src/main/resources/ssl/MeAndFlora-SSL.p12
+    key-store-type: PKCS12
+    key-store-password: ${MAINSERVER_SSL_PASSWORD}
+  port: ${MAINSERVER_PORT}
+logging:
+  file:
+    name: MainServer.log
 spring:
-  application:
-    name: MainServer
-  version: 1.1
-  profiles:
-    include: hidden
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres:5432/MeAndFlora
-    username: admin
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,7 +25,3 @@ spring:
     usrnotfound: usrnotfound
     sessionidproblem: sessionidproblem
     doublelogin: doublelogin
-
-docker:
-  login: bladway
-
