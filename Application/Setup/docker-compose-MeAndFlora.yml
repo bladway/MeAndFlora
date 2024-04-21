@@ -8,11 +8,11 @@ services:
     hostname: postgres
     restart: always
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     environment:
-      - POSTGRES_DB=MeAndFlora
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - MeAndFlora-Database:/var/lib/postgresql/data
 
@@ -22,11 +22,11 @@ services:
     hostname: mongo
     restart: always
     ports:
-      - '27017:27017'
+      - '${MONGO_PORT}:${MONGO_PORT}'
     environment:
-      - MONGO_INITDB_DATABASE=MeAndFlora
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=${MG_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
     volumes:
       - MeAndFlora-Mongo:/data/db
       
@@ -36,10 +36,10 @@ services:
     hostname: redis
     restart: always
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:${REDIS_PORT}"
     environment:
-      - REDIS_PORT_NUMBER=6379
-      - REDIS_PASSWORD=${RS_PASSWORD}
+      - REDIS_PORT_NUMBER=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - ALLOW_EMPTY_PASSWORD=no
     volumes:
       - MeAndFlora-Cachebase:/bitnami/redis/data
@@ -50,7 +50,7 @@ services:
     hostname: zookeeper
     restart: always
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_PORT_INTERNAL}
       ZOOKEEPER_TICK_TIME: 2000
 
   kafka:
@@ -65,7 +65,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       ZOOKEEPER_SASL_ENABLED: false
-      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://${VM_IP}:9092,INTERNAL://localhost:9093,CONTAINER://kafka:9094
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://${SERVER_IP}:${KAFKA_PORT_EXTERNAL},INTERNAL://localhost:${KAFKA_PORT_INTERNAL},CONTAINER://kafka:${KAFKA_PORT_CONTAINER}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:SASL_PLAINTEXT,INTERNAL:PLAINTEXT,CONTAINER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: CONTAINER
       #KAFKA_SECURITY_INTER_BROKER_PROTOCOL: SASL_PLAINTEXT
@@ -84,7 +84,14 @@ services:
     hostname: MainServer
     restart: always
     ports:
-      - "8080:8080"
+      - "${MAINSERVER_PORT}:${MAINSERVER_PORT}"
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      MAINSERVER_PORT: ${MAINSERVER_PORT}
     volumes:
       - MeAndFlora-Images:/images
     command: ["mkdir", "/images"]
