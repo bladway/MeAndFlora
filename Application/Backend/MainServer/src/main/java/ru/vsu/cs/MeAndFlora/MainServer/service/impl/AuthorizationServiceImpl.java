@@ -1,17 +1,11 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import javax.crypto.SecretKey;
-
 import org.apache.commons.validator.routines.InetAddressValidator;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import ru.vsu.cs.MeAndFlora.MainServer.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.AuthPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ApplicationException;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.MafUserRepository;
@@ -26,11 +20,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public AuthorizationServiceImpl(
         MafUserRepository mafUserRepository, 
         USessionRepository uSessionRepository,
-        AuthPropertiesConfig authPropertiesConfig
+        AuthPropertiesConfig authPropertiesConfig,
+        JwtUtil jwtUtil
     ) {
         this.mafUserRepository = mafUserRepository;
         this.uSessionRepository = uSessionRepository;
         this.authPropertiesConfig = authPropertiesConfig;
+        this.jwtUtil = jwtUtil;
     }
 
     private final MafUserRepository mafUserRepository;
@@ -39,8 +35,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private final AuthPropertiesConfig authPropertiesConfig;
 
-    @Value("${jwt.password}")
-    private String password;
+    private final JwtUtil jwtUtil;
 
     private void loginValidation(String login) {
         if (login.length() < 6 || login.length() > 25) {
@@ -69,27 +64,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
     }
 
-    private Claims getClaimsIdFromToken(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(password.getBytes(StandardCharsets.UTF_8));
-        return Jwts.parser()
-            .verifyWith(key)
-            .build()
-            .parseSignedClaims(token)
-            .getPayload();
-    }
-
-    public String generateToken(Long sessionId) {
-        SecretKey key = Keys.hmacShaKeyFor(password.getBytes(StandardCharsets.UTF_8));
-        return Jwts.builder()
-            .claim("sessionId", sessionId.toString())
-            .signWith(key)
-            .compact();
-    }
-
-    public Long getSessionIdFromToken(String token) {
-        return getClaimsIdFromToken(token).get("sessionId", Long.class);
-    }
-
     @Override
     public String register(String login, String password, String ipAddress) {
         loginValidation(login);
@@ -107,7 +81,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         MafUser user = mafUserRepository.save(new MafUser(login, password, false, false));
 
         USession session = uSessionRepository.save(new USession(user, ipAddress, false, ""));
-        session.setJwt(generateToken(session.getSessionId()));
+        session.setJwt(jwtUtil.generateToken(session.getSessionId()));
         return uSessionRepository.save(session).getJwt();
     }
 
@@ -124,12 +98,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             );
         }
         USession session = uSessionRepository.save(new USession(user.get(), ipAddress, false, ""));
-        session.setJwt(generateToken(session.getSessionId()));
+        session.setJwt(jwtUtil.generateToken(session.getSessionId()));
         return uSessionRepository.save(session).getJwt();
     }
 
     @Override
-    public String anonymusLogin(String ipAddress) {
+    public String anonymousLogin(String ipAddress) {
         ipAddressValidation(ipAddress);
         return uSessionRepository.save(new USession(null, ipAddress, false, "")).getJwt();
     }

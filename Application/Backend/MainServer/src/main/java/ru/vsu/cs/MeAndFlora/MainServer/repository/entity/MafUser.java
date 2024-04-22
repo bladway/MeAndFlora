@@ -27,9 +27,6 @@ public class MafUser {
     @Column(name = "LOGIN", nullable = false)
     private String login;
 
-    @OneToMany(mappedBy = "user")
-    private List<USession> sessionList;
-
     @Column(name = "PASSWORD", nullable = false)
     private String password;
 
@@ -39,4 +36,6 @@ public class MafUser {
     @Column(name = "IS_BOTANIST", nullable = false)
     private boolean isBotanist;
 
+    @OneToMany(mappedBy = "user")
+    private List<USession> sessionList;
 }

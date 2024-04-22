@@ -1,6 +1,7 @@
 package ru.vsu.cs.MeAndFlora.MainServer.repository.entity;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,10 +35,6 @@ public class USession {
     @Column(name = "SESSION_ID", nullable = false)
     private Long sessionId;
 
-    @ManyToOne
-    @JoinColumn(name = "LOGIN", foreignKey = @ForeignKey)
-    private MafUser user;
-
     @Column(name = "IP_ADDRESS", nullable = false)
     private String ipAddress;
 
@@ -48,5 +46,12 @@ public class USession {
 
     @Column(name = "JWT", nullable = false, unique = true)
     private String jwt;
+    
+    @ManyToOne
+    @JoinColumn(name = "LOGIN", foreignKey = @ForeignKey)
+    private MafUser user;
+
+    @OneToMany(mappedBy = "session")
+    private List<ProcRequest> procRequestList;
     
 }

@@ -87,13 +87,13 @@ class AuthorizationController {
         }
     }
 
-    @Operation(description = "Anonymus login. Returns jwt + httpstatus - ok if successful" 
+    @Operation(description = "Anonymous login. Returns jwt + httpstatus - ok if successful" 
     + " and error message + httpstatus - unauthorized otherwise")
-    @PostMapping("/anonymus")
-    public ResponseEntity<?> anonymusLogin(@RequestBody UnnamedAuthDto dto) {
+    @PostMapping("/anonymous")
+    public ResponseEntity<?> anonymousLogin(@RequestBody UnnamedAuthDto dto) {
         try {
 
-            String token = authorizationService.anonymusLogin(dto.getIpAddress());
+            String token = authorizationService.anonymousLogin(dto.getIpAddress());
             JwtDto responseDto = new JwtDto(token);
 
             authorizationControllerLogger.info(
@@ -107,7 +107,7 @@ class AuthorizationController {
                 new ApplicationExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             authorizationControllerLogger.warn(
-                "Anonymus login on ip: " + dto.getIpAddress() + " failed with message: " + e.getMessage()
+                "Anonymous login on ip: " + dto.getIpAddress() + " failed with message: " + e.getMessage()
             );
             return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
 
