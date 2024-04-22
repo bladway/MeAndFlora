@@ -1,4 +1,4 @@
-package ru.vsu.cs.MeAndFlora.MainServer.exception;
+package ru.vsu.cs.MeAndFlora.MainServer.config.exception;
 
 import java.time.OffsetDateTime;
 

@@ -1,16 +1,23 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+import javax.crypto.SecretKey;
+
 import org.apache.commons.validator.routines.InetAddressValidator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import ru.vsu.cs.MeAndFlora.MainServer.config.AuthPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.entity.MafUser;
-import ru.vsu.cs.MeAndFlora.MainServer.entity.USession;
-import ru.vsu.cs.MeAndFlora.MainServer.exception.ApplicationException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ApplicationException;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.MafUserRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
+import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
+import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
 
 @Service
@@ -31,6 +38,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private final USessionRepository uSessionRepository;
 
     private final AuthPropertiesConfig authPropertiesConfig;
+
+    @Value("${jwt.password}")
+    private String password;
 
     private void loginValidation(String login) {
         if (login.length() < 6 || login.length() > 25) {
@@ -59,8 +69,29 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
     }
 
+    private Claims getClaimsIdFromToken(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(password.getBytes(StandardCharsets.UTF_8));
+        return Jwts.parser()
+            .verifyWith(key)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
+    }
+
+    public String generateToken(Long sessionId) {
+        SecretKey key = Keys.hmacShaKeyFor(password.getBytes(StandardCharsets.UTF_8));
+        return Jwts.builder()
+            .claim("sessionId", sessionId.toString())
+            .signWith(key)
+            .compact();
+    }
+
+    public Long getSessionIdFromToken(String token) {
+        return getClaimsIdFromToken(token).get("sessionId", Long.class);
+    }
+
     @Override
-    public Long register(String login, String password, String ipAddress) {
+    public String register(String login, String password, String ipAddress) {
         loginValidation(login);
         mafUserRepository.findById(login).ifPresent(
             mafUser -> {
@@ -72,12 +103,16 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         );
         passwordValidation(password);
         ipAddressValidation(ipAddress);
+
         MafUser user = mafUserRepository.save(new MafUser(login, password, false, false));
-        return uSessionRepository.save(new USession(user, ipAddress, false)).getSessionId();
+
+        USession session = uSessionRepository.save(new USession(user, ipAddress, false, ""));
+        session.setJwt(generateToken(session.getSessionId()));
+        return uSessionRepository.save(session).getJwt();
     }
 
     @Override
-    public Long login(String login, String password, String ipAddress) {
+    public String login(String login, String password, String ipAddress) {
         loginValidation(login);
         passwordValidation(password);
         ipAddressValidation(ipAddress);
@@ -88,18 +123,20 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 "this user has not found in the database"
             );
         }
-        return uSessionRepository.save(new USession(user.get(), ipAddress, false)).getSessionId();
+        USession session = uSessionRepository.save(new USession(user.get(), ipAddress, false, ""));
+        session.setJwt(generateToken(session.getSessionId()));
+        return uSessionRepository.save(session).getJwt();
     }
 
     @Override
-    public Long anonymusLogin(String ipAddress) {
+    public String anonymusLogin(String ipAddress) {
         ipAddressValidation(ipAddress);
-        return uSessionRepository.save(new USession(null, ipAddress, false)).getSessionId();
+        return uSessionRepository.save(new USession(null, ipAddress, false, "")).getJwt();
     }
 
     @Override
-    public Long userExit(Long sessionId) {
-        Optional<USession> sessionToClose = uSessionRepository.findById(sessionId);
+    public String userExit(String token) {
+        Optional<USession> sessionToClose = uSessionRepository.findByJwtAndIsClosed(token, false);
         if (!sessionToClose.isPresent() || sessionToClose.get().isClosed()) {
             throw new ApplicationException(
                 authPropertiesConfig.getSessionidproblem(),
@@ -108,7 +145,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
         USession lastSession = sessionToClose.get();
         lastSession.setClosed(true);
-        return uSessionRepository.save(lastSession).getSessionId();
+        
+        return uSessionRepository.save(lastSession).getJwt();
     }
 
 }

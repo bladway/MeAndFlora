@@ -1,4 +1,6 @@
-package ru.vsu.cs.MeAndFlora.MainServer.entity;
+package ru.vsu.cs.MeAndFlora.MainServer.repository.entity;
+
+import java.time.OffsetDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,10 +20,12 @@ import lombok.NoArgsConstructor;
 @Data
 public class USession {
 
-    public USession(MafUser user, String ipAddress, boolean isClosed) {
+    public USession(MafUser user, String ipAddress, boolean isClosed, String jwt) {
         this.user = user;
         this.ipAddress = ipAddress;
         this.isClosed = isClosed;
+        this.createdTime = OffsetDateTime.now();
+        this.jwt = jwt;
     }
 
     @Id
@@ -38,4 +42,11 @@ public class USession {
 
     @Column(name = "IS_CLOSED", nullable = false)
     private boolean isClosed;
+
+    @Column(name = "CREATED_TIME", nullable = false)
+    private OffsetDateTime createdTime;
+
+    @Column(name = "JWT", nullable = false, unique = true)
+    private String jwt;
+    
 }

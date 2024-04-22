@@ -1,4 +1,4 @@
-package ru.vsu.cs.MeAndFlora.MainServer.entity;
+package ru.vsu.cs.MeAndFlora.MainServer.repository.entity;
 
 import java.util.List;
 

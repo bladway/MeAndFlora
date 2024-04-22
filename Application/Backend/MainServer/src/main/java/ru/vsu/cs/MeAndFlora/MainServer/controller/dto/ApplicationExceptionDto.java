@@ -1,4 +1,4 @@
-package ru.vsu.cs.MeAndFlora.MainServer.dto;
+package ru.vsu.cs.MeAndFlora.MainServer.controller.dto;
 
 import java.time.OffsetDateTime;
 import lombok.Data;
