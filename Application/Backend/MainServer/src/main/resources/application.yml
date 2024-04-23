@@ -31,5 +31,8 @@ jwt:
   password: ${MAINSERVER_JWT_PASSWORD}
   lifetime: ${MAINSERVER_JWT_LIFETIME}
   expired: expired
+  badjwt: badjwt
+rights:
+  norights: norights
 images:
   path: ${MAINSERVER_IMAGES_PATH}

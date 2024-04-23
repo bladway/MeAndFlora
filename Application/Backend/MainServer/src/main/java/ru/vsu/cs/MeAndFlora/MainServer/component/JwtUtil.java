@@ -9,8 +9,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import ru.vsu.cs.MeAndFlora.MainServer.config.JwtPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
 
 @Component
 @RequiredArgsConstructor
@@ -43,7 +43,7 @@ public class JwtUtil {
         if (Duration.between(createdTime, OffsetDateTime.now()).compareTo(jwtPropertiesConfig.getLifetime()) > 0) {
             return true;
         } else {
-            return true;
+            return false;
         }
     }
 }

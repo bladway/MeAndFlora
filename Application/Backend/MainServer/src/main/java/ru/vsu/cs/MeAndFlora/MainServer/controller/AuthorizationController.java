@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ApplicationException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.JwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.NamedAuthDto;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(path = "/auth")
 class AuthorizationController {
 
-    public static final Logger authorizationControllerLogger = 
+    public static final Logger authorizationLogger = 
         LoggerFactory.getLogger(AuthorizationController.class);
 
     private final AuthorizationService authorizationService;
@@ -41,17 +41,17 @@ class AuthorizationController {
             String token = authorizationService.register(dto.getLogin(), dto.getPassword(), dto.getIpAddress());
             JwtDto responseDto = new JwtDto(token);
 
-            authorizationControllerLogger.info(
+            authorizationLogger.info(
                 "Register with username: " + dto.getLogin() + " is successful"
             );
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
 
-        } catch (ApplicationException e) {
+        } catch (AuthException e) {
 
             ExceptionDto exceptionDto = 
                 new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            authorizationControllerLogger.warn(
+            authorizationLogger.warn(
                 "Register with username: " + dto.getLogin() + " failed with message: " + e.getMessage()
             );
             return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
@@ -69,17 +69,17 @@ class AuthorizationController {
             String token = authorizationService.login(dto.getLogin(), dto.getPassword(), dto.getIpAddress());
             JwtDto responseDto = new JwtDto(token);
 
-            authorizationControllerLogger.info(
+            authorizationLogger.info(
                 "Login with username: " + dto.getLogin() + " is successful"
             );
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
 
-        } catch (ApplicationException e) {
+        } catch (AuthException e) {
 
             ExceptionDto exceptionDto =
                 new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            authorizationControllerLogger.warn(
+            authorizationLogger.warn(
                 "Login with username: " + dto.getLogin() + " failed with message: " + e.getMessage()
             );
             return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
@@ -96,17 +96,17 @@ class AuthorizationController {
             String token = authorizationService.anonymousLogin(dto.getIpAddress());
             JwtDto responseDto = new JwtDto(token);
 
-            authorizationControllerLogger.info(
+            authorizationLogger.info(
                 "Anonymus login on ip: " + dto.getIpAddress() + " is successful"
             );
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
 
-        } catch (ApplicationException e) {
+        } catch (AuthException e) {
 
             ExceptionDto exceptionDto =
                 new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            authorizationControllerLogger.warn(
+            authorizationLogger.warn(
                 "Anonymous login on ip: " + dto.getIpAddress() + " failed with message: " + e.getMessage()
             );
             return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
@@ -125,17 +125,17 @@ class AuthorizationController {
 
             JwtDto responseDto = new JwtDto(token);
 
-            authorizationControllerLogger.info(
+            authorizationLogger.info(
                 "User with token: " + dto.getToken() + " exited successful"
             );
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
 
-        } catch (ApplicationException e) {
+        } catch (AuthException e) {
 
             ExceptionDto exceptionDto =
                 new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            authorizationControllerLogger.warn(
+            authorizationLogger.warn(
                 "User with token: " + dto.getToken() + " not exited. Message: " + e.getMessage()
             );
             return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);

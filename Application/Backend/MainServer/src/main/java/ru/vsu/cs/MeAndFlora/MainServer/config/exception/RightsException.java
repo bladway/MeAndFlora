@@ -2,9 +2,9 @@ package ru.vsu.cs.MeAndFlora.MainServer.config.exception;
 
 import java.time.OffsetDateTime;
 
-public class ApplicationException extends RuntimeException {
-
-    public ApplicationException(String shortmessage, String message) {
+public class RightsException extends RuntimeException {
+    
+    public RightsException(String shortmessage, String message) {
         super(message);
         this.shortMessage = shortmessage;
         this.timestamp = OffsetDateTime.now();
@@ -21,4 +21,5 @@ public class ApplicationException extends RuntimeException {
     public OffsetDateTime getTimestamp() {
         return timestamp;
     }
+
 }

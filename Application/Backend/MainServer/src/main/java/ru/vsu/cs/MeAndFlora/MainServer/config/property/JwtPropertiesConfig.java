@@ -1,4 +1,4 @@
-package ru.vsu.cs.MeAndFlora.MainServer.config;
+package ru.vsu.cs.MeAndFlora.MainServer.config.property;
 
 import java.time.Duration;
 
@@ -15,5 +15,6 @@ public class JwtPropertiesConfig {
     private String password;
     private Duration lifetime;
     private String expired;
+    private String badjwt;
     
 }

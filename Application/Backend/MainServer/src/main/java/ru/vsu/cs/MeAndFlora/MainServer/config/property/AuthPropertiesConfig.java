@@ -1,4 +1,4 @@
-package ru.vsu.cs.MeAndFlora.MainServer.config;
+package ru.vsu.cs.MeAndFlora.MainServer.config.property;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
