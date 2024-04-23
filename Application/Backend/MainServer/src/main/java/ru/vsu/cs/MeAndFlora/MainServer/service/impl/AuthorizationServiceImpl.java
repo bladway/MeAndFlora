@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.AuthPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ApplicationException;
@@ -15,29 +16,30 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
 
 @Service
+@RequiredArgsConstructor
 public class AuthorizationServiceImpl implements AuthorizationService {
 
-    public AuthorizationServiceImpl(
+    /*public AuthorizationServiceImpl(
         MafUserRepository mafUserRepository, 
         USessionRepository uSessionRepository,
-        AuthPropertiesConfig authPropertiesConfig,
-        JwtUtil jwtUtil
+        JwtUtil jwtUtil,
+        AuthPropertiesConfig authPropertiesConfig
     ) {
         this.mafUserRepository = mafUserRepository;
         this.uSessionRepository = uSessionRepository;
-        this.authPropertiesConfig = authPropertiesConfig;
         this.jwtUtil = jwtUtil;
-    }
+        this.authPropertiesConfig = authPropertiesConfig;
+    }*/
 
     private final MafUserRepository mafUserRepository;
     
     private final USessionRepository uSessionRepository;
 
-    private final AuthPropertiesConfig authPropertiesConfig;
-
     private final JwtUtil jwtUtil;
 
-    private void loginValidation(String login) {
+    private final AuthPropertiesConfig authPropertiesConfig;
+
+    private void validateLogin(String login) {
         if (login.length() < 6 || login.length() > 25) {
             throw new ApplicationException(
                 authPropertiesConfig.getBadlogin(), 
@@ -46,7 +48,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
     }
 
-    private void passwordValidation(String password) {
+    private void validatePassword(String password) {
         if (password.length() < 6 || password.length() > 25) {
             throw new ApplicationException(
                 authPropertiesConfig.getBadpassword(),
@@ -55,7 +57,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
     }
 
-    private void ipAddressValidation(String ipAddress) {
+    private void validateIpAddress(String ipAddress) {
         if (!InetAddressValidator.getInstance().isValidInet4Address(ipAddress)) {
             throw new ApplicationException(
                 authPropertiesConfig.getBadip(),
@@ -66,7 +68,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public String register(String login, String password, String ipAddress) {
-        loginValidation(login);
+        validateLogin(login);
         mafUserRepository.findById(login).ifPresent(
             mafUser -> {
                 throw new ApplicationException(
@@ -75,8 +77,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 );
             }
         );
-        passwordValidation(password);
-        ipAddressValidation(ipAddress);
+        validatePassword(password);
+        validateIpAddress(ipAddress);
 
         MafUser user = mafUserRepository.save(new MafUser(login, password, false, false));
 
@@ -87,9 +89,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public String login(String login, String password, String ipAddress) {
-        loginValidation(login);
-        passwordValidation(password);
-        ipAddressValidation(ipAddress);
+        validateLogin(login);
+        validatePassword(password);
+        validateIpAddress(ipAddress);
         Optional<MafUser> user = mafUserRepository.findById(login);
         if (!user.isPresent()) {
             throw new ApplicationException(
@@ -104,7 +106,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public String anonymousLogin(String ipAddress) {
-        ipAddressValidation(ipAddress);
+        validateIpAddress(ipAddress);
         return uSessionRepository.save(new USession(null, ipAddress, false, "")).getJwt();
     }
 

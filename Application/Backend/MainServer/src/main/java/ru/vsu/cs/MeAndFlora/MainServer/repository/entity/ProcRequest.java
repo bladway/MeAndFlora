@@ -18,6 +18,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.vsu.cs.MeAndFlora.MainServer.service.impl.FloraServiceImpl;
 
 @Entity
 @Table(name = "PROC_REQUEST")
@@ -25,10 +26,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class ProcRequest {
     
-    private final int SRID = 4326;
-
-    private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), SRID);
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "REQUEST_ID", nullable = false)
@@ -43,14 +40,11 @@ public class ProcRequest {
     @Column(name = "POSTED_TIME", nullable = false)
     private OffsetDateTime postedTime;
 
-    @Column(name = "LAT")
-    private Double lat;
+    @Column(name = "GEO_RAW")
+    private Point geoRaw;
 
-    @Column(name = "LON")
-    private Double lon;
-
-    @Column(name = "GEO_POS", columnDefinition = "geometry(Point,$SRID)")
-    private Point geoPos = geometryFactory.createPoint(new Coordinate(lon, lat));
+    @Column(name = "GEO_POS", columnDefinition = "geometry(Point,4326)")
+    private Point geoPos = FloraServiceImpl.geometryFactory.createPoint(new Coordinate(geoRaw.getX(), geoRaw.getY()));
 
     @Column(name = "IS_BOTANIST_PROC", nullable = false)
     private boolean isBotanistProc;

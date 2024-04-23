@@ -10,6 +10,8 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 
 @Repository
 public interface USessionRepository extends JpaRepository<USession, Long> {
+    
     List<USession> findByIpAddressAndIsClosed(String ipAddress, boolean isClosed);
     Optional<USession> findByJwtAndIsClosed(String jwt, boolean isClosed);
+
 }

@@ -4,9 +4,9 @@ import java.time.OffsetDateTime;
 import lombok.Data;
 
 @Data
-public class ApplicationExceptionDto {
+public class ExceptionDto {
 
-    public ApplicationExceptionDto(String shortMessage, String message, OffsetDateTime timestamp) {
+    public ExceptionDto(String shortMessage, String message, OffsetDateTime timestamp) {
         this.shortMessage = shortMessage;
         this.message = message;
         this.timestamp = timestamp;

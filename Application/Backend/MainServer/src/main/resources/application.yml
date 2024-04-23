@@ -20,14 +20,16 @@ spring:
       ddl-auto: none
     show-sql: true
     database: postgresql
-error-messages:
-  auth:
-    badlogin: badlogin
-    badpassword: badpassword
-    badip: badip
-    usrnotfound: usrnotfound
-    sessionidproblem: sessionidproblem
-    doublelogin: doublelogin
+auth:
+  badlogin: badlogin
+  badpassword: badpassword
+  badip: badip
+  usrnotfound: usrnotfound
+  sessionidproblem: sessionidproblem
+  doublelogin: doublelogin
 jwt:
   password: ${MAINSERVER_JWT_PASSWORD}
   lifetime: ${MAINSERVER_JWT_LIFETIME}
+  expired: expired
+images:
+  path: ${MAINSERVER_IMAGES_PATH}

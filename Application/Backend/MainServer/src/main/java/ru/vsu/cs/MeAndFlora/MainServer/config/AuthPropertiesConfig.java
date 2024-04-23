@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "error-messages.auth")
+@ConfigurationProperties(prefix = "auth")
 public class AuthPropertiesConfig {
 
     private String badlogin;

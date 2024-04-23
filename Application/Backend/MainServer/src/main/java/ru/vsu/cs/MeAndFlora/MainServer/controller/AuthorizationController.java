@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ApplicationException;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ApplicationExceptionDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.JwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.NamedAuthDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UnnamedAuthDto;
@@ -35,7 +35,7 @@ class AuthorizationController {
     + "httpstatus - ok if successful"
     + "and error message + httpstatus - unauthorized otherwise")
     @PostMapping("/register")
-    public ResponseEntity<?> regiter(@RequestBody NamedAuthDto dto) {
+    public ResponseEntity<?> register(@RequestBody NamedAuthDto dto) {
         try {
 
             String token = authorizationService.register(dto.getLogin(), dto.getPassword(), dto.getIpAddress());
@@ -48,8 +48,8 @@ class AuthorizationController {
 
         } catch (ApplicationException e) {
 
-            ApplicationExceptionDto exceptionDto = 
-                new ApplicationExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+            ExceptionDto exceptionDto = 
+                new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             authorizationControllerLogger.warn(
                 "Register with username: " + dto.getLogin() + " failed with message: " + e.getMessage()
@@ -76,8 +76,8 @@ class AuthorizationController {
 
         } catch (ApplicationException e) {
 
-            ApplicationExceptionDto exceptionDto =
-                new ApplicationExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+            ExceptionDto exceptionDto =
+                new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             authorizationControllerLogger.warn(
                 "Login with username: " + dto.getLogin() + " failed with message: " + e.getMessage()
@@ -103,8 +103,8 @@ class AuthorizationController {
 
         } catch (ApplicationException e) {
 
-            ApplicationExceptionDto exceptionDto =
-                new ApplicationExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+            ExceptionDto exceptionDto =
+                new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             authorizationControllerLogger.warn(
                 "Anonymous login on ip: " + dto.getIpAddress() + " failed with message: " + e.getMessage()
@@ -132,8 +132,8 @@ class AuthorizationController {
 
         } catch (ApplicationException e) {
 
-            ApplicationExceptionDto exceptionDto =
-                new ApplicationExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+            ExceptionDto exceptionDto =
+                new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             authorizationControllerLogger.warn(
                 "User with token: " + dto.getToken() + " not exited. Message: " + e.getMessage()
