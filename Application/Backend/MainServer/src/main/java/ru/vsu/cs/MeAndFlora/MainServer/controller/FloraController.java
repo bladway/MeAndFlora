@@ -24,7 +24,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
 @RequiredArgsConstructor
 @RestController
 @Tag(name = "Controller responsible for anonymous use cases")
-@RequestMapping(path = "/anonymous")
+@RequestMapping(path = "/flora")
 public class FloraController {
     
     public static final Logger floraLogger = 
@@ -34,7 +34,7 @@ public class FloraController {
 
     private final FileService fileService;
 
-    private ResponseEntity<?> invalidJwtResponse(JwtException e, String token) {
+    /*private ResponseEntity<?> invalidJwtResponse(JwtException e, String token) {
         ExceptionDto exceptionDto = 
         new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
@@ -42,9 +42,9 @@ public class FloraController {
             "Invalid jwt: " + token + " message: " + e.getMessage()
         );
         return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
-    }
+    }*/
 
-    @GetMapping("/flora/byname")
+    @GetMapping("/byname")
     public ResponseEntity<?> getPlantByName(@RequestBody GetFloraDto dto) {
         try {
 
@@ -68,7 +68,13 @@ public class FloraController {
 
         } catch (JwtException e) {
 
-            return invalidJwtResponse(e, dto.getToken());
+            ExceptionDto exceptionDto = 
+            new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+    
+            floraLogger.warn(
+                "Invalid jwt: " + dto.getToken() + " message: " + e.getMessage()
+            );
+            return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
 
         } catch (RightsException e) {
 

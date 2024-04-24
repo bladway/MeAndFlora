@@ -13,8 +13,12 @@ import lombok.Data;
 public class JwtPropertiesConfig {
 
     private String password;
+    private String passwordr;
     private Duration lifetime;
+    private Duration lifetimer;
     private String expired;
+    private String expiredr;
     private String badjwt;
+    private String badjwtr;
     
 }

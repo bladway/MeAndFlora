@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.AuthPropertiesConfig;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.MafUserRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
@@ -39,6 +42,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private final AuthPropertiesConfig authPropertiesConfig;
 
+    private final JwtPropertiesConfig jwtPropertiesConfig;
+
     private void validateLogin(String login) {
         if (login.length() < 6 || login.length() > 25) {
             throw new AuthException(
@@ -67,7 +72,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public String register(String login, String password, String ipAddress) {
+    public DiJwtDto register(String login, String password, String ipAddress) {
         validateLogin(login);
         mafUserRepository.findById(login).ifPresent(
             mafUser -> {
@@ -82,35 +87,75 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         MafUser user = mafUserRepository.save(new MafUser(login, password, false, false));
 
-        USession session = uSessionRepository.save(new USession(user, ipAddress, false, ""));
+        USession session = uSessionRepository.save(new USession(ipAddress, "", "", user));
         session.setJwt(jwtUtil.generateToken(session.getSessionId()));
-        return uSessionRepository.save(session).getJwt();
+        session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
+        uSessionRepository.save(session);
+        return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
 
     @Override
-    public String login(String login, String password, String ipAddress) {
+    public DiJwtDto login(String login, String password, String ipAddress) {
         validateLogin(login);
         validatePassword(password);
         validateIpAddress(ipAddress);
-        Optional<MafUser> user = mafUserRepository.findById(login);
-        if (!user.isPresent()) {
+        Optional<MafUser> ifuser = mafUserRepository.findById(login);
+        if (!ifuser.isPresent()) {
             throw new AuthException(
                 authPropertiesConfig.getUsrnotfound(),
                 "this user has not found in the database"
             );
         }
-        USession session = uSessionRepository.save(new USession(user.get(), ipAddress, false, ""));
+
+        MafUser user = ifuser.get();
+
+        USession session = uSessionRepository.save(new USession(ipAddress, "", "", user));
         session.setJwt(jwtUtil.generateToken(session.getSessionId()));
-        return uSessionRepository.save(session).getJwt();
+        session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
+        uSessionRepository.save(session);
+        return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
 
     @Override
-    public String anonymousLogin(String ipAddress) {
+    public DiJwtDto anonymousLogin(String ipAddress) {
         validateIpAddress(ipAddress);
-        return uSessionRepository.save(new USession(null, ipAddress, false, "")).getJwt();
+
+        USession session = uSessionRepository.save(new USession(ipAddress, "", "", null));
+        session.setJwt(jwtUtil.generateToken(session.getSessionId()));
+        session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
+        uSessionRepository.save(session);
+        return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
 
     @Override
+    public DiJwtDto refresh(String jwtR) {
+
+        Optional<USession> ifsession = uSessionRepository.findByJwtR(jwtR);
+
+        if (!ifsession.isPresent()) {
+            throw new JwtException(
+                jwtPropertiesConfig.getBadjwtr(),
+                "provided refresh jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtRExpired(session.getCreatedTime())) {
+            throw new JwtException(
+                jwtPropertiesConfig.getExpiredr(),
+                "refresh jwt lifetime has ended, relogin, please"
+            );
+        }
+
+        USession newSession = uSessionRepository.save(new USession(session.getIpAddress(), "", "", session.getUser()));
+        newSession.setJwt(jwtUtil.generateToken(session.getSessionId()));
+        newSession.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
+        uSessionRepository.save(newSession);
+        return new DiJwtDto(newSession.getJwt(), session.getJwtR());
+    }
+
+    /*@Override
     public String userExit(String token) {
         Optional<USession> sessionToClose = uSessionRepository.findByJwtAndIsClosed(token, false);
 
@@ -130,6 +175,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         lastSession.setClosed(true);
         
         return uSessionRepository.save(lastSession).getJwt();
-    }
+    }*/
 
 }

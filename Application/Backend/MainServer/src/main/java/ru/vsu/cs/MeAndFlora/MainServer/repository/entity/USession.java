@@ -22,12 +22,12 @@ import lombok.NoArgsConstructor;
 @Data
 public class USession {
 
-    public USession(MafUser user, String ipAddress, boolean isClosed, String jwt) {
-        this.user = user;
+    public USession(String ipAddress, String jwt, String jwtR, MafUser user) {
         this.ipAddress = ipAddress;
-        this.isClosed = isClosed;
         this.createdTime = OffsetDateTime.now();
         this.jwt = jwt;
+        this.jwtR = jwtR;
+        this.user = user;
     }
 
     @Id
@@ -38,14 +38,14 @@ public class USession {
     @Column(name = "IP_ADDRESS", nullable = false)
     private String ipAddress;
 
-    @Column(name = "IS_CLOSED", nullable = false)
-    private boolean isClosed;
-
     @Column(name = "CREATED_TIME", nullable = false)
     private OffsetDateTime createdTime;
 
     @Column(name = "JWT", nullable = false, unique = true)
     private String jwt;
+
+    @Column(name = "JWT_R", nullable = false, unique = true)
+    private String jwtR;
     
     @ManyToOne
     @JoinColumn(name = "LOGIN", foreignKey = @ForeignKey)

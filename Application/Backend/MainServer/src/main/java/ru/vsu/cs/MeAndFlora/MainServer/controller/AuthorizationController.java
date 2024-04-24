@@ -6,8 +6,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.JwtDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.JwtRDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.NamedAuthDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UnnamedAuthDto;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
@@ -31,15 +34,14 @@ class AuthorizationController {
 
     private final AuthorizationService authorizationService;
 
-    @Operation(description = "User registration and automatic login. Returns jwt + " 
+    @Operation(description = "User registration and automatic login. Returns dijwt + " 
     + "httpstatus - ok if successful"
     + "and error message + httpstatus - unauthorized otherwise")
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody NamedAuthDto dto) {
         try {
 
-            String token = authorizationService.register(dto.getLogin(), dto.getPassword(), dto.getIpAddress());
-            JwtDto responseDto = new JwtDto(token);
+            DiJwtDto responseDto = authorizationService.register(dto.getLogin(), dto.getPassword(), dto.getIpAddress());
 
             authorizationLogger.info(
                 "Register with username: " + dto.getLogin() + " is successful"
@@ -59,15 +61,14 @@ class AuthorizationController {
         }
     }
 
-    @Operation(description = "User login. Returns jwt + "
+    @Operation(description = "User login. Returns dijwt + "
     + "httpstatus - ok if successful" 
-    + "and error message + httpstatus - unauthorized otherwise")
+    + "and error message + httpstatus otherwise")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody NamedAuthDto dto) {
         try {
 
-            String token = authorizationService.login(dto.getLogin(), dto.getPassword(), dto.getIpAddress());
-            JwtDto responseDto = new JwtDto(token);
+            DiJwtDto responseDto = authorizationService.login(dto.getLogin(), dto.getPassword(), dto.getIpAddress());
 
             authorizationLogger.info(
                 "Login with username: " + dto.getLogin() + " is successful"
@@ -87,14 +88,13 @@ class AuthorizationController {
         }
     }
 
-    @Operation(description = "Anonymous login. Returns jwt + httpstatus - ok if successful" 
-    + " and error message + httpstatus - unauthorized otherwise")
+    @Operation(description = "Anonymous login. Returns dijwt + httpstatus - ok if successful" 
+    + " and error message + httpstatus otherwise")
     @PostMapping("/anonymous")
     public ResponseEntity<?> anonymousLogin(@RequestBody UnnamedAuthDto dto) {
         try {
 
-            String token = authorizationService.anonymousLogin(dto.getIpAddress());
-            JwtDto responseDto = new JwtDto(token);
+            DiJwtDto responseDto = authorizationService.anonymousLogin(dto.getIpAddress());
 
             authorizationLogger.info(
                 "Anonymus login on ip: " + dto.getIpAddress() + " is successful"
@@ -114,19 +114,45 @@ class AuthorizationController {
         }
     }
 
-    @Operation(description = "Notifying the server that the user has disconnected from the session."  
+    @Operation(description = "Update access token from refresh. Returns dijwt + httpstatus - ok if successful"
+    + " and error message + httpstatus if otherwise")
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody JwtRDto dto) {
+        try {
+
+            DiJwtDto responseDto = authorizationService.refresh(dto.getJwtR());
+
+            authorizationLogger.info(
+                "Refresh token: " + dto.getJwtR() + " has worked successfully"
+            );
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        } catch (JwtException e) {
+
+            ExceptionDto exceptionDto = 
+            new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+    
+            authorizationLogger.warn(
+                "problem with refresh jwt: " + dto.getJwtR() + " message: " + e.getMessage()
+            );
+            return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
+
+        }
+    }
+
+    /*@Operation(description = "Notifying the server that the user has disconnected from the session."  
     + " Returns jwt + httpstatus - ok if successful" 
     + "and error message + httpstatus - unauthorized otherwise")
     @PostMapping("/exited")
     public ResponseEntity<?> userExit(@RequestBody JwtDto dto) {
         try {
 
-            String token = authorizationService.userExit(dto.getToken());
+            String token = authorizationService.userExit(dto.getJwt());
 
             JwtDto responseDto = new JwtDto(token);
 
             authorizationLogger.info(
-                "User with token: " + dto.getToken() + " exited successful"
+                "User with token: " + dto.getJwt() + " exited successful"
             );
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
 
@@ -141,6 +167,6 @@ class AuthorizationController {
             return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
 
         }
-    }
+    }*/
     
 }

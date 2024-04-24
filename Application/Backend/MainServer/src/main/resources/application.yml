@@ -29,9 +29,13 @@ auth:
   doublelogin: doublelogin
 jwt:
   password: ${MAINSERVER_JWT_PASSWORD}
+  passwordr: ${MAINSERVER_JWR_R_PASSWORD}
   lifetime: ${MAINSERVER_JWT_LIFETIME}
+  lifetimer: ${MAINSERVER_JWT_R_LIFETIME}
   expired: expired
+  expiredr: expiredr
   badjwt: badjwt
+  badjwtr: badjwtr
 rights:
   norights: norights
 images:

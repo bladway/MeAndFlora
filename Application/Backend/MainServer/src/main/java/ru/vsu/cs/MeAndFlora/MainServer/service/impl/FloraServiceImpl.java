@@ -35,8 +35,6 @@ public class FloraServiceImpl implements FloraService {
 
     private final JwtUtil jwtUtil;
 
-    private final AuthPropertiesConfig authPropertiesConfig;
-
     private final JwtPropertiesConfig jwtPropertiesConfig;
 
     private final RightsPropertiesConfig rightsPropertiesConfig;
@@ -50,14 +48,16 @@ public class FloraServiceImpl implements FloraService {
                 jwtPropertiesConfig.getBadjwt(),
                 "provided jwt not valid"
             );
-        } else if (ifsession.get().isClosed()) {
-            throw new AuthException(
-                authPropertiesConfig.getSessionidproblem(), 
-                "session has already closed"
-            );
         }
 
         USession session = ifsession.get();
+
+        if (jwtUtil.ifTokenExpired(session.getCreatedTime())) {
+            throw new JwtException(
+                jwtPropertiesConfig.getExpired(),
+                "jwt token lifetime has ended, get a new one"
+            );
+        }
 
         if (session.getUser() != null && session.getUser().isAdmin()) {
             throw new RightsException(
@@ -66,13 +66,7 @@ public class FloraServiceImpl implements FloraService {
             );
         }
 
-        if (jwtUtil.ifTokenExpired(session.getCreatedTime())) {
 
-            throw new JwtException(
-                jwtPropertiesConfig.getExpired(),
-                "jwt token lifetime has ended, get a new one"
-            );
-        }
     }
 
 }
