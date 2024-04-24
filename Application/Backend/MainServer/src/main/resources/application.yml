@@ -29,7 +29,7 @@ auth:
   doublelogin: doublelogin
 jwt:
   password: ${MAINSERVER_JWT_PASSWORD}
-  passwordr: ${MAINSERVER_JWR_R_PASSWORD}
+  passwordr: ${MAINSERVER_JWT_R_PASSWORD}
   lifetime: ${MAINSERVER_JWT_LIFETIME}
   lifetimer: ${MAINSERVER_JWT_R_LIFETIME}
   expired: expired
@@ -38,5 +38,8 @@ jwt:
   badjwtr: badjwtr
 rights:
   norights: norights
+object:
+  floranotfound: floranotfound
+  imagenotfound: imagenotfound
 images:
   path: ${MAINSERVER_IMAGES_PATH}

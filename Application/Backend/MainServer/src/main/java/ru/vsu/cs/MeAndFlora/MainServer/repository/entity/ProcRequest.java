@@ -3,10 +3,7 @@ package ru.vsu.cs.MeAndFlora.MainServer.repository.entity;
 import java.time.OffsetDateTime;
 
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.PrecisionModel;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
@@ -40,11 +37,11 @@ public class ProcRequest {
     @Column(name = "POSTED_TIME", nullable = false)
     private OffsetDateTime postedTime;
 
-    @Column(name = "GEO_RAW")
-    private Point geoRaw;
+    @Column(name = "GEO_POS", nullable = false)
+    private Point geoPos;
 
-    @Column(name = "GEO_POS", columnDefinition = "geometry(Point,4326)")
-    private Point geoPos = FloraServiceImpl.geometryFactory.createPoint(new Coordinate(geoRaw.getX(), geoRaw.getY()));
+    //@Column(name = "GEO_POS", columnDefinition = "geometry(Point,4326)", nullable = false)
+    //private Point geoPos = FloraServiceImpl.geometryFactory.createPoint(new Coordinate(geoRaw.getX(), geoRaw.getY()));
 
     @Column(name = "IS_BOTANIST_PROC", nullable = false)
     private boolean isBotanistProc;

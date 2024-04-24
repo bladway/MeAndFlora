@@ -3,20 +3,19 @@ package ru.vsu.cs.MeAndFlora.MainServer.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GetFloraDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
@@ -45,26 +44,21 @@ public class FloraController {
     }*/
 
     @GetMapping("/byname")
-    public ResponseEntity<?> getPlantByName(@RequestBody GetFloraDto dto) {
+    public ResponseEntity<?> getPlantByName(@RequestHeader String jwt, @RequestHeader String name) {
         try {
 
-            Flora flora = floraService.requestFlora(dto.getToken(), dto.getName());
-            FloraDto responseDto = new FloraDto();
-
+            Flora flora = floraService.requestFlora(jwt, name);
+            
             floraLogger.info(
-                "Get plant with name: " + dto.getName() + " is successful"
+                "Get plant with name: " + name + " is successful"
             );
-            return new ResponseEntity<>(responseDto, HttpStatus.OK);
-
-        } catch (AuthException e) {
-
-            ExceptionDto exceptionDto = 
-                new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-
-            floraLogger.warn(
-                "Request to find plant with name: " + dto.getName() + " failed with message: " + e.getMessage()
-            );
-            return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.valueOf("image/jpg"))
+                .header("name", flora.getName())
+                .header("description", flora.getDescription())
+                .header("type", flora.getType())
+                .body(fileService.getImage(flora.getImagePath()));
 
         } catch (JwtException e) {
 
@@ -72,9 +66,11 @@ public class FloraController {
             new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
     
             floraLogger.warn(
-                "Invalid jwt: " + dto.getToken() + " message: " + e.getMessage()
+                "Invalid jwt: " + jwt + " message: " + e.getMessage()
             );
-            return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(exceptionDto);
 
         } catch (RightsException e) {
 
@@ -82,10 +78,23 @@ public class FloraController {
                 new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             floraLogger.warn(
-                "Request to find plant with name: " + dto.getName() + " failed with message: " + e.getMessage()
+                "Rights problem to get flora with name: " + name + " failed with message: " + e.getMessage()
             );
-            return new ResponseEntity<>(exceptionDto, HttpStatus.FORBIDDEN);
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(exceptionDto);
 
+        } catch (ObjectException e) {
+
+            ExceptionDto exceptionDto =
+                new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            floraLogger.warn(
+                "Problem with requested flora: " + name + " message: " + e.getMessage()
+            );
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exceptionDto);
         }
     }
 

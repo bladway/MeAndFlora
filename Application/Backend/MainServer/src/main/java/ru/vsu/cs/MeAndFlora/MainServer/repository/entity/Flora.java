@@ -29,6 +29,9 @@ public class Flora {
     @Column(name = "NAME", nullable = false, unique = true)
     private String name;
 
+    @Column(name = "DESCRIPTION", nullable = false)
+    private String description;
+
     @Column(name = "TYPE", nullable = false)
     private String type;
 

@@ -9,8 +9,6 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.JwtDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.JwtRDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.NamedAuthDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UnnamedAuthDto;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
@@ -19,8 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @RequiredArgsConstructor
@@ -46,7 +46,9 @@ class AuthorizationController {
             authorizationLogger.info(
                 "Register with username: " + dto.getLogin() + " is successful"
             );
-            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(responseDto);
 
         } catch (AuthException e) {
 
@@ -56,7 +58,9 @@ class AuthorizationController {
             authorizationLogger.warn(
                 "Register with username: " + dto.getLogin() + " failed with message: " + e.getMessage()
             );
-            return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(exceptionDto);
 
         }
     }
@@ -73,7 +77,9 @@ class AuthorizationController {
             authorizationLogger.info(
                 "Login with username: " + dto.getLogin() + " is successful"
             );
-            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(responseDto);
 
         } catch (AuthException e) {
 
@@ -83,7 +89,9 @@ class AuthorizationController {
             authorizationLogger.warn(
                 "Login with username: " + dto.getLogin() + " failed with message: " + e.getMessage()
             );
-            return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(exceptionDto);
 
         }
     }
@@ -99,7 +107,9 @@ class AuthorizationController {
             authorizationLogger.info(
                 "Anonymus login on ip: " + dto.getIpAddress() + " is successful"
             );
-            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(responseDto);
 
         } catch (AuthException e) {
 
@@ -109,23 +119,27 @@ class AuthorizationController {
             authorizationLogger.warn(
                 "Anonymous login on ip: " + dto.getIpAddress() + " failed with message: " + e.getMessage()
             );
-            return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(exceptionDto);
 
         }
     }
 
     @Operation(description = "Update access token from refresh. Returns dijwt + httpstatus - ok if successful"
     + " and error message + httpstatus if otherwise")
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody JwtRDto dto) {
+    @GetMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestHeader String jwtr) {
         try {
 
-            DiJwtDto responseDto = authorizationService.refresh(dto.getJwtR());
+            DiJwtDto responseDto = authorizationService.refresh(jwtr);
 
             authorizationLogger.info(
-                "Refresh token: " + dto.getJwtR() + " has worked successfully"
+                "Refresh token: " + jwtr + " has worked successfully"
             );
-            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(responseDto);
 
         } catch (JwtException e) {
 
@@ -133,9 +147,11 @@ class AuthorizationController {
             new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
     
             authorizationLogger.warn(
-                "problem with refresh jwt: " + dto.getJwtR() + " message: " + e.getMessage()
+                "problem with refresh jwt: " + jwtr + " message: " + e.getMessage()
             );
-            return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(exceptionDto);
 
         }
     }

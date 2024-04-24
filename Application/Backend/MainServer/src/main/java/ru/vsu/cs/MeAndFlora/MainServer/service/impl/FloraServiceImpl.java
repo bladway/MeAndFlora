@@ -10,9 +10,11 @@ import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.AuthPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.RightsPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.FloraRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.ProcRequestRepository;
@@ -39,9 +41,11 @@ public class FloraServiceImpl implements FloraService {
 
     private final RightsPropertiesConfig rightsPropertiesConfig;
 
+    private final ObjectPropertiesConfig objectPropertiesConfig;
+
     @Override
-    public Flora requestFlora(String token, String floraName) {
-        Optional<USession> ifsession = uSessionRepository.findByJwtAndIsClosed(token, false);
+    public Flora requestFlora(String jwt, String floraName) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (!ifsession.isPresent()) {
             throw new JwtException(
@@ -52,10 +56,10 @@ public class FloraServiceImpl implements FloraService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifTokenExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
             throw new JwtException(
                 jwtPropertiesConfig.getExpired(),
-                "jwt token lifetime has ended, get a new one"
+                "jwt lifetime has ended, get a new one by refresh token"
             );
         }
 
@@ -66,6 +70,16 @@ public class FloraServiceImpl implements FloraService {
             );
         }
 
+        Optional<Flora> ifflora = floraRepository.findByName(floraName);
+
+        if (!ifflora.isPresent()) {
+            throw new ObjectException(
+                objectPropertiesConfig.getFloranotfound(),
+                "requested flora not found"
+            );
+        }
+
+        return ifflora.get();
 
     }
 
