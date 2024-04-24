@@ -1,8 +1,6 @@
 package ru.vsu.cs.MeAndFlora.MainServer.repository.entity;
 
 import java.time.OffsetDateTime;
-
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +13,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.vsu.cs.MeAndFlora.MainServer.service.impl.FloraServiceImpl;
 
 @Entity
 @Table(name = "PROC_REQUEST")
@@ -23,6 +20,24 @@ import ru.vsu.cs.MeAndFlora.MainServer.service.impl.FloraServiceImpl;
 @Data
 public class ProcRequest {
     
+    public ProcRequest(
+        String imagePath, OffsetDateTime postedTime,
+        Point geoPos, boolean isBotanistProc, 
+        boolean isNeuralProc, boolean isPublished, 
+        boolean isBad, USession session,
+        Flora flora
+    ) {
+        this.imagePath = imagePath;
+        this.createdTime = OffsetDateTime.now();
+        this.geoPos = geoPos;
+        this.isBotanistProc = isBotanistProc;
+        this.isNeuralProc = isNeuralProc;
+        this.isPublished = isPublished;
+        this.isBad = isBad;
+        this.session = session;
+        this.flora = flora;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "REQUEST_ID", nullable = false)
@@ -34,7 +49,7 @@ public class ProcRequest {
     @Column(name = "CREATED_TIME", nullable = false)
     private OffsetDateTime createdTime;
 
-    @Column(name = "POSTED_TIME", nullable = false)
+    @Column(name = "POSTED_TIME")
     private OffsetDateTime postedTime;
 
     @Column(name = "GEO_POS", nullable = false)

@@ -21,4 +21,5 @@ public class AuthException extends RuntimeException {
     public OffsetDateTime getTimestamp() {
         return timestamp;
     }
+    
 }

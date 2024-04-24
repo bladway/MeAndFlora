@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
@@ -43,6 +44,9 @@ public class FloraController {
         return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
     }*/
 
+    @Operation(description = "Get. Get flora by name. Requires: jwt in header, name of plant in header."
+    + "Provides: name of plant in header, description in header, type of plant in header,"
+    + "Multipart image in body (jpg)")
     @GetMapping("/byname")
     public ResponseEntity<?> getPlantByName(@RequestHeader String jwt, @RequestHeader String name) {
         try {
@@ -95,6 +99,7 @@ public class FloraController {
             return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(exceptionDto);
+                
         }
     }
 

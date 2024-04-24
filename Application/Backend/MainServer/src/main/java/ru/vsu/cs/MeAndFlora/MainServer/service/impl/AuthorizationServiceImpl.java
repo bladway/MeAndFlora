@@ -1,10 +1,8 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
 import java.util.Optional;
-
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
@@ -74,6 +72,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public DiJwtDto register(String login, String password, String ipAddress) {
         validateLogin(login);
+
         mafUserRepository.findById(login).ifPresent(
             mafUser -> {
                 throw new AuthException(
@@ -82,15 +81,19 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 );
             }
         );
+
         validatePassword(password);
         validateIpAddress(ipAddress);
 
         MafUser user = mafUserRepository.save(new MafUser(login, password, false, false));
 
         USession session = uSessionRepository.save(new USession(ipAddress, "", "", user));
+
         session.setJwt(jwtUtil.generateToken(session.getSessionId()));
         session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
+
         uSessionRepository.save(session);
+
         return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
 
@@ -99,7 +102,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         validateLogin(login);
         validatePassword(password);
         validateIpAddress(ipAddress);
+
         Optional<MafUser> ifuser = mafUserRepository.findById(login);
+
         if (!ifuser.isPresent()) {
             throw new AuthException(
                 authPropertiesConfig.getUsrnotfound(),
@@ -110,9 +115,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         MafUser user = ifuser.get();
 
         USession session = uSessionRepository.save(new USession(ipAddress, "", "", user));
+
         session.setJwt(jwtUtil.generateToken(session.getSessionId()));
         session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
+
         uSessionRepository.save(session);
+
         return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
 
@@ -121,9 +129,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         validateIpAddress(ipAddress);
 
         USession session = uSessionRepository.save(new USession(ipAddress, "", "", null));
+
         session.setJwt(jwtUtil.generateToken(session.getSessionId()));
         session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
+        
         uSessionRepository.save(session);
+        
         return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
 
@@ -149,9 +160,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
 
         USession newSession = uSessionRepository.save(new USession(session.getIpAddress(), "", "", session.getUser()));
+        
         newSession.setJwt(jwtUtil.generateToken(session.getSessionId()));
         newSession.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
+        
         uSessionRepository.save(newSession);
+        
         return new DiJwtDto(newSession.getJwt(), session.getJwtR());
     }
 

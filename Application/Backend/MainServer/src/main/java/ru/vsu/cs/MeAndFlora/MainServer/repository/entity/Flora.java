@@ -1,7 +1,6 @@
 package ru.vsu.cs.MeAndFlora.MainServer.repository.entity;
 
 import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +17,13 @@ import lombok.NoArgsConstructor;
 @Data
 public class Flora {
     
+    public Flora(String imagePath, String name, String description, String type) {
+        this.imagePath = imagePath;
+        this.name = name;
+        this.description = description;
+        this.type = type;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "FLORA_ID", nullable = false)

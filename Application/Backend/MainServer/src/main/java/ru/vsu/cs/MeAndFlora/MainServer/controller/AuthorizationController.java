@@ -1,7 +1,6 @@
 package ru.vsu.cs.MeAndFlora.MainServer.controller;
 
 import org.springframework.web.bind.annotation.RestController;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,6 @@ import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.NamedAuthDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UnnamedAuthDto;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -34,9 +32,8 @@ class AuthorizationController {
 
     private final AuthorizationService authorizationService;
 
-    @Operation(description = "User registration and automatic login. Returns dijwt + " 
-    + "httpstatus - ok if successful"
-    + "and error message + httpstatus - unauthorized otherwise")
+    @Operation(description = "Post. User registration and authomatic login. Requires: NamedAuthDto in body."
+    + "Provides: DiJwtDto in body.")
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody NamedAuthDto dto) {
         try {
@@ -65,9 +62,8 @@ class AuthorizationController {
         }
     }
 
-    @Operation(description = "User login. Returns dijwt + "
-    + "httpstatus - ok if successful" 
-    + "and error message + httpstatus otherwise")
+    @Operation(description = "Post. User login. Requires: NamedAuthDto in body."
+    + "Provides: DiJwtDto in body.")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody NamedAuthDto dto) {
         try {
@@ -96,8 +92,8 @@ class AuthorizationController {
         }
     }
 
-    @Operation(description = "Anonymous login. Returns dijwt + httpstatus - ok if successful" 
-    + " and error message + httpstatus otherwise")
+    @Operation(description = "Post. Anonymous login. Requires: UnnamedAuthDto in body."
+    + "Provides: DiJwtDto in body.")
     @PostMapping("/anonymous")
     public ResponseEntity<?> anonymousLogin(@RequestBody UnnamedAuthDto dto) {
         try {
@@ -126,8 +122,8 @@ class AuthorizationController {
         }
     }
 
-    @Operation(description = "Update access token from refresh. Returns dijwt + httpstatus - ok if successful"
-    + " and error message + httpstatus if otherwise")
+    @Operation(description = "Get. Get fresh jwt and refresh jwt (jwtr). Requires: jwtr in header."
+    + "Provides: DiJwtDto in body.")
     @GetMapping("/refresh")
     public ResponseEntity<?> refresh(@RequestHeader String jwtr) {
         try {

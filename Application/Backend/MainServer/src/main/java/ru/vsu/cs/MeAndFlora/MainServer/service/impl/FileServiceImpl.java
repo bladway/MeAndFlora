@@ -3,13 +3,11 @@ package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
-
 import lombok.RequiredArgsConstructor;
 
 @Service

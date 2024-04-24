@@ -5,8 +5,6 @@ server:
     key-store-password: ${MAINSERVER_SSL_PASSWORD}
   port: ${MAINSERVER_PORT}
 logging:
-  level:
-    '[org.springframework.security]': trace
   file:
     name: MainServer.log
 spring:
@@ -20,13 +18,8 @@ spring:
       ddl-auto: none
     show-sql: true
     database: postgresql
-auth:
-  badlogin: badlogin
-  badpassword: badpassword
-  badip: badip
-  usrnotfound: usrnotfound
-  sessionidproblem: sessionidproblem
-  doublelogin: doublelogin
+images:
+  path: ${MAINSERVER_IMAGES_PATH}
 jwt:
   password: ${MAINSERVER_JWT_PASSWORD}
   passwordr: ${MAINSERVER_JWT_R_PASSWORD}
@@ -36,10 +29,15 @@ jwt:
   expiredr: expiredr
   badjwt: badjwt
   badjwtr: badjwtr
+auth:
+  badlogin: badlogin
+  badpassword: badpassword
+  badip: badip
+  usrnotfound: usrnotfound
+  sessionidproblem: sessionidproblem
+  doublelogin: doublelogin
 rights:
   norights: norights
 object:
   floranotfound: floranotfound
   imagenotfound: imagenotfound
-images:
-  path: ${MAINSERVER_IMAGES_PATH}

@@ -1,18 +1,14 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
 import java.util.Optional;
-
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.component.JwtUtil;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.AuthPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.RightsPropertiesConfig;
