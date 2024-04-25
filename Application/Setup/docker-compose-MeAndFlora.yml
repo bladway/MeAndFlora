@@ -94,7 +94,6 @@ services:
       MAINSERVER_PORT: ${MAINSERVER_PORT}
     volumes:
       - MeAndFlora-Images:/images
-    command: ["mkdir", "/images"]
 
 volumes:
   MeAndFlora-Database:
