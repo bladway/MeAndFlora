@@ -11,5 +11,6 @@ public class ObjectPropertiesConfig {
 
     private String floranotfound;
     private String imagenotfound;
+    private String imagenotuploaded;
     
 }

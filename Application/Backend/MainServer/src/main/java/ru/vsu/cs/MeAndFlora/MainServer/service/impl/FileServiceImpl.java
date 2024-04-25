@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
@@ -27,6 +29,18 @@ public class FileServiceImpl implements FileService {
             throw new ObjectException(
                 objectPropertiesConfig.getImagenotfound(),
                 "server can't find image for existing flora"
+            );
+        }
+    }
+
+    @Override
+    public void putImage(MultipartFile image, String path) {
+        try {
+            image.transferTo(new File(this.path + path));
+        } catch (IOException e) {
+            throw new ObjectException(
+                objectPropertiesConfig.getImagenotuploaded(),
+                "server can't save this uploaded image"  
             );
         }
     }

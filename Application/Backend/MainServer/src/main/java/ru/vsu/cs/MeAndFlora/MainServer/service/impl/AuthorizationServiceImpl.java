@@ -4,11 +4,12 @@ import java.util.Optional;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
-import ru.vsu.cs.MeAndFlora.MainServer.component.JwtUtil;
+import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.AuthPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
+import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.MafUserRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
@@ -85,7 +86,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         validatePassword(password);
         validateIpAddress(ipAddress);
 
-        MafUser user = mafUserRepository.save(new MafUser(login, password, false, false));
+        MafUser user = mafUserRepository.save(new MafUser(login, password, UserRole.USER.getName()));
 
         USession session = uSessionRepository.save(new USession(ipAddress, "", "", user));
 

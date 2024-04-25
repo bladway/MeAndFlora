@@ -20,6 +20,8 @@ spring:
     database: postgresql
 images:
   path: ${MAINSERVER_IMAGES_PATH}
+  procpath: ${MAINSERVER_IMAGES_PROC_PATH}
+  getpathc: ${MAINSERVER_IMAGES_GET_PATH}
 jwt:
   password: ${MAINSERVER_JWT_PASSWORD}
   passwordr: ${MAINSERVER_JWT_R_PASSWORD}
@@ -41,3 +43,4 @@ rights:
 object:
   floranotfound: floranotfound
   imagenotfound: imagenotfound
+  imagenotuploaded: imagenotuploaded

@@ -35,13 +35,13 @@ class AuthorizationController {
     @Operation(description = "Post. User registration and authomatic login. Requires: NamedAuthDto in body."
     + "Provides: DiJwtDto in body.")
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody NamedAuthDto dto) {
+    public ResponseEntity<?> register(@RequestBody NamedAuthDto authDto) {
         try {
 
-            DiJwtDto responseDto = authorizationService.register(dto.getLogin(), dto.getPassword(), dto.getIpAddress());
+            DiJwtDto responseDto = authorizationService.register(authDto.getLogin(), authDto.getPassword(), authDto.getIpAddress());
 
             authorizationLogger.info(
-                "Register with username: " + dto.getLogin() + " is successful"
+                "Register with username: " + authDto.getLogin() + " is successful"
             );
             return ResponseEntity
                 .status(HttpStatus.OK)
@@ -53,7 +53,7 @@ class AuthorizationController {
                 new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             authorizationLogger.warn(
-                "Register with username: " + dto.getLogin() + " failed with message: " + e.getMessage()
+                "Register with username: " + authDto.getLogin() + " failed with message: " + e.getMessage()
             );
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
@@ -65,13 +65,13 @@ class AuthorizationController {
     @Operation(description = "Post. User login. Requires: NamedAuthDto in body."
     + "Provides: DiJwtDto in body.")
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody NamedAuthDto dto) {
+    public ResponseEntity<?> login(@RequestBody NamedAuthDto authDto) {
         try {
 
-            DiJwtDto responseDto = authorizationService.login(dto.getLogin(), dto.getPassword(), dto.getIpAddress());
+            DiJwtDto responseDto = authorizationService.login(authDto.getLogin(), authDto.getPassword(), authDto.getIpAddress());
 
             authorizationLogger.info(
-                "Login with username: " + dto.getLogin() + " is successful"
+                "Login with username: " + authDto.getLogin() + " is successful"
             );
             return ResponseEntity
                 .status(HttpStatus.OK)
@@ -83,7 +83,7 @@ class AuthorizationController {
                 new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             authorizationLogger.warn(
-                "Login with username: " + dto.getLogin() + " failed with message: " + e.getMessage()
+                "Login with username: " + authDto.getLogin() + " failed with message: " + e.getMessage()
             );
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
@@ -95,13 +95,13 @@ class AuthorizationController {
     @Operation(description = "Post. Anonymous login. Requires: UnnamedAuthDto in body."
     + "Provides: DiJwtDto in body.")
     @PostMapping("/anonymous")
-    public ResponseEntity<?> anonymousLogin(@RequestBody UnnamedAuthDto dto) {
+    public ResponseEntity<?> anonymousLogin(@RequestBody UnnamedAuthDto authDto) {
         try {
 
-            DiJwtDto responseDto = authorizationService.anonymousLogin(dto.getIpAddress());
+            DiJwtDto responseDto = authorizationService.anonymousLogin(authDto.getIpAddress());
 
             authorizationLogger.info(
-                "Anonymus login on ip: " + dto.getIpAddress() + " is successful"
+                "Anonymus login on ip: " + authDto.getIpAddress() + " is successful"
             );
             return ResponseEntity
                 .status(HttpStatus.OK)
@@ -113,7 +113,7 @@ class AuthorizationController {
                 new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             authorizationLogger.warn(
-                "Anonymous login on ip: " + dto.getIpAddress() + " failed with message: " + e.getMessage()
+                "Anonymous login on ip: " + authDto.getIpAddress() + " failed with message: " + e.getMessage()
             );
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)

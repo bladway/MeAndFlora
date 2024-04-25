@@ -6,17 +6,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.multipart.MultipartFile;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.object.FloraProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
@@ -48,7 +52,10 @@ public class FloraController {
     + "Provides: name of plant in header, description in header, type of plant in header,"
     + "Multipart image in body (jpg)")
     @GetMapping("/byname")
-    public ResponseEntity<?> getPlantByName(@RequestHeader String jwt, @RequestHeader String name) {
+    public ResponseEntity<?> getPlantByName(
+        @RequestHeader String jwt, 
+        @RequestHeader String name
+    ) {
         try {
 
             Flora flora = floraService.requestFlora(jwt, name);
@@ -101,6 +108,72 @@ public class FloraController {
                 .body(exceptionDto);
                 
         }
+    }
+
+    @Operation(description = "Post. Post new processing request. Requires: jwt in header, " 
+    + "(optionally) GeoJsonPoint in header, multipart image in body."
+    + "Provides: name of plant in header, description in header, type of plant in header,"
+    + "Multipart image in body (jpg)")
+    @PostMapping("/request")
+    private ResponseEntity<?> procFloraRequest(
+        @RequestHeader String jwt, 
+        @RequestHeader(required = false) GeoJsonPointDto geoDto,
+        @RequestBody MultipartFile image
+    ) {
+        try {
+
+            FloraProcRequest dto = floraService.procFloraRequest(jwt, geoDto, image);
+            fileService.putImage(image, dto.getProcRequest().getImagePath());
+            
+            floraLogger.info(
+                "Processing request defined flora as: " + dto.getFlora().getName()
+            );
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.valueOf("image/jpg"))
+                .header("name", dto.getFlora().getName())
+                .header("description", dto.getFlora().getDescription())
+                .header("type", dto.getFlora().getType())
+                .body(fileService.getImage(dto.getFlora().getImagePath()));
+
+        } catch (JwtException e) {
+
+            ExceptionDto exceptionDto = 
+            new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+    
+            floraLogger.warn(
+                "Invalid jwt: " + jwt + " message: " + e.getMessage()
+            );
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(exceptionDto);
+
+        } catch (RightsException e) {
+
+            ExceptionDto exceptionDto =
+                new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            floraLogger.warn(
+                "Rights problem to process flora, message: " + e.getMessage()
+            );
+            return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(exceptionDto);
+
+        } catch (ObjectException e) {
+
+            ExceptionDto exceptionDto =
+                new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            floraLogger.warn(
+                "Problem while processing flora image message: " + e.getMessage()
+            );
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exceptionDto);
+                
+        }
+
     }
 
 }

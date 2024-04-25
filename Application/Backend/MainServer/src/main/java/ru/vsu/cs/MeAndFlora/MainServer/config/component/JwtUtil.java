@@ -1,4 +1,4 @@
-package ru.vsu.cs.MeAndFlora.MainServer.component;
+package ru.vsu.cs.MeAndFlora.MainServer.config.component;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;

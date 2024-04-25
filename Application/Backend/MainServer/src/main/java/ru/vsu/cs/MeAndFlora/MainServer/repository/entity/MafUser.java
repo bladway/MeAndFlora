@@ -15,11 +15,10 @@ import lombok.NoArgsConstructor;
 @Data
 public class MafUser {
 
-    public MafUser(String login, String password, boolean isAdmin, boolean isBotanist) {
+    public MafUser(String login, String password, String role) {
         this.login = login;
         this.password = password;
-        this.isAdmin = isAdmin;
-        this.isBotanist = isBotanist;
+        this.role = role;
     }
 
     @Id
@@ -29,11 +28,14 @@ public class MafUser {
     @Column(name = "PASSWORD", nullable = false)
     private String password;
 
-    @Column(name = "IS_ADMIN", nullable = false)
+    @Column(name = "ROLE", nullable = false)
+    private String role;
+
+    /*@Column(name = "IS_ADMIN", nullable = false)
     private boolean isAdmin;
 
     @Column(name = "IS_BOTANIST", nullable = false)
-    private boolean isBotanist;
+    private boolean isBotanist;*/
 
     @OneToMany(mappedBy = "user")
     private List<USession> sessionList;
