@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,14 +21,13 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.object.FloraProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
 
 @RequiredArgsConstructor
 @RestController
-@Tag(name = "Controller responsible for anonymous use cases")
+@Tag(name = "Controller responsible for working with flora")
 @RequestMapping(path = "/flora")
 public class FloraController {
     
@@ -51,10 +51,10 @@ public class FloraController {
     @Operation(description = "Get. Get flora by name. Requires: jwt in header, name of plant in header."
     + "Provides: name of plant in header, description in header, type of plant in header,"
     + "Multipart image in body (jpg)")
-    @GetMapping("/byname")
+    @GetMapping(value = "/byname")
     public ResponseEntity<?> getPlantByName(
         @RequestHeader String jwt, 
-        @RequestHeader String name
+        @RequestParam String name
     ) {
         try {
 
@@ -114,15 +114,16 @@ public class FloraController {
     + "(optionally) GeoJsonPoint in header, multipart image in body."
     + "Provides: name of plant in header, description in header, type of plant in header,"
     + "Multipart image in body (jpg)")
-    @PostMapping("/request")
+    @PostMapping(value = "/request", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     private ResponseEntity<?> procFloraRequest(
         @RequestHeader String jwt, 
-        @RequestHeader(required = false) GeoJsonPointDto geoDto,
+        @RequestHeader(required = false) Double x,
+        @RequestHeader(required = false) Double y,
         @RequestBody MultipartFile image
-    ) {
+    ) { 
         try {
 
-            FloraProcRequest dto = floraService.procFloraRequest(jwt, geoDto, image);
+            FloraProcRequest dto = floraService.procFloraRequest(jwt, x, y, image);
             fileService.putImage(image, dto.getProcRequest().getImagePath());
             
             floraLogger.info(

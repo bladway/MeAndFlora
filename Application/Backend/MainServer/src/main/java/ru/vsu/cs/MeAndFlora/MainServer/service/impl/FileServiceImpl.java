@@ -36,8 +36,10 @@ public class FileServiceImpl implements FileService {
     @Override
     public void putImage(MultipartFile image, String path) {
         try {
-            image.transferTo(new File(this.path + path));
+            image.transferTo(new File(this.path + path).toPath());
+            System.out.println(this.path + path);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new ObjectException(
                 objectPropertiesConfig.getImagenotuploaded(),
                 "server can't save this uploaded image"  

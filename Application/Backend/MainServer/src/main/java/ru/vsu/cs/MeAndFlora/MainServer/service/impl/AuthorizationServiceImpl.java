@@ -162,12 +162,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         USession newSession = uSessionRepository.save(new USession(session.getIpAddress(), "", "", session.getUser()));
         
-        newSession.setJwt(jwtUtil.generateToken(session.getSessionId()));
-        newSession.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
+        newSession.setJwt(jwtUtil.generateToken(newSession.getSessionId()));
+        newSession.setJwtR(jwtUtil.generateRToken(newSession.getSessionId()));
         
         uSessionRepository.save(newSession);
         
-        return new DiJwtDto(newSession.getJwt(), session.getJwtR());
+        return new DiJwtDto(newSession.getJwt(), newSession.getJwtR());
     }
 
     /*@Override

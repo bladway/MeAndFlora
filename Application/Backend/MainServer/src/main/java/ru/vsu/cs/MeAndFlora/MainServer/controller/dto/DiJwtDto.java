@@ -1,8 +1,10 @@
 package ru.vsu.cs.MeAndFlora.MainServer.controller.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class DiJwtDto {
 
     public DiJwtDto(String jwt, String jwtR) {

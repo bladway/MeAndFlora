@@ -30,7 +30,7 @@ public class USession {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "SESSION_ID", nullable = false)
     private Long sessionId;
 

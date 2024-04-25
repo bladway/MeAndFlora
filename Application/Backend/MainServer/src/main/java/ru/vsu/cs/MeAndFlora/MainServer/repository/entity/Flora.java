@@ -25,11 +25,11 @@ public class Flora {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "FLORA_ID", nullable = false)
     private Long floraId;
 
-    @Column(name = "IMAGE_PATH", nullable = false)
+    @Column(name = "IMAGE_PATH", nullable = false, unique = true)
     private String imagePath;
 
     @Column(name = "NAME", nullable = false, unique = true)

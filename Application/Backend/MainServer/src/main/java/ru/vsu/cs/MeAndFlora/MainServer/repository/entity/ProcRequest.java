@@ -40,11 +40,11 @@ public class ProcRequest {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "REQUEST_ID", nullable = false)
     private Long requestId;
 
-    @Column(name = "IMAGE_PATH", nullable = false)
+    @Column(name = "IMAGE_PATH", nullable = false, unique = true)
     private String imagePath;
 
     @Column(name = "CREATED_TIME", nullable = false)
@@ -53,7 +53,7 @@ public class ProcRequest {
     @Column(name = "POSTED_TIME")
     private OffsetDateTime postedTime;
 
-    @Column(name = "GEO_POS", nullable = false)
+    @Column(name = "GEO_POS")
     private Point geoPos;
 
     //@Column(name = "GEO_POS", columnDefinition = "geometry(Point,4326)", nullable = false)

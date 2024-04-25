@@ -1,6 +1,8 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
 import java.util.Optional;
+
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.locationtech.jts.geom.Point;
 import lombok.RequiredArgsConstructor;
-import ru.vsu.cs.MeAndFlora.MainServer.config.component.JsonUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
@@ -19,7 +20,6 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.RightsPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.ProcRequestStatus;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.FloraRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.ProcRequestRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
@@ -47,8 +47,6 @@ public class FloraServiceImpl implements FloraService {
     private final USessionRepository uSessionRepository;
 
     private final JwtUtil jwtUtil;
-
-    private final JsonUtil jsonUtil;
 
     private final JwtPropertiesConfig jwtPropertiesConfig;
 
@@ -81,7 +79,7 @@ public class FloraServiceImpl implements FloraService {
     public Flora requestFlora(String jwt, String floraName) {
         USession session = procJwt(jwt);
 
-        if (session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
+        if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
             throw new RightsException(
                 rightsPropertiesConfig.getNorights(),
                 "admin has no rights to request flora"
@@ -102,25 +100,33 @@ public class FloraServiceImpl implements FloraService {
     }
 
     @Override
-    public FloraProcRequest procFloraRequest(String jwt, GeoJsonPointDto geoDto, MultipartFile image) {
+    public FloraProcRequest procFloraRequest(String jwt, Double x, Double y, MultipartFile image) {
         USession session = procJwt(jwt);
 
-        if (session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
+        if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
             throw new RightsException(
                 rightsPropertiesConfig.getNorights(),
                 "admin has no rights to process flora request"
             );
         }
 
-        Point geoPos = geoDto == null ? null : jsonUtil.jsonToPoint(geoDto);
+        Point geoPos = null;
+        if (x != null && y != null) {
+            geoPos = geometryFactory.createPoint(new Coordinate(x, y));
+        }
 
         ProcRequest procRequest = procRequestRepository.save(new ProcRequest(
             "", null, geoPos, ProcRequestStatus.NEURAL_PROC.getName(), session, null));
 
-        procRequest.setImagePath(procpath + procRequest.getRequestId());
+        procRequest.setImagePath(procpath + procRequest.getRequestId() + ".jpg");
 
         // later this logic needs to be separated for async work
-        String floraName = kafka(image);//jk
+        //String floraName = kafka(image);//jk
+        String floraName = "oduvanchik";
+
+
+
+
 
         Optional<Flora> ifflora = floraRepository.findByName(floraName);
 
