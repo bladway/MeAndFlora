@@ -1,8 +1,6 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
 import java.util.Optional;
-
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,16 +8,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.locationtech.jts.geom.Point;
 import lombok.RequiredArgsConstructor;
+import ru.vsu.cs.MeAndFlora.MainServer.config.component.JsonUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.object.FloraProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.RightsPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.ProcRequestStatus;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraProcRequestDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.FloraRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.ProcRequestRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
@@ -47,6 +47,8 @@ public class FloraServiceImpl implements FloraService {
     private final USessionRepository uSessionRepository;
 
     private final JwtUtil jwtUtil;
+
+    private final JsonUtil jsonUtil;
 
     private final JwtPropertiesConfig jwtPropertiesConfig;
 
@@ -100,7 +102,7 @@ public class FloraServiceImpl implements FloraService {
     }
 
     @Override
-    public FloraProcRequest procFloraRequest(String jwt, Double x, Double y, MultipartFile image) {
+    public FloraProcRequestDto procFloraRequest(String jwt, GeoJsonPointDto geoDto, MultipartFile image) {
         USession session = procJwt(jwt);
 
         if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
@@ -110,18 +112,15 @@ public class FloraServiceImpl implements FloraService {
             );
         }
 
-        Point geoPos = null;
-        if (x != null && y != null) {
-            geoPos = geometryFactory.createPoint(new Coordinate(x, y));
-        }
+        Point geoPos = geoDto == null ? null : jsonUtil.jsonToPoint(geoDto);
 
         ProcRequest procRequest = procRequestRepository.save(new ProcRequest(
             "", null, geoPos, ProcRequestStatus.NEURAL_PROC.getName(), session, null));
 
         procRequest.setImagePath(procpath + procRequest.getRequestId() + ".jpg");
 
-        // later this logic needs to be separated for async work
-        //String floraName = kafka(image);//jk
+        // this logic needs to be separated for async work
+        //String floraName = kafka(jwt, image);//jk
         String floraName = "oduvanchik";
 
 
@@ -144,7 +143,7 @@ public class FloraServiceImpl implements FloraService {
     
         procRequestRepository.save(procRequest);
     
-        return new FloraProcRequest(flora, procRequest);
+        return new FloraProcRequestDto(flora, procRequest);
 
     }
 

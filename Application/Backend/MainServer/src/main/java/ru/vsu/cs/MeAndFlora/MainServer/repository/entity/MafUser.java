@@ -30,13 +30,7 @@ public class MafUser {
 
     @Column(name = "ROLE", nullable = false)
     private String role;
-
-    /*@Column(name = "IS_ADMIN", nullable = false)
-    private boolean isAdmin;
-
-    @Column(name = "IS_BOTANIST", nullable = false)
-    private boolean isBotanist;*/
-
+    
     @OneToMany(mappedBy = "user")
     private List<USession> sessionList;
 

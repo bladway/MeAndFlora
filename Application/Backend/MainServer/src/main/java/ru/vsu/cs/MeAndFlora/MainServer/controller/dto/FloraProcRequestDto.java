@@ -1,13 +1,15 @@
-package ru.vsu.cs.MeAndFlora.MainServer.config.object;
+package ru.vsu.cs.MeAndFlora.MainServer.controller.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 
 @Data
-public class FloraProcRequest {
+@NoArgsConstructor
+public class FloraProcRequestDto {
     
-    public FloraProcRequest(Flora flora, ProcRequest procRequest) {
+    public FloraProcRequestDto(Flora flora, ProcRequest procRequest) {
         this.flora = flora;
         this.procRequest = procRequest;
     }

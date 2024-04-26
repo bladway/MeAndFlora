@@ -2,11 +2,11 @@ package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
@@ -22,9 +22,9 @@ public class FileServiceImpl implements FileService {
     private final ObjectPropertiesConfig objectPropertiesConfig;
 
     @Override
-    public byte[] getImage(String path) { 
+    public Resource getImage(String path) { 
         try {
-            return Files.readAllBytes(new File(this.path + path).toPath());
+            return new UrlResource(new File(this.path + path).toURI());
         } catch (IOException e) {
             throw new ObjectException(
                 objectPropertiesConfig.getImagenotfound(),
@@ -37,9 +37,7 @@ public class FileServiceImpl implements FileService {
     public void putImage(MultipartFile image, String path) {
         try {
             image.transferTo(new File(this.path + path).toPath());
-            System.out.println(this.path + path);
         } catch (IOException e) {
-            e.printStackTrace();
             throw new ObjectException(
                 objectPropertiesConfig.getImagenotuploaded(),
                 "server can't save this uploaded image"  

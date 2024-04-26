@@ -13,17 +13,20 @@ import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UnnamedAuthDto;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 
 @RequiredArgsConstructor
 @RestController
-@Tag(name = "Сontroller responsible for user authorization and working with sessions")
+@Tag(name = "Сontroller responsible for user authorization and working with sessions and tokens")
 @RequestMapping(path = "/auth")
 class AuthorizationController {
 
@@ -34,8 +37,12 @@ class AuthorizationController {
 
     @Operation(description = "Post. User registration and authomatic login. Requires: NamedAuthDto in body."
     + "Provides: DiJwtDto in body.")
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody NamedAuthDto authDto) {
+    @PostMapping(
+        value = "/register",
+        consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
+        produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
+    )
+    public ResponseEntity<?> register(@RequestPart NamedAuthDto authDto) {
         try {
 
             DiJwtDto responseDto = authorizationService.register(authDto.getLogin(), authDto.getPassword(), authDto.getIpAddress());
@@ -43,9 +50,14 @@ class AuthorizationController {
             authorizationLogger.info(
                 "Register with username: " + authDto.getLogin() + " is successful"
             );
-            return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(responseDto);
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("diJwtDto", responseDto);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.OK);
 
         } catch (AuthException e) {
 
@@ -55,17 +67,26 @@ class AuthorizationController {
             authorizationLogger.warn(
                 "Register with username: " + authDto.getLogin() + " failed with message: " + e.getMessage()
             );
-            return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(exceptionDto);
+            
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("exceptionDto", exceptionDto);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.UNAUTHORIZED);
 
         }
     }
 
     @Operation(description = "Post. User login. Requires: NamedAuthDto in body."
     + "Provides: DiJwtDto in body.")
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody NamedAuthDto authDto) {
+    @PostMapping(
+        value = "/login",
+        consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
+        produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
+    )
+    public ResponseEntity<?> login(@RequestPart NamedAuthDto authDto) {
         try {
 
             DiJwtDto responseDto = authorizationService.login(authDto.getLogin(), authDto.getPassword(), authDto.getIpAddress());
@@ -73,9 +94,14 @@ class AuthorizationController {
             authorizationLogger.info(
                 "Login with username: " + authDto.getLogin() + " is successful"
             );
-            return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(responseDto);
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("diJwtDto", responseDto);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.OK);
 
         } catch (AuthException e) {
 
@@ -85,17 +111,24 @@ class AuthorizationController {
             authorizationLogger.warn(
                 "Login with username: " + authDto.getLogin() + " failed with message: " + e.getMessage()
             );
-            return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(exceptionDto);
+            
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("exceptionDto", exceptionDto);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.UNAUTHORIZED);
 
         }
     }
 
     @Operation(description = "Post. Anonymous login. Requires: UnnamedAuthDto in body."
     + "Provides: DiJwtDto in body.")
-    @PostMapping("/anonymous")
-    public ResponseEntity<?> anonymousLogin(@RequestBody UnnamedAuthDto authDto) {
+    @PostMapping(
+        value = "/anonymous"
+    )
+    public ResponseEntity<?> anonymousLogin(@RequestPart UnnamedAuthDto authDto) {
         try {
 
             DiJwtDto responseDto = authorizationService.anonymousLogin(authDto.getIpAddress());
@@ -103,9 +136,14 @@ class AuthorizationController {
             authorizationLogger.info(
                 "Anonymus login on ip: " + authDto.getIpAddress() + " is successful"
             );
-            return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(responseDto);
+            
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("diJwtDto", responseDto);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.OK);
 
         } catch (AuthException e) {
 
@@ -115,17 +153,26 @@ class AuthorizationController {
             authorizationLogger.warn(
                 "Anonymous login on ip: " + authDto.getIpAddress() + " failed with message: " + e.getMessage()
             );
-            return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(exceptionDto);
+            
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("exceptionDto", exceptionDto);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.UNAUTHORIZED);
 
         }
     }
 
     @Operation(description = "Get. Get fresh jwt and refresh jwt (jwtr). Requires: jwtr in header."
     + "Provides: DiJwtDto in body.")
-    @GetMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestHeader String jwtr) {
+    @GetMapping(
+        value = "/refresh",
+        consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
+        produces = {MediaType.MULTIPART_FORM_DATA_VALUE}    
+    )
+    public ResponseEntity<?> refresh(@RequestPart String jwtr) {
         try {
 
             DiJwtDto responseDto = authorizationService.refresh(jwtr);
@@ -133,9 +180,14 @@ class AuthorizationController {
             authorizationLogger.info(
                 "Refresh token: " + jwtr + " has worked successfully"
             );
-            return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(responseDto);
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("diJwtDto", responseDto);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.OK);
 
         } catch (JwtException e) {
 
@@ -145,40 +197,16 @@ class AuthorizationController {
             authorizationLogger.warn(
                 "problem with refresh jwt: " + jwtr + " message: " + e.getMessage()
             );
-            return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(exceptionDto);
+            
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("exceptionDto", exceptionDto);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.UNAUTHORIZED);
 
         }
     }
-
-    /*@Operation(description = "Notifying the server that the user has disconnected from the session."  
-    + " Returns jwt + httpstatus - ok if successful" 
-    + "and error message + httpstatus - unauthorized otherwise")
-    @PostMapping("/exited")
-    public ResponseEntity<?> userExit(@RequestBody JwtDto dto) {
-        try {
-
-            String token = authorizationService.userExit(dto.getJwt());
-
-            JwtDto responseDto = new JwtDto(token);
-
-            authorizationLogger.info(
-                "User with token: " + dto.getJwt() + " exited successful"
-            );
-            return new ResponseEntity<>(responseDto, HttpStatus.OK);
-
-        } catch (AuthException e) {
-
-            ExceptionDto exceptionDto =
-                new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-
-            authorizationLogger.warn(
-                "User with token: " + dto.getToken() + " not exited. Message: " + e.getMessage()
-            );
-            return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
-
-        }
-    }*/
     
 }

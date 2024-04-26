@@ -16,15 +16,6 @@ public class JwtUtil {
 
     private final JwtPropertiesConfig jwtPropertiesConfig;
 
-    /*private Claims getClaimsIdFromToken(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtPropertiesConfig.getPassword().getBytes(StandardCharsets.UTF_8));
-        return Jwts.parser()
-            .verifyWith(key)
-            .build()
-            .parseSignedClaims(token)
-            .getPayload();
-    }*/
-
     public String generateToken(Long sessionId) {
         SecretKey key = Keys.hmacShaKeyFor(jwtPropertiesConfig.getPassword().getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
@@ -42,10 +33,6 @@ public class JwtUtil {
             .signWith(key)
             .compact();
     }
-
-    /*public Long getSessionIdFromToken(String token) {
-        return getClaimsIdFromToken(token).get("sessionId", Long.class);
-    }*/
     
     public boolean ifJwtExpired(OffsetDateTime createdTime) {
         if (Duration.between(createdTime, OffsetDateTime.now()).compareTo(jwtPropertiesConfig.getLifetime()) > 0) {

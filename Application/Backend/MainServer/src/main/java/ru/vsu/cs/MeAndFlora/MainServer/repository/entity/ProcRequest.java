@@ -22,19 +22,13 @@ public class ProcRequest {
     
     public ProcRequest(
         String imagePath, OffsetDateTime postedTime,
-        Point geoPos, String status, /*boolean isBotanistProc, 
-        boolean isNeuralProc, boolean isPublished, 
-        boolean isBad,*/ USession session,
-        Flora flora
+        Point geoPos, String status, 
+        USession session, Flora flora
     ) {
         this.imagePath = imagePath;
         this.createdTime = OffsetDateTime.now();
         this.geoPos = geoPos;
         this.status = status;
-        /*this.isBotanistProc = isBotanistProc;
-        this.isNeuralProc = isNeuralProc;
-        this.isPublished = isPublished;
-        this.isBad = isBad;*/
         this.session = session;
         this.flora = flora;
     }
@@ -56,23 +50,8 @@ public class ProcRequest {
     @Column(name = "GEO_POS")
     private Point geoPos;
 
-    //@Column(name = "GEO_POS", columnDefinition = "geometry(Point,4326)", nullable = false)
-    //private Point geoPos = FloraServiceImpl.geometryFactory.createPoint(new Coordinate(geoRaw.getX(), geoRaw.getY()));
-
     @Column(name = "STATUS", nullable = false)
     private String status;
-
-    /*@Column(name = "IS_BOTANIST_PROC", nullable = false)
-    private boolean isBotanistProc;
-
-    @Column(name = "IS_NEURAL_PROC", nullable = false)
-    private boolean isNeuralProc;
-
-    @Column(name = "IS_PUBLISHED", nullable = false)
-    private boolean isPublished;
-
-    @Column(name = "IS_BAD", nullable = false)
-    private boolean isBad;*/
 
     @ManyToOne
     @JoinColumn(name = "SESSION_ID", foreignKey = @ForeignKey, nullable = false)

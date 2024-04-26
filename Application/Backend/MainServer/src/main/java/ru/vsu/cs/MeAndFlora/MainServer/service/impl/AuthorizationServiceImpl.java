@@ -21,18 +21,6 @@ import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
 @RequiredArgsConstructor
 public class AuthorizationServiceImpl implements AuthorizationService {
 
-    /*public AuthorizationServiceImpl(
-        MafUserRepository mafUserRepository, 
-        USessionRepository uSessionRepository,
-        JwtUtil jwtUtil,
-        AuthPropertiesConfig authPropertiesConfig
-    ) {
-        this.mafUserRepository = mafUserRepository;
-        this.uSessionRepository = uSessionRepository;
-        this.jwtUtil = jwtUtil;
-        this.authPropertiesConfig = authPropertiesConfig;
-    }*/
-
     private final MafUserRepository mafUserRepository;
     
     private final USessionRepository uSessionRepository;
@@ -169,27 +157,5 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         
         return new DiJwtDto(newSession.getJwt(), newSession.getJwtR());
     }
-
-    /*@Override
-    public String userExit(String token) {
-        Optional<USession> sessionToClose = uSessionRepository.findByJwtAndIsClosed(token, false);
-
-        if (!sessionToClose.isPresent()) {
-            throw new AuthException(
-                authPropertiesConfig.getSessionidproblem(),
-                "session does not exists in the database"
-            );
-        } else if (sessionToClose.get().isClosed()) {
-            throw new AuthException(
-                authPropertiesConfig.getSessionidproblem(), 
-                "session has already closed"
-            );
-        }
-        
-        USession lastSession = sessionToClose.get();
-        lastSession.setClosed(true);
-        
-        return uSessionRepository.save(lastSession).getJwt();
-    }*/
 
 }
