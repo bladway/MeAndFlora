@@ -1,5 +1,8 @@
 package ru.vsu.cs.MeAndFlora.MainServer.config.states;
 
+import lombok.Getter;
+
+@Getter
 public enum ProcRequestStatus {
 
     USER_PROC("userProc"),
@@ -9,11 +12,7 @@ public enum ProcRequestStatus {
     PUBLISHED("published"),
     BAD("bad");
 
-    private String name;
-
-    public String getName() {
-        return name;
-    }
+    private final String name;
 
     ProcRequestStatus(String name) {
         this.name = name;

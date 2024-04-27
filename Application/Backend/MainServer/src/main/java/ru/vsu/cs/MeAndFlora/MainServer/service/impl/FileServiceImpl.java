@@ -1,8 +1,6 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
-import java.io.File;
-import java.io.IOException;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -11,7 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
-import lombok.RequiredArgsConstructor;
+
+import java.io.File;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor

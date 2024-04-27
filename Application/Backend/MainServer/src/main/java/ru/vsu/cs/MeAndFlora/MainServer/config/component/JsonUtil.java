@@ -1,15 +1,14 @@
 package ru.vsu.cs.MeAndFlora.MainServer.config.component;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Component;
-
-import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
 import ru.vsu.cs.MeAndFlora.MainServer.service.impl.FloraServiceImpl;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor

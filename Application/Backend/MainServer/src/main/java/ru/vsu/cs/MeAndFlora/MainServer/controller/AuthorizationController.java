@@ -1,15 +1,10 @@
 package ru.vsu.cs.MeAndFlora.MainServer.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
-import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +13,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.*;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.NamedAuthDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UnnamedAuthDto;
+import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
 
 import java.io.IOException;
 
@@ -53,7 +58,7 @@ class AuthorizationController {
 
             ObjectMapper mapper = new ObjectMapper();
 
-            NamedAuthDto realNamedAuthDto = null;
+            NamedAuthDto realNamedAuthDto;
 
             try {
                 realNamedAuthDto = mapper.readValue(namedAuthDto, NamedAuthDto.class);
@@ -90,7 +95,7 @@ class AuthorizationController {
 
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, status);
+        return new ResponseEntity<>(body, headers, status);
 
     }
 
@@ -113,7 +118,7 @@ class AuthorizationController {
 
             ObjectMapper mapper = new ObjectMapper();
 
-            NamedAuthDto realNamedAuthDto = null;
+            NamedAuthDto realNamedAuthDto;
 
             try {
                 realNamedAuthDto = mapper.readValue(namedAuthDto, NamedAuthDto.class);
@@ -150,7 +155,7 @@ class AuthorizationController {
 
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, status);
+        return new ResponseEntity<>(body, headers, status);
 
     }
 
@@ -173,7 +178,7 @@ class AuthorizationController {
 
             ObjectMapper mapper = new ObjectMapper();
 
-            UnnamedAuthDto realUnnamedAuthDto = null;
+            UnnamedAuthDto realUnnamedAuthDto;
 
             try {
                 realUnnamedAuthDto = mapper.readValue(unnamedAuthDto, UnnamedAuthDto.class);
@@ -208,7 +213,7 @@ class AuthorizationController {
 
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, status);
+        return new ResponseEntity<>(body, headers, status);
 
     }
 
@@ -255,7 +260,7 @@ class AuthorizationController {
 
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, status);
+        return new ResponseEntity<>(body, headers, status);
 
     }
 

@@ -1,14 +1,12 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
-import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.locationtech.jts.geom.Point;
-import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JsonUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
@@ -29,6 +27,8 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class FloraServiceImpl implements FloraService {
@@ -37,9 +37,6 @@ public class FloraServiceImpl implements FloraService {
 
     @Value("${images.procpath}")
     private String procpath;
-
-    @Value("${images.getpath}")
-    private String getpath;
 
     private final FloraRepository floraRepository;
 
@@ -60,7 +57,7 @@ public class FloraServiceImpl implements FloraService {
     private final USession procJwt(String jwt) {
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
-        if (!ifsession.isPresent()) {
+        if (ifsession.isEmpty()) {
             throw new JwtException(
                     jwtPropertiesConfig.getBadjwt(),
                     "provided jwt not valid"
@@ -91,7 +88,7 @@ public class FloraServiceImpl implements FloraService {
 
         Optional<Flora> ifflora = floraRepository.findByName(floraName);
 
-        if (!ifflora.isPresent()) {
+        if (ifflora.isEmpty()) {
             throw new ObjectException(
                     objectPropertiesConfig.getFloranotfound(),
                     "requested flora not found"
@@ -127,7 +124,7 @@ public class FloraServiceImpl implements FloraService {
 
         Optional<Flora> ifflora = floraRepository.findByName(floraName);
 
-        if (!ifflora.isPresent()) {
+        if (ifflora.isEmpty()) {
             throw new ObjectException(
                     objectPropertiesConfig.getFloranotfound(),
                     "neural network give unexpected result, internal backend error"

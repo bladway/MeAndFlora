@@ -1,10 +1,8 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
-import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.springframework.stereotype.Service;
-import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
@@ -17,6 +15,8 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -95,7 +95,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         Optional<MafUser> ifuser = mafUserRepository.findById(login);
 
-        if (!ifuser.isPresent()) {
+        if (ifuser.isEmpty()) {
             throw new AuthException(
                     authPropertiesConfig.getUsrnotfound(),
                     "this user has not found in the database"
@@ -133,7 +133,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         Optional<USession> ifsession = uSessionRepository.findByJwtR(jwtR);
 
-        if (!ifsession.isPresent()) {
+        if (ifsession.isEmpty()) {
             throw new JwtException(
                     jwtPropertiesConfig.getBadjwtr(),
                     "provided refresh jwt is not valid"

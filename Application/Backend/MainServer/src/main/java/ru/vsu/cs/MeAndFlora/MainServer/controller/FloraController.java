@@ -1,9 +1,11 @@
 package ru.vsu.cs.MeAndFlora.MainServer.controller;
 
 
-import java.io.IOException;
-import java.time.OffsetDateTime;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -12,22 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.annotation.MultipartConfig;
-import lombok.RequiredArgsConstructor;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
@@ -40,6 +28,8 @@ import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @RestController
@@ -76,7 +66,7 @@ public class FloraController {
 
             ObjectMapper mapper = new ObjectMapper();
 
-            String realName = null;
+            String realName;
 
             try {
                 realName = mapper.readValue(name, String.class);
@@ -119,7 +109,7 @@ public class FloraController {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.add("jwt", jwt);
 
-        return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, status);
+        return new ResponseEntity<>(body, headers, status);
 
     }
 
@@ -145,7 +135,7 @@ public class FloraController {
 
             ObjectMapper mapper = new ObjectMapper();
 
-            GeoJsonPointDto realGeoDto = null;
+            GeoJsonPointDto realGeoDto;
 
             try {
                 realGeoDto = mapper.readValue(geoDto, GeoJsonPointDto.class);
@@ -190,7 +180,7 @@ public class FloraController {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.add("jwt", jwt);
 
-        return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, status);
+        return new ResponseEntity<>(body, headers, status);
 
     }
 
