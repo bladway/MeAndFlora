@@ -44,3 +44,4 @@ object:
   floranotfound: floranotfound
   imagenotfound: imagenotfound
   imagenotuploaded: imagenotuploaded
+  invalidinput: invalidinput

@@ -28,9 +28,11 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.annotation.MultipartConfig;
 import lombok.RequiredArgsConstructor;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraProcRequestDto;
@@ -52,15 +54,7 @@ public class FloraController {
 
     private final FileService fileService;
 
-    /*private ResponseEntity<?> invalidJwtResponse(JwtException e, String token) {
-        ExceptionDto exceptionDto = 
-        new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-
-        floraLogger.warn(
-            "Invalid jwt: " + token + " message: " + e.getMessage()
-        );
-        return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
-    }*/
+    private final ObjectPropertiesConfig objectPropertiesConfig;
 
     @Operation(description = "Get. Get flora by name. Requires: jwt in header, name of plant in body."
             + "Provides: floraDto in body, multipart image in body (jpg)")
@@ -69,19 +63,33 @@ public class FloraController {
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
             produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
-    public ResponseEntity<?> getPlantByName(
+    public ResponseEntity<MultiValueMap<String, Object>> getPlantByName(
             @RequestHeader String jwt,
-            @RequestBody String name
+            @RequestPart @Schema(type = MediaType.APPLICATION_JSON_VALUE) byte[] name
     ) {
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
         try {
 
-            Flora flora = floraService.requestFlora(jwt, name);
+            ObjectMapper mapper = new ObjectMapper();
+
+            String realName = null;
+
+            try {
+                realName = mapper.readValue(name, String.class);
+            } catch (IOException e) {
+                throw new InputException(objectPropertiesConfig.getInvalidinput(), e.getMessage());
+            }
+
+            Flora flora = floraService.requestFlora(jwt, realName);
 
             floraLogger.info(
-                    "Get plant with name: " + name + " is successful"
+                    "Get plant with name: " + realName + " is successful"
             );
 
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("floraDto", new FloraDto(
                     flora.getName(),
                     flora.getDescription(),
@@ -89,67 +97,30 @@ public class FloraController {
             ));
             body.add("image", fileService.getImage(flora.getImagePath()));
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("jwt", jwt);
+            status = HttpStatus.OK;
 
-            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.OK);
-
-        } catch (JwtException e) {
+        } catch (JwtException | RightsException | ObjectException | InputException e) {
 
             ExceptionDto exceptionDto =
                     new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            floraLogger.warn(
-                    "Invalid jwt: " + jwt + " message: " + e.getMessage()
-            );
+            floraLogger.warn(e.getShortMessage() + ": " + e.getMessage());
 
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("exceptionDto", exceptionDto);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("jwt", jwt);
-
-            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.UNAUTHORIZED);
-
-        } catch (RightsException e) {
-
-            ExceptionDto exceptionDto =
-                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-
-            floraLogger.warn(
-                    "Rights problem to get flora with name: " + name + " failed with message: " + e.getMessage()
-            );
-
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("exceptionDto", exceptionDto);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("jwt", jwt);
-
-            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.FORBIDDEN);
-
-        } catch (ObjectException e) {
-
-            ExceptionDto exceptionDto =
-                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-
-            floraLogger.warn(
-                    "Problem with requested flora: " + name + " message: " + e.getMessage()
-            );
-
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("exceptionDto", exceptionDto);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("jwt", jwt);
-
-            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.NOT_FOUND);
+            status = e.getClass() == JwtException.class ?
+                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
+                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
+                    HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
+                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
 
         }
+
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, status);
+
     }
 
     @Operation(description = "Post. Post new processing request. Requires: jwt in header, "
@@ -162,14 +133,25 @@ public class FloraController {
     )
     private ResponseEntity<MultiValueMap<String, Object>> procFloraRequest(
             @RequestHeader String jwt,
-            @RequestPart(required = true) @Schema(type = MediaType.APPLICATION_JSON_VALUE) byte[] geoDto,
-            @RequestPart(required = false) MultipartFile image
+            @RequestPart(required = false) @Schema(type = MediaType.APPLICATION_JSON_VALUE) byte[] geoDto,
+            @RequestPart MultipartFile image
     ) {
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
         try {
 
             ObjectMapper mapper = new ObjectMapper();
 
-            GeoJsonPointDto realGeoDto = mapper.readValue(geoDto, GeoJsonPointDto.class);
+            GeoJsonPointDto realGeoDto = null;
+
+            try {
+                realGeoDto = mapper.readValue(geoDto, GeoJsonPointDto.class);
+            } catch (IOException e) {
+                throw new InputException(objectPropertiesConfig.getInvalidinput(), e.getMessage());
+            }
 
             FloraProcRequestDto dto = floraService.procFloraRequest(jwt, realGeoDto, image);
 
@@ -179,7 +161,6 @@ public class FloraController {
                     "Processing request defined flora as: " + dto.getFlora().getName()
             );
 
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("floraDto", new FloraDto(
                     dto.getFlora().getName(),
                     dto.getFlora().getDescription(),
@@ -187,85 +168,29 @@ public class FloraController {
             ));
             body.add("image", fileService.getImage(dto.getFlora().getImagePath()));
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("jwt", jwt);
+            status = HttpStatus.OK;
 
-            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.OK);
-
-        } catch (JwtException e) {
+        } catch (JwtException | RightsException | ObjectException | InputException e) {
 
             ExceptionDto exceptionDto =
                     new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            floraLogger.warn(
-                    "Invalid jwt: " + jwt + " message: " + e.getMessage()
-            );
+            floraLogger.warn(e.getShortMessage() + ": " + e.getMessage());
 
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("exceptionDto", exceptionDto);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("jwt", jwt);
-
-            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.UNAUTHORIZED);
-
-        } catch (RightsException e) {
-
-            ExceptionDto exceptionDto =
-                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-
-            floraLogger.warn(
-                    "Rights problem to process flora, message: " + e.getMessage()
-            );
-
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("exceptionDto", exceptionDto);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("jwt", jwt);
-
-            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.FORBIDDEN);
-
-        } catch (ObjectException e) {
-
-            ExceptionDto exceptionDto =
-                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-
-            floraLogger.warn(
-                    "Problem while processing flora image message: " + e.getMessage()
-            );
-
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("exceptionDto", exceptionDto);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("jwt", jwt);
-
-            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.NOT_FOUND);
-
-        } catch (IOException e) {
-
-            ExceptionDto exceptionDto =
-                    new ExceptionDto("jsoninvalid", e.getMessage(), OffsetDateTime.now());
-
-            floraLogger.warn(
-                    "Problem while processing json to file GeoJsonPointDto: " + e.getMessage()
-            );
-
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("exceptionDto", exceptionDto);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("jwt", jwt);
-
-            return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, HttpStatus.BAD_REQUEST);
+            status = e.getClass() == JwtException.class ?
+                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
+                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
+                    HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
+                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
 
         }
+
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<MultiValueMap<String, Object>>(body, headers, status);
 
     }
 
