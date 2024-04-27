@@ -26,21 +26,21 @@ import org.springframework.web.bind.annotation.RequestPart;
 
 @RequiredArgsConstructor
 @RestController
-@Tag(name = "Сontroller responsible for user authorization and working with sessions and tokens")
+@Tag(name = "Controller responsible for user authorization and working with sessions and tokens")
 @RequestMapping(path = "/auth")
 class AuthorizationController {
 
-    public static final Logger authorizationLogger = 
-        LoggerFactory.getLogger(AuthorizationController.class);
+    public static final Logger authorizationLogger =
+            LoggerFactory.getLogger(AuthorizationController.class);
 
     private final AuthorizationService authorizationService;
 
-    @Operation(description = "Post. User registration and authomatic login. Requires: NamedAuthDto in body."
-    + "Provides: DiJwtDto in body.")
+    @Operation(description = "Post. User registration and automatic login. Requires: NamedAuthDto in body."
+            + "Provides: DiJwtDto in body.")
     @PostMapping(
-        value = "/register",
-        consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
-        produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
+            value = "/register",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
+            produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     public ResponseEntity<?> register(@RequestPart NamedAuthDto authDto) {
         try {
@@ -48,7 +48,7 @@ class AuthorizationController {
             DiJwtDto responseDto = authorizationService.register(authDto.getLogin(), authDto.getPassword(), authDto.getIpAddress());
 
             authorizationLogger.info(
-                "Register with username: " + authDto.getLogin() + " is successful"
+                    "Register with username: " + authDto.getLogin() + " is successful"
             );
 
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -61,13 +61,13 @@ class AuthorizationController {
 
         } catch (AuthException e) {
 
-            ExceptionDto exceptionDto = 
-                new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+            ExceptionDto exceptionDto =
+                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             authorizationLogger.warn(
-                "Register with username: " + authDto.getLogin() + " failed with message: " + e.getMessage()
+                    "Register with username: " + authDto.getLogin() + " failed with message: " + e.getMessage()
             );
-            
+
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("exceptionDto", exceptionDto);
 
@@ -80,11 +80,11 @@ class AuthorizationController {
     }
 
     @Operation(description = "Post. User login. Requires: NamedAuthDto in body."
-    + "Provides: DiJwtDto in body.")
+            + "Provides: DiJwtDto in body.")
     @PostMapping(
-        value = "/login",
-        consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
-        produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
+            value = "/login",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
+            produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     public ResponseEntity<?> login(@RequestPart NamedAuthDto authDto) {
         try {
@@ -92,7 +92,7 @@ class AuthorizationController {
             DiJwtDto responseDto = authorizationService.login(authDto.getLogin(), authDto.getPassword(), authDto.getIpAddress());
 
             authorizationLogger.info(
-                "Login with username: " + authDto.getLogin() + " is successful"
+                    "Login with username: " + authDto.getLogin() + " is successful"
             );
 
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -106,12 +106,12 @@ class AuthorizationController {
         } catch (AuthException e) {
 
             ExceptionDto exceptionDto =
-                new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             authorizationLogger.warn(
-                "Login with username: " + authDto.getLogin() + " failed with message: " + e.getMessage()
+                    "Login with username: " + authDto.getLogin() + " failed with message: " + e.getMessage()
             );
-            
+
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("exceptionDto", exceptionDto);
 
@@ -124,9 +124,11 @@ class AuthorizationController {
     }
 
     @Operation(description = "Post. Anonymous login. Requires: UnnamedAuthDto in body."
-    + "Provides: DiJwtDto in body.")
+            + "Provides: DiJwtDto in body.")
     @PostMapping(
-        value = "/anonymous"
+            value = "/anonymous",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
+            produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     public ResponseEntity<?> anonymousLogin(@RequestPart UnnamedAuthDto authDto) {
         try {
@@ -134,9 +136,9 @@ class AuthorizationController {
             DiJwtDto responseDto = authorizationService.anonymousLogin(authDto.getIpAddress());
 
             authorizationLogger.info(
-                "Anonymus login on ip: " + authDto.getIpAddress() + " is successful"
+                    "Anonymus login on ip: " + authDto.getIpAddress() + " is successful"
             );
-            
+
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("diJwtDto", responseDto);
 
@@ -148,12 +150,12 @@ class AuthorizationController {
         } catch (AuthException e) {
 
             ExceptionDto exceptionDto =
-                new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             authorizationLogger.warn(
-                "Anonymous login on ip: " + authDto.getIpAddress() + " failed with message: " + e.getMessage()
+                    "Anonymous login on ip: " + authDto.getIpAddress() + " failed with message: " + e.getMessage()
             );
-            
+
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("exceptionDto", exceptionDto);
 
@@ -166,11 +168,11 @@ class AuthorizationController {
     }
 
     @Operation(description = "Get. Get fresh jwt and refresh jwt (jwtr). Requires: jwtr in header."
-    + "Provides: DiJwtDto in body.")
+            + "Provides: DiJwtDto in body.")
     @GetMapping(
-        value = "/refresh",
-        consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
-        produces = {MediaType.MULTIPART_FORM_DATA_VALUE}    
+            value = "/refresh",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
+            produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     public ResponseEntity<?> refresh(@RequestPart String jwtr) {
         try {
@@ -178,7 +180,7 @@ class AuthorizationController {
             DiJwtDto responseDto = authorizationService.refresh(jwtr);
 
             authorizationLogger.info(
-                "Refresh token: " + jwtr + " has worked successfully"
+                    "Refresh token: " + jwtr + " has worked successfully"
             );
 
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -191,13 +193,13 @@ class AuthorizationController {
 
         } catch (JwtException e) {
 
-            ExceptionDto exceptionDto = 
-            new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-    
+            ExceptionDto exceptionDto =
+                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
             authorizationLogger.warn(
-                "problem with refresh jwt: " + jwtr + " message: " + e.getMessage()
+                    "problem with refresh jwt: " + jwtr + " message: " + e.getMessage()
             );
-            
+
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("exceptionDto", exceptionDto);
 
@@ -208,5 +210,5 @@ class AuthorizationController {
 
         }
     }
-    
+
 }

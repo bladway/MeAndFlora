@@ -2,6 +2,7 @@ package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -15,20 +16,20 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
-    
+
     @Value("${images.path}")
     private String path;
 
     private final ObjectPropertiesConfig objectPropertiesConfig;
 
     @Override
-    public Resource getImage(String path) { 
+    public Resource getImage(String path) {
         try {
             return new UrlResource(new File(this.path + path).toURI());
         } catch (IOException e) {
             throw new ObjectException(
-                objectPropertiesConfig.getImagenotfound(),
-                "server can't find image for existing flora"
+                    objectPropertiesConfig.getImagenotfound(),
+                    "server can't find image for existing flora"
             );
         }
     }
@@ -39,8 +40,8 @@ public class FileServiceImpl implements FileService {
             image.transferTo(new File(this.path + path).toPath());
         } catch (IOException e) {
             throw new ObjectException(
-                objectPropertiesConfig.getImagenotuploaded(),
-                "server can't save this uploaded image"  
+                    objectPropertiesConfig.getImagenotuploaded(),
+                    "server can't save this uploaded image"
             );
         }
     }

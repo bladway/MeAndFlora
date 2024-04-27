@@ -1,6 +1,7 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
 import java.util.Optional;
+
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,8 +62,8 @@ public class FloraServiceImpl implements FloraService {
 
         if (!ifsession.isPresent()) {
             throw new JwtException(
-                jwtPropertiesConfig.getBadjwt(),
-                "provided jwt not valid"
+                    jwtPropertiesConfig.getBadjwt(),
+                    "provided jwt not valid"
             );
         }
 
@@ -70,8 +71,8 @@ public class FloraServiceImpl implements FloraService {
 
         if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
             throw new JwtException(
-                jwtPropertiesConfig.getExpired(),
-                "jwt lifetime has ended, get a new one by refresh token"
+                    jwtPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
             );
         }
         return session;
@@ -83,8 +84,8 @@ public class FloraServiceImpl implements FloraService {
 
         if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
             throw new RightsException(
-                rightsPropertiesConfig.getNorights(),
-                "admin has no rights to request flora"
+                    rightsPropertiesConfig.getNorights(),
+                    "admin has no rights to request flora"
             );
         }
 
@@ -92,8 +93,8 @@ public class FloraServiceImpl implements FloraService {
 
         if (!ifflora.isPresent()) {
             throw new ObjectException(
-                objectPropertiesConfig.getFloranotfound(),
-                "requested flora not found"
+                    objectPropertiesConfig.getFloranotfound(),
+                    "requested flora not found"
             );
         }
 
@@ -107,15 +108,15 @@ public class FloraServiceImpl implements FloraService {
 
         if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
             throw new RightsException(
-                rightsPropertiesConfig.getNorights(),
-                "admin has no rights to process flora request"
+                    rightsPropertiesConfig.getNorights(),
+                    "admin has no rights to process flora request"
             );
         }
 
         Point geoPos = geoDto == null ? null : jsonUtil.jsonToPoint(geoDto);
 
         ProcRequest procRequest = procRequestRepository.save(new ProcRequest(
-            "", null, geoPos, ProcRequestStatus.NEURAL_PROC.getName(), session, null));
+                "", null, geoPos, ProcRequestStatus.NEURAL_PROC.getName(), session, null));
 
         procRequest.setImagePath(procpath + procRequest.getRequestId() + ".jpg");
 
@@ -124,15 +125,12 @@ public class FloraServiceImpl implements FloraService {
         String floraName = "oduvanchik";
 
 
-
-
-
         Optional<Flora> ifflora = floraRepository.findByName(floraName);
 
         if (!ifflora.isPresent()) {
             throw new ObjectException(
-                objectPropertiesConfig.getFloranotfound(),
-                "neural network give unexpected result, internal backend error"
+                    objectPropertiesConfig.getFloranotfound(),
+                    "neural network give unexpected result, internal backend error"
             );
         }
 
@@ -140,9 +138,9 @@ public class FloraServiceImpl implements FloraService {
 
         procRequest.setFlora(flora);
         procRequest.setStatus(ProcRequestStatus.USER_PROC.getName());
-    
+
         procRequestRepository.save(procRequest);
-    
+
         return new FloraProcRequestDto(flora, procRequest);
 
     }

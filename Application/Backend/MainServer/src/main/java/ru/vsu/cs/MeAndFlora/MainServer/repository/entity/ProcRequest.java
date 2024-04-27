@@ -1,6 +1,7 @@
 package ru.vsu.cs.MeAndFlora.MainServer.repository.entity;
 
 import java.time.OffsetDateTime;
+
 import org.locationtech.jts.geom.Point;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,11 +20,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class ProcRequest {
-    
+
     public ProcRequest(
-        String imagePath, OffsetDateTime postedTime,
-        Point geoPos, String status, 
-        USession session, Flora flora
+            String imagePath, OffsetDateTime postedTime,
+            Point geoPos, String status,
+            USession session, Flora flora
     ) {
         this.imagePath = imagePath;
         this.createdTime = OffsetDateTime.now();
@@ -60,5 +61,5 @@ public class ProcRequest {
     @ManyToOne
     @JoinColumn(name = "FLORA_ID", foreignKey = @ForeignKey)
     private Flora flora;
-    
+
 }

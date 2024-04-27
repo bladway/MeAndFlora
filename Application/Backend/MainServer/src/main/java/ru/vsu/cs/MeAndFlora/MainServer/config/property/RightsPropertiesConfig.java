@@ -10,5 +10,5 @@ import lombok.Data;
 public class RightsPropertiesConfig {
 
     private String norights;
-    
+
 }

@@ -1,6 +1,7 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
 import java.util.Optional;
+
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
 public class AuthorizationServiceImpl implements AuthorizationService {
 
     private final MafUserRepository mafUserRepository;
-    
+
     private final USessionRepository uSessionRepository;
 
     private final JwtUtil jwtUtil;
@@ -34,8 +35,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private void validateLogin(String login) {
         if (login.length() < 6 || login.length() > 25) {
             throw new AuthException(
-                authPropertiesConfig.getBadlogin(), 
-            "login does not match expected length: 6 - 25"
+                    authPropertiesConfig.getBadlogin(),
+                    "login does not match expected length: 6 - 25"
             );
         }
     }
@@ -43,8 +44,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private void validatePassword(String password) {
         if (password.length() < 6 || password.length() > 25) {
             throw new AuthException(
-                authPropertiesConfig.getBadpassword(),
-                "password does not match expected length: 6 - 25"    
+                    authPropertiesConfig.getBadpassword(),
+                    "password does not match expected length: 6 - 25"
             );
         }
     }
@@ -52,8 +53,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private void validateIpAddress(String ipAddress) {
         if (!InetAddressValidator.getInstance().isValidInet4Address(ipAddress)) {
             throw new AuthException(
-                authPropertiesConfig.getBadip(),
-                "ip address does not match expected template: 0-255.0-255.0-255.0-255"
+                    authPropertiesConfig.getBadip(),
+                    "ip address does not match expected template: 0-255.0-255.0-255.0-255"
             );
         }
     }
@@ -63,12 +64,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         validateLogin(login);
 
         mafUserRepository.findById(login).ifPresent(
-            mafUser -> {
-                throw new AuthException(
-                    authPropertiesConfig.getDoublelogin(),
-                    "such login exists in the database"
-                );
-            }
+                mafUser -> {
+                    throw new AuthException(
+                            authPropertiesConfig.getDoublelogin(),
+                            "such login exists in the database"
+                    );
+                }
         );
 
         validatePassword(password);
@@ -96,8 +97,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         if (!ifuser.isPresent()) {
             throw new AuthException(
-                authPropertiesConfig.getUsrnotfound(),
-                "this user has not found in the database"
+                    authPropertiesConfig.getUsrnotfound(),
+                    "this user has not found in the database"
             );
         }
 
@@ -121,9 +122,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         session.setJwt(jwtUtil.generateToken(session.getSessionId()));
         session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
-        
+
         uSessionRepository.save(session);
-        
+
         return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
 
@@ -134,8 +135,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         if (!ifsession.isPresent()) {
             throw new JwtException(
-                jwtPropertiesConfig.getBadjwtr(),
-                "provided refresh jwt is not valid"
+                    jwtPropertiesConfig.getBadjwtr(),
+                    "provided refresh jwt is not valid"
             );
         }
 
@@ -143,18 +144,18 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         if (jwtUtil.ifJwtRExpired(session.getCreatedTime())) {
             throw new JwtException(
-                jwtPropertiesConfig.getExpiredr(),
-                "refresh jwt lifetime has ended, relogin, please"
+                    jwtPropertiesConfig.getExpiredr(),
+                    "refresh jwt lifetime has ended, relogin, please"
             );
         }
 
         USession newSession = uSessionRepository.save(new USession(session.getIpAddress(), "", "", session.getUser()));
-        
+
         newSession.setJwt(jwtUtil.generateToken(newSession.getSessionId()));
         newSession.setJwtR(jwtUtil.generateRToken(newSession.getSessionId()));
-        
+
         uSessionRepository.save(newSession);
-        
+
         return new DiJwtDto(newSession.getJwt(), newSession.getJwtR());
     }
 

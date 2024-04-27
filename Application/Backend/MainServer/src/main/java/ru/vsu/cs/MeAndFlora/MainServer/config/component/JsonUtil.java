@@ -14,14 +14,14 @@ import ru.vsu.cs.MeAndFlora.MainServer.service.impl.FloraServiceImpl;
 @Component
 @RequiredArgsConstructor
 public class JsonUtil {
-    
+
     public Point jsonToPoint(GeoJsonPointDto geoDto) {
         return FloraServiceImpl.geometryFactory.createPoint(new Coordinate(
 
-                geoDto.getCoordinates().get(0),
-                geoDto.getCoordinates().get(1)
+                        geoDto.getCoordinates().get(0),
+                        geoDto.getCoordinates().get(1)
 
-            )
+                )
         );
     }
 

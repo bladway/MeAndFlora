@@ -14,5 +14,5 @@ public class DiJwtDto {
 
     private String jwt;
     private String jwtR;
-    
+
 }

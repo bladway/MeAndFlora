@@ -8,7 +8,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 @Data
 @NoArgsConstructor
 public class FloraProcRequestDto {
-    
+
     public FloraProcRequestDto(Flora flora, ProcRequest procRequest) {
         this.flora = flora;
         this.procRequest = procRequest;

@@ -6,5 +6,5 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 
 @Repository
 public interface ProcRequestRepository extends JpaRepository<ProcRequest, Long> {
-    
+
 }

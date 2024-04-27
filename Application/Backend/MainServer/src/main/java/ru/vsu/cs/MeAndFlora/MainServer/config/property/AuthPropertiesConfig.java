@@ -15,5 +15,5 @@ public class AuthPropertiesConfig {
     private String usrnotfound;
     private String sessionidproblem;
     private String doublelogin;
-    
+
 }

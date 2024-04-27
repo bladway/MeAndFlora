@@ -6,5 +6,5 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
 
 @Repository
 public interface MafUserRepository extends JpaRepository<MafUser, String> {
-    
+
 }

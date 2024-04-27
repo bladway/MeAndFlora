@@ -1,6 +1,7 @@
 package ru.vsu.cs.MeAndFlora.MainServer.repository.entity;
 
 import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -30,7 +31,7 @@ public class MafUser {
 
     @Column(name = "ROLE", nullable = false)
     private String role;
-    
+
     @OneToMany(mappedBy = "user")
     private List<USession> sessionList;
 
