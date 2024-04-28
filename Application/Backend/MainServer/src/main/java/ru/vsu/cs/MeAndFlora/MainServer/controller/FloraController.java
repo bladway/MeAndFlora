@@ -137,13 +137,16 @@ public class FloraController {
 
             GeoJsonPointDto realGeoDto;
 
+            byte[] realImage;
+
             try {
                 realGeoDto = mapper.readValue(geoDto, GeoJsonPointDto.class);
+                realImage = mapper.readValue(image.getBytes(), byte[].class);
             } catch (IOException e) {
                 throw new InputException(objectPropertiesConfig.getInvalidinput(), e.getMessage());
             }
 
-            FloraProcRequestDto dto = floraService.procFloraRequest(jwt, realGeoDto, image);
+            FloraProcRequestDto dto = floraService.procFloraRequest(jwt, realImage, realGeoDto);
 
             fileService.putImage(image, dto.getProcRequest().getImagePath());
 

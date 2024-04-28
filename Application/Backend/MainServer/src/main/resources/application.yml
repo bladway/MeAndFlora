@@ -7,6 +7,8 @@ server:
 logging:
   file:
     name: MainServer.log
+
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -18,10 +20,34 @@ spring:
       ddl-auto: none
     show-sql: true
     database: postgresql
+  kafka:
+    jaas:
+      enabled: true
+    properties:
+      security:
+        protocol: SASL_PLAINTEXT
+      sasl:
+        mechanism: PLAIN
+        jaas:
+          config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${KAFKA_USER}" password="${KAFKA_PASSWORD}";
+    producer:
+      bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+      topic: ProcRequestTopic
+      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      client-id: ${MAINSERVER_KAFKA_CLIENT_ID}
+    consumer:
+      bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+      topic: ProcReturnTopic
+      auto-offset-reset: earliest
+      group-id: MeAndFlora
+
+
 images:
   path: ${MAINSERVER_IMAGES_PATH}
   procpath: ${MAINSERVER_IMAGES_PROC_PATH}
   getpath: ${MAINSERVER_IMAGES_GET_PATH}
+
+
 jwt:
   password: ${MAINSERVER_JWT_PASSWORD}
   passwordr: ${MAINSERVER_JWT_R_PASSWORD}
@@ -31,6 +57,8 @@ jwt:
   expiredr: expiredr
   badjwt: badjwt
   badjwtr: badjwtr
+
+
 auth:
   badlogin: badlogin
   badpassword: badpassword
@@ -38,8 +66,12 @@ auth:
   usrnotfound: usrnotfound
   sessionidproblem: sessionidproblem
   doublelogin: doublelogin
+
+
 rights:
   norights: norights
+
+
 object:
   floranotfound: floranotfound
   imagenotfound: imagenotfound

@@ -9,6 +9,6 @@ public interface FloraService {
 
     Flora requestFlora(String jwt, String floraName);
 
-    FloraProcRequestDto procFloraRequest(String jwt, GeoJsonPointDto geoDto, MultipartFile image);
+    FloraProcRequestDto procFloraRequest(String jwt, byte[] image, GeoJsonPointDto geoDto);
 
 } 

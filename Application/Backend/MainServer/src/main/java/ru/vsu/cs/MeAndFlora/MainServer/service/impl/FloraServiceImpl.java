@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JsonUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
+import ru.vsu.cs.MeAndFlora.MainServer.config.component.KafkaConsumer;
+import ru.vsu.cs.MeAndFlora.MainServer.config.component.KafkaProducer;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
@@ -23,6 +25,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.FloraRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.ProcRequestRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
+import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
@@ -48,13 +51,17 @@ public class FloraServiceImpl implements FloraService {
 
     private final JsonUtil jsonUtil;
 
+    private final KafkaProducer kafkaProducer;
+
+    private final KafkaConsumer kafkaConsumer;
+
     private final JwtPropertiesConfig jwtPropertiesConfig;
 
     private final RightsPropertiesConfig rightsPropertiesConfig;
 
     private final ObjectPropertiesConfig objectPropertiesConfig;
 
-    private final USession procJwt(String jwt) {
+    private USession procJwt(String jwt) {
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -100,7 +107,7 @@ public class FloraServiceImpl implements FloraService {
     }
 
     @Override
-    public FloraProcRequestDto procFloraRequest(String jwt, GeoJsonPointDto geoDto, MultipartFile image) {
+    public FloraProcRequestDto procFloraRequest(String jwt, byte[] image, GeoJsonPointDto geoDto) {
         USession session = procJwt(jwt);
 
         if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
@@ -120,6 +127,8 @@ public class FloraServiceImpl implements FloraService {
         // this logic needs to be separated for async work
         //String floraName = kafka(jwt, image);//jk
         String floraName = "oduvanchik";
+        kafkaProducer.sendProcRequestMessage(jwt, image, procRequest);
+
 
 
         Optional<Flora> ifflora = floraRepository.findByName(floraName);
