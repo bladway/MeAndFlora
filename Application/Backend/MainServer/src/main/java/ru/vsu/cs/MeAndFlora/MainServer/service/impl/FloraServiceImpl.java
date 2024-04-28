@@ -30,6 +30,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
 
+import java.time.Duration;
 import java.util.Optional;
 
 @Service
@@ -125,11 +126,18 @@ public class FloraServiceImpl implements FloraService {
         procRequest.setImagePath(procpath + procRequest.getRequestId() + ".jpg");
 
         // this logic needs to be separated for async work
-        //String floraName = kafka(jwt, image);//jk
-        String floraName = "oduvanchik";
+        //String floraName = "oduvanchik";
         kafkaProducer.sendProcRequestMessage(jwt, image, procRequest);
 
+        while (!KafkaConsumer.procReturnFloraNames.containsKey(procRequest.getRequestId())) {
+            try {
+                wait(1500);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
 
+        String floraName = KafkaConsumer.procReturnFloraNames.get(procRequest.getRequestId());
 
         Optional<Flora> ifflora = floraRepository.findByName(floraName);
 

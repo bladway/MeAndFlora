@@ -13,9 +13,17 @@ public class KafkaConfig {
     @Value("${spring.kafka.producer.topic}")
     private String requestTopic;
 
+    @Value("${spring.kafka.consumer.topic}")
+    private String responseTopic;
+
     @Bean
-    public NewTopic ProcRequestTopic() {
+    public NewTopic procRequestTopic() {
         return new NewTopic(requestTopic, 5, (short) 1);
+    }
+
+    @Bean
+    public NewTopic procReturnTopic() {
+        return new NewTopic(responseTopic, 5, (short) 1);
     }
 
 }

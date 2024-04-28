@@ -1,7 +1,5 @@
 package ru.vsu.cs.MeAndFlora.MainServer.controller;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +14,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.vsu.cs.MeAndFlora.MainServer.MainServerApplication;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
@@ -28,7 +27,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
-
+// TODO return database to pre state when exception are thrown
 import java.io.IOException;
 
 @RequiredArgsConstructor
@@ -64,21 +63,15 @@ public class FloraController {
 
         try {
 
-            ObjectMapper mapper = new ObjectMapper();
-
             String realName;
 
             try {
-                realName = mapper.readValue(name, String.class);
+                realName = MainServerApplication.objectMapper.readValue(name, String.class);
             } catch (IOException e) {
                 throw new InputException(objectPropertiesConfig.getInvalidinput(), e.getMessage());
             }
 
             Flora flora = floraService.requestFlora(jwt, realName);
-
-            floraLogger.info(
-                    "Get plant with name: " + realName + " is successful"
-            );
 
             body.add("floraDto", new FloraDto(
                     flora.getName(),
@@ -89,12 +82,14 @@ public class FloraController {
 
             status = HttpStatus.OK;
 
+            floraLogger.info(
+                    "Get plant with name: " + realName + " is successful"
+            );
+
         } catch (JwtException | RightsException | ObjectException | InputException e) {
 
             ExceptionDto exceptionDto =
                     new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-
-            floraLogger.warn(e.getShortMessage() + ": " + e.getMessage());
 
             body.add("exceptionDto", exceptionDto);
 
@@ -103,6 +98,8 @@ public class FloraController {
                     HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
                     HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
                     HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            floraLogger.warn(e.getShortMessage() + ": " + e.getMessage());
 
         }
 
@@ -133,15 +130,13 @@ public class FloraController {
 
         try {
 
-            ObjectMapper mapper = new ObjectMapper();
-
             GeoJsonPointDto realGeoDto;
 
             byte[] realImage;
 
             try {
-                realGeoDto = mapper.readValue(geoDto, GeoJsonPointDto.class);
-                realImage = mapper.readValue(image.getBytes(), byte[].class);
+                realGeoDto = geoDto == null ? null :  MainServerApplication.objectMapper.readValue(geoDto, GeoJsonPointDto.class);
+                realImage = image.getBytes();
             } catch (IOException e) {
                 throw new InputException(objectPropertiesConfig.getInvalidinput(), e.getMessage());
             }
@@ -149,10 +144,6 @@ public class FloraController {
             FloraProcRequestDto dto = floraService.procFloraRequest(jwt, realImage, realGeoDto);
 
             fileService.putImage(image, dto.getProcRequest().getImagePath());
-
-            floraLogger.info(
-                    "Processing request defined flora as: " + dto.getFlora().getName()
-            );
 
             body.add("floraDto", new FloraDto(
                     dto.getFlora().getName(),
@@ -163,12 +154,15 @@ public class FloraController {
 
             status = HttpStatus.OK;
 
+            floraLogger.info(
+                    "Processing request defined flora as: " + dto.getFlora().getName()
+            );
+
+
         } catch (JwtException | RightsException | ObjectException | InputException e) {
 
             ExceptionDto exceptionDto =
                     new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-
-            floraLogger.warn(e.getShortMessage() + ": " + e.getMessage());
 
             body.add("exceptionDto", exceptionDto);
 
@@ -177,6 +171,8 @@ public class FloraController {
                     HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
                     HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
                     HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            floraLogger.warn(e.getShortMessage() + ": " + e.getMessage());
 
         }
 

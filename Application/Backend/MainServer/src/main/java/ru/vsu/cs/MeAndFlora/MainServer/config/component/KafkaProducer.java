@@ -17,10 +17,12 @@ public class KafkaProducer {
     private final KafkaTemplate<Integer, byte[]> kafkaTemplate;
 
     public void sendProcRequestMessage(String jwt, byte[] image, ProcRequest procRequest) {
-        Integer partition = procRequest.getSession().getUser() == null ? 1 : (procRequest.getSession().getUser().getLogin().hashCode() % 4 + 2);
+        Integer partition = procRequest.getSession().getUser() == null ? 0 : (procRequest.getSession().getUser().getLogin().hashCode() % 4 + 1);
+
         ProducerRecord<Integer, byte[]> record = new ProducerRecord<>(requestTopic, partition, partition, image);
         record.headers().add("jwt", jwt.getBytes());
         record.headers().add("requestId", procRequest.getRequestId().toString().getBytes());
+
         kafkaTemplate.send(record);
     }
 

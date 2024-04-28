@@ -21,6 +21,7 @@ spring:
     show-sql: true
     database: postgresql
   kafka:
+    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
     jaas:
       enabled: true
     properties:
@@ -31,13 +32,14 @@ spring:
         jaas:
           config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${KAFKA_USER}" password="${KAFKA_PASSWORD}";
     producer:
-      bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
       topic: ProcRequestTopic
-      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
       client-id: ${MAINSERVER_KAFKA_CLIENT_ID}
     consumer:
-      bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
       topic: ProcReturnTopic
+      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       auto-offset-reset: earliest
       group-id: MeAndFlora
 
