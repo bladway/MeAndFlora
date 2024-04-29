@@ -36,6 +36,10 @@ dependencies:
   dio: ^5.4.0
   geolocator: ^10.1.0
   geocoding: ^2.1.1
+  intl: ^0.18.0
+  calendar_date_picker2: ^0.5.5
+  flutter_data_table: ^1.0.2
+  appmetrica_plugin: ^2.0.0
 
 dev_dependencies:
   flutter_test:
