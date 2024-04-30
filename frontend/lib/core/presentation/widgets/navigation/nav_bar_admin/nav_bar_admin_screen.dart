@@ -27,7 +27,7 @@ class NavBarAdminScreen extends StatelessWidget implements AutoRouteWrapper {
       child: AutoTabsRouter(
         routes: const [
           AccountListRoute(),
-          PlantPublicRoute(),
+          PlantPublicWrapperRoute(),
           StatisticRoute(),
           AccountRoute(),
         ],
