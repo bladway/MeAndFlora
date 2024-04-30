@@ -28,12 +28,16 @@
 
 - [Miro](https://miro.com/app/board/uXjVNlotI-0=/?share_link_id=423741448147)
 
+### AppMetrica
+- [AppMetrica](https://appmetrica.yandex.ru/overview?appId=4568380&period=week&group=day&currency=rub&accuracy=medium&sampling=1)
+
 ### Документация
 
 - Техническое задание [(.docx)](Documentation/Техническое_задание.docx) [(.pdf)](Documentation/Техническое_задание.pdf)
 - Перечень задач [(.pdf)](Documentation/перечень_задач.pdf)
 - Презентация проекта [(.pptx)](Documentation/Green-Modern-Nature-Presentation.pptx) [(.pdf)](Documentation/Green-Modern-Nature-Presentation.pdf)
 - Сопроводительное письмо (к 1 атте) [(.docx)](Documentation/Сопроводительное-письмо.docx) [(.pdf)](Documentation/Сопроводительное-письмо.pdf)
+- Курсовая работа [(.docx)](Documentation/Курсовая.docx) [(.pdf)](Documentation/Курсовая.pdf)
 
 ### Диаграммы
 
