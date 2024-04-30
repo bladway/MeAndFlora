@@ -48,5 +48,5 @@
 
 ### Медиафайлы
 
-- [Видео-презентация](https://www.youtube.com/watch?v=aEC6B9noEGg&ab)
+- [Видео-презентация](https://youtu.be/t8LKt0Jxcg4)
 - [Демонстрация работы экранов](https://youtu.be/RO37f8xuS8c)
