@@ -4,6 +4,7 @@ import 'colors.dart';
 
 const colors = AppColors();
 
+//.merge(TextStyle(color: Colors.red)
 final mainTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(seedColor: colors.black),
   useMaterial3: true,
@@ -11,7 +12,7 @@ final mainTheme = ThemeData(
   textTheme: TextTheme(
     bodyLarge: const TextStyle(
         fontSize: 18,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w600, //SemiBold
         color: Colors.white
     ),
     bodyMedium: TextStyle(
