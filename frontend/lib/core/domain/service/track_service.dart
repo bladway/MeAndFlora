@@ -1,13 +1,18 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
 
 import '../models/models.dart';
+import '../models/plant_type.dart';
+
+List<Plant> plantList = [];
 
 class TrackService {
-  Future<void> addPlantToHistory(String accountId, Plant plant) async {
-    final response = await Dio().post("path", data: plant);
+  Future<void> trackPlant(String accountId, Plant plant) async {
+    final response = await Dio().put("path", data: plant);
   }
 
-  Future<List<Plant>> getPlantHistory(String accountId) async {
+  Future<List<Plant>> getTrackPlants(String accountId) async {
     /*
     final response = await Dio().get("path");
     final data = response.data as Map<String, dynamic>;
@@ -20,69 +25,22 @@ class TrackService {
             isLiked: e.value['isLiked'],
             imageUrl: e.value['imageUrl']))
         .toList();
-    return dataList;*/
-    return [
-      const Plant(
-          name: "Plant1",
-          type: "Дерево",
+    return dataList;
+    */
+    for (int i = 0; i < 30; i++) {
+      plantList.add(Plant(
+          name: "Plant${i + 1}",
+          type: PlantType.values.elementAt(Random().nextInt(4)),
           description:
-          "fvjnsjnsdjfnsjkfnsjdbkjbilnbknlknjlkmlmjljmlknjknjkbjkbhnv kbjlkjbnlknklnjcnsdjcnscjsdc",
-          isTracked: true,
-          imageUrl: "something"),
-      const Plant(
-          name: "Plant2",
-          type: "Дерево",
-          description: "fvjnsjnsdjfnsjkfnsjdcnsdjcnscjsdc",
-          isTracked: false,
-          imageUrl: "something"),
-      const Plant(
-          name: "Plant3",
-          type: "Мох",
-          description: "fvjnsjnsdjfnsjkfnsjdcnsdjcnscjsdc",
-          isTracked: false,
-          imageUrl: "something"),
-      const Plant(
-          name: "Plant4",
-          type: "Мох",
-          description: "fvjnsjnsdjfnsjkfnsjdcnsdjcnscjsdc",
-          isTracked: false,
-          imageUrl: "something"),
-      const Plant(
-          name: "Plant5",
-          type: "Цветок",
-          description: "fvjnsjnsdjfnsjkfnsjdcnsdjcnscjsdc",
-          isTracked: true,
-          imageUrl: "something"),
-      const Plant(
-          name: "Plant6",
-          type: "Цветок",
-          description: "fvjnsjnsdjfnsjkfnsjdcnsdjcnscjsdc",
-          isTracked: false,
-          imageUrl: "something"),
-      const Plant(
-          name: "Plant7",
-          type: "Цветок",
-          description: "fvjnsjnsdjfnsjkfnsjdcnsdjcnscjsdc",
-          isTracked: true,
-          imageUrl: "something"),
-      const Plant(
-          name: "Plant8",
-          type: "Мох",
-          description: "fvjnsjnsdjfnsjkfnsjdcnsdjcnscjsdc",
-          isTracked: true,
-          imageUrl: "something"),
-      const Plant(
-          name: "Plant9",
-          type: "Цветок",
-          description: "fvjnsjnsdjfnsjkfnsjdcnsdjcnscjsdc",
-          isTracked: false,
-          imageUrl: "something"),
-      const Plant(
-          name: "Plant10",
-          type: "Цветок",
-          description: "fvjnsjnsdjfnsjkfnsjdcnsdjcnscjsdc",
-          isTracked: true,
-          imageUrl: "something"),
-    ];
+          "Цвето́к (множ. цветки́, лат. flos, -oris, др.-греч. ἄνθος, -ου) — "
+              "система органов семенного размножения цветковых (покрытосеменных)"
+              " растений.",
+          isTracked: i % 2 == 0,
+          imageUrl: "something",
+          lat: Random().nextInt(50).toDouble(),
+          lon: Random().nextInt(50).toDouble()),
+      );
+    }
+    return plantList;
   }
 }
