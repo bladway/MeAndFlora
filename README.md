@@ -35,6 +35,7 @@
 - Презентация проекта [(.pptx)](Documentation/Green-Modern-Nature-Presentation.pptx) [(.pdf)](Documentation/Green-Modern-Nature-Presentation.pdf)
 - Сопроводительное письмо (к 1 атте) [(.docx)](Documentation/Сопроводительное-письмо.docx) [(.pdf)](Documentation/Сопроводительное-письмо.pdf)
 - Курсовая работа [(.docx)](Documentation/Курсовая.docx) [(.pdf)](Documentation/Курсовая.pdf)
+- [AppMetrica](https://appmetrica.yandex.ru/overview?appId=4568380&period=week&group=day&currency=rub&accuracy=medium&sampling=1)
 
 ### Диаграммы
 
