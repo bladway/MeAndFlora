@@ -45,3 +45,4 @@
 ### Медиафайлы
 
 - [Видео-презентация](https://www.youtube.com/watch?v=aEC6B9noEGg&ab)
+- [Демонстрация работы экранов](https://youtu.be/gFnM5N_KNA4)
