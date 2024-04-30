@@ -6,22 +6,22 @@ part of 'plant.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$PlantImpl _$$PlantImplFromJson(Map<String, dynamic> json) => _$PlantImpl(
-      name: json['name'] as String,
-      type: json['type'] as String,
-      description: json['description'] as String,
-      lon: json['lon'] as String?,
-      lat: json['lat'] as String?,
+Plant _$PlantFromJson(Map<String, dynamic> json) => Plant(
+      name: json['name'] as String? ?? "Неизвестно",
+      type: $enumDecodeNullable(_$PlantTypeEnumMap, json['type']) ??
+          PlantType.unknown,
+      description: json['description'] as String? ?? "Описание отсутствует",
+      lon: (json['lon'] as num?)?.toDouble(),
+      lat: (json['lat'] as num?)?.toDouble(),
       date:
           json['date'] == null ? null : DateTime.parse(json['date'] as String),
       isTracked: json['isTracked'] as bool? ?? false,
       imageUrl: json['imageUrl'] as String,
     );
 
-Map<String, dynamic> _$$PlantImplToJson(_$PlantImpl instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$PlantToJson(Plant instance) => <String, dynamic>{
       'name': instance.name,
-      'type': instance.type,
+      'type': _$PlantTypeEnumMap[instance.type]!,
       'description': instance.description,
       'lon': instance.lon,
       'lat': instance.lat,
@@ -29,3 +29,11 @@ Map<String, dynamic> _$$PlantImplToJson(_$PlantImpl instance) =>
       'isTracked': instance.isTracked,
       'imageUrl': instance.imageUrl,
     };
+
+const _$PlantTypeEnumMap = {
+  PlantType.flower: 'flower',
+  PlantType.tree: 'tree',
+  PlantType.grass: 'grass',
+  PlantType.moss: 'moss',
+  PlantType.unknown: 'unknown',
+};

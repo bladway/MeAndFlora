@@ -6,23 +6,17 @@ part of 'account.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$AccountImpl _$$AccountImplFromJson(Map<String, dynamic> json) =>
-    _$AccountImpl(
-      name: json['name'] as String,
-      surname: json['surname'] as String,
-      email: json['email'] as String,
-      password: json['password'] as String,
-      phone: json['phone'] as String,
-      accessLevel: $enumDecode(_$AccessLevelEnumMap, json['accessLevel']),
+Account _$AccountFromJson(Map<String, dynamic> json) => Account(
+      login: json['login'] as String? ?? "Пользователь",
+      password: json['password'] as String? ?? "Пароль",
+      accessLevel:
+          $enumDecodeNullable(_$AccessLevelEnumMap, json['accessLevel']) ??
+              AccessLevel.unauth_user,
     );
 
-Map<String, dynamic> _$$AccountImplToJson(_$AccountImpl instance) =>
-    <String, dynamic>{
-      'name': instance.name,
-      'surname': instance.surname,
-      'email': instance.email,
+Map<String, dynamic> _$AccountToJson(Account instance) => <String, dynamic>{
+      'login': instance.login,
       'password': instance.password,
-      'phone': instance.phone,
       'accessLevel': _$AccessLevelEnumMap[instance.accessLevel]!,
     };
 
