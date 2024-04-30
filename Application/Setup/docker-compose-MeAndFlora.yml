@@ -1,0 +1,126 @@
+version: "3.8"
+
+services:
+
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: MeAndFlora-Database
+    hostname: postgres
+    restart: always
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - MeAndFlora-Database:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:7.0.8
+    container_name: MeAndFlora-Mongo
+    hostname: mongo
+    restart: always
+    ports:
+      - '${MONGO_PORT}:${MONGO_PORT}'
+    environment:
+      - MONGO_INITDB_DATABASE=${MONGO_DB}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - MeAndFlora-Mongo:/data/db
+      
+  redis:
+    image: bitnami/redis:7.2.4
+    container_name: MeAndFlora-Cachebase
+    hostname: redis
+    restart: always
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    environment:
+      - REDIS_PORT_NUMBER=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - ALLOW_EMPTY_PASSWORD=no
+    volumes:
+      - MeAndFlora-Cachebase:/bitnami/redis/data
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: MeAndFlora-Zookeeper
+    hostname: zookeeper
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_PORT_INTERNAL}
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: MeAndFlora-Kafka
+    hostname: kafka
+    restart: always
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      ZOOKEEPER_SASL_ENABLED: false
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://${SERVER_IP}:${KAFKA_PORT_EXTERNAL},INTERNAL://localhost:${KAFKA_PORT_INTERNAL},CONTAINER://kafka:${KAFKA_PORT_CONTAINER}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:SASL_PLAINTEXT,INTERNAL:PLAINTEXT,CONTAINER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: CONTAINER
+      #KAFKA_SECURITY_INTER_BROKER_PROTOCOL: SASL_PLAINTEXT
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      #KAFKA_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"admin\" password=\"${KF_PASSWORD}\";"
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/configs/kafka_server_jaas.conf"
+    volumes:
+      - ./kafka_server_jaas.conf:/etc/kafka/configs/kafka_server_jaas.conf
+    depends_on:
+      - zookeeper
+
+  MainServer:
+    image: bladway/maf-mainserver
+    container_name: MeAndFlora-MainServer
+    hostname: MainServer
+    restart: always
+    ports:
+      - "${MAINSERVER_PORT}:${MAINSERVER_PORT}"
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      MAINSERVER_PORT: ${MAINSERVER_PORT}
+    volumes:
+      - MeAndFlora-Images:/images
+
+volumes:
+  MeAndFlora-Database:
+    name: MeAndFlora-Database
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: /server/MeAndFlora-Database
+  MeAndFlora-Mongo:
+    name: MeAndFlora-Mongo
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: /server/MeAndFlora-Mongo
+  MeAndFlora-Cachebase:
+    name: MeAndFlora-Cachebase
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: /server/MeAndFlora-Cachebase
+  MeAndFlora-Images:
+    name: MeAndFlora-Images
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: /server/MeAndFlora-Images
