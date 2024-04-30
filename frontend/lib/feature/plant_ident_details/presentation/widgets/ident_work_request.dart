@@ -1,3 +1,4 @@
+import 'package:appmetrica_plugin/appmetrica_plugin.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
@@ -35,6 +36,8 @@ class IdentWorkRequest extends StatelessWidget {
       actions: <Widget>[
         TextButton(
             onPressed: () {
+              AppMetrica.reportEvent(
+                  'Завершение идентификации растения');
               AutoRouter.of(context).pop(true);
             },
             child: Text(
@@ -47,6 +50,8 @@ class IdentWorkRequest extends StatelessWidget {
             )),
         TextButton(
             onPressed: () {
+              AppMetrica.reportEvent(
+                  'Отправка на дополнительную идентификацию ботаником');
               AutoRouter.of(context).pop(false);
             },
             child: Text(

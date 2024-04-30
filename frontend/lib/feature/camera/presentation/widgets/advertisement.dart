@@ -1,3 +1,4 @@
+import 'package:appmetrica_plugin/appmetrica_plugin.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:me_and_flora/core/app_router/app_router.dart';
@@ -32,6 +33,8 @@ class Advertisement extends StatelessWidget {
       actions: <Widget>[
         TextButton(
             onPressed: () {
+              AppMetrica.reportEvent(
+                  'Запрос на просмотр рекламы');
               AutoRouter.of(context).pop();
               AutoRouter.of(context).push(const AdvertisementRoute());
             },
