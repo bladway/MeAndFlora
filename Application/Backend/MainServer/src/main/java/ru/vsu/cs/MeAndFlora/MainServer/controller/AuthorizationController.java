@@ -1,6 +1,5 @@
 package ru.vsu.cs.MeAndFlora.MainServer.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,20 +10,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.NamedAuthDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UnnamedAuthDto;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
-
-import java.io.IOException;
 
 @RequiredArgsConstructor
 @RestController
@@ -36,8 +30,6 @@ class AuthorizationController {
             LoggerFactory.getLogger(AuthorizationController.class);
 
     private final AuthorizationService authorizationService;
-
-    private final ObjectPropertiesConfig objectPropertiesConfig;
 
     @Operation(description = "Post. User registration and automatic login. Requires: NamedAuthDto in body."
             + "Provides: DiJwtDto in body.")
@@ -62,26 +54,27 @@ class AuthorizationController {
                 namedAuthDto.getLogin(), namedAuthDto.getPassword(), namedAuthDto.getIpAddress()
             );
 
-            authorizationLogger.info(
-                    "Register with username: " + namedAuthDto.getLogin() + " is successful"
-            );
-
             body = responseDto;
 
             status = HttpStatus.OK;
+
+            authorizationLogger.info(
+                "Register with username: " + namedAuthDto.getLogin() + " is successful"
+            );
+
 
         } catch (AuthException | InputException e) {
 
             ExceptionDto exceptionDto =
                     new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            authorizationLogger.warn(e.getShortMessage() + ": " + e.getMessage());
-
             body = exceptionDto;
 
             status = e.getClass() == AuthException.class ?
                     HttpStatus.UNAUTHORIZED : e.getClass() == InputException.class ?
                     HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+                 
+            authorizationLogger.warn(e.getShortMessage() + ": " + e.getMessage());            
 
         }
 
@@ -112,26 +105,26 @@ class AuthorizationController {
                 namedAuthDto.getLogin(), namedAuthDto.getPassword(), namedAuthDto.getIpAddress()
             );
 
-            authorizationLogger.info(
-                    "Login with username: " + namedAuthDto.getLogin() + " is successful"
-            );
-
             body = responseDto;
 
             status = HttpStatus.OK;
+
+            authorizationLogger.info(
+                "Login with username: " + namedAuthDto.getLogin() + " is successful"
+            );
 
         } catch (AuthException | InputException e) {
 
             ExceptionDto exceptionDto =
                     new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            authorizationLogger.warn(e.getShortMessage() + ": " + e.getMessage());
-
             body = exceptionDto;
 
             status = e.getClass() == AuthException.class ?
                     HttpStatus.UNAUTHORIZED : e.getClass() == InputException.class ?
                     HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            authorizationLogger.warn(e.getShortMessage() + ": " + e.getMessage());
 
         }
 
@@ -160,26 +153,26 @@ class AuthorizationController {
 
             DiJwtDto responseDto = authorizationService.anonymousLogin(unnamedAuthDto.getIpAddress());
 
-            authorizationLogger.info(
-                    "Anonymus login on ip: " + unnamedAuthDto.getIpAddress() + " is successful"
-            );
-
             body = responseDto;
 
             status = HttpStatus.OK;
+
+            authorizationLogger.info(
+                "Anonymus login on ip: " + unnamedAuthDto.getIpAddress() + " is successful"
+            );
 
         } catch (AuthException | InputException e) {
 
             ExceptionDto exceptionDto =
                     new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            authorizationLogger.warn(e.getShortMessage() + ": " + e.getMessage());
-
             body = exceptionDto;
 
             status = e.getClass() == AuthException.class ?
                     HttpStatus.UNAUTHORIZED : e.getClass() == InputException.class ?
                     HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            authorizationLogger.warn(e.getShortMessage() + ": " + e.getMessage());        
 
         }
 
@@ -205,25 +198,25 @@ class AuthorizationController {
 
             DiJwtDto responseDto = authorizationService.refresh(jwtr);
 
-            authorizationLogger.info(
-                    "Refresh token: " + jwtr + " has worked successfully"
-            );
-
             body = responseDto;
 
             status = HttpStatus.OK;
+
+            authorizationLogger.info(
+                "Refresh token: " + jwtr + " has worked successfully"
+            );
 
         } catch (JwtException e) {
 
             ExceptionDto exceptionDto =
                     new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            authorizationLogger.warn(e.getShortMessage() + ": " + e.getMessage());
-
             body = exceptionDto;
 
             status = e.getClass() == JwtException.class ?
                     HttpStatus.UNAUTHORIZED : HttpStatus.INTERNAL_SERVER_ERROR;
+        
+            authorizationLogger.warn(e.getShortMessage() + ": " + e.getMessage());
 
         }
 

@@ -27,7 +27,6 @@ import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
-// TODO return database to pre state when exception are thrown
 import java.io.IOException;
 
 @RequiredArgsConstructor
@@ -71,7 +70,7 @@ public class FloraController {
                     flora.getDescription(),
                     flora.getType()
             ));
-            body.add("image", fileService.getImage(flora.getImagePath()));
+            body.add("image", fileService.getImage(flora.getImagePath(), null));
 
             status = HttpStatus.OK;
 
@@ -139,14 +138,14 @@ public class FloraController {
 
             FloraProcRequestDto dto = floraService.procFloraRequest(jwt, realImage, realGeoDto);
 
-            fileService.putImage(image, dto.getProcRequest().getImagePath());
+            fileService.putImage(image, dto.getProcRequest().getImagePath(), dto.getProcRequest());
 
             body.add("floraDto", new FloraDto(
                     dto.getFlora().getName(),
                     dto.getFlora().getDescription(),
                     dto.getFlora().getType()
             ));
-            body.add("image", fileService.getImage(dto.getFlora().getImagePath()));
+            body.add("image", fileService.getImage(dto.getFlora().getImagePath(), dto.getProcRequest()));
 
             status = HttpStatus.OK;
 

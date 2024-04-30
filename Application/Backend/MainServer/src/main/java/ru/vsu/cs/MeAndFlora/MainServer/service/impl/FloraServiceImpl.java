@@ -6,7 +6,6 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JsonUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.KafkaConsumer;
@@ -25,12 +24,9 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.FloraRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.ProcRequestRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
-import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
-
-import java.time.Duration;
 import java.util.Optional;
 
 @Service
@@ -142,6 +138,7 @@ public class FloraServiceImpl implements FloraService {
         Optional<Flora> ifflora = floraRepository.findByName(floraName);
 
         if (ifflora.isEmpty()) {
+            procRequestRepository.delete(procRequest);
             throw new ObjectException(
                     objectPropertiesConfig.getFloranotfound(),
                     "neural network give unexpected result, internal backend error"
