@@ -4,7 +4,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import '../../../../core/app_router/app_router.dart';
 import '../../../../core/domain/models/models.dart';
-import '../../../../core/presentation/widgets/plant_image.dart';
+import '../../../../core/presentation/widgets/track_plant_image.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/presentation/widgets/plant_tile.dart';
 
@@ -35,7 +35,7 @@ class HistoryPlantElement extends StatelessWidget {
             children: [
               Flexible(
                 flex: 4,
-                child: PlantImage(
+                child: TrackPlantImage(
                   plant: plant,
                   iconSize: iconSize,
                 ),
@@ -61,7 +61,8 @@ class HistoryPlantElement extends StatelessWidget {
                       Expanded(
                         child: PlantTile(
                           titleText: plant.lon != null && plant.lat != null
-                              ? "lon: ${plant.lon} lat: ${plant.lat}"
+                              ? "${plant.lon!.toStringAsPrecision(4)}°, "
+                                  "${plant.lat!.toStringAsPrecision(4)}°"
                               : "Неизвестно",
                           icon: Iconsax.location_copy,
                         ),
@@ -69,7 +70,9 @@ class HistoryPlantElement extends StatelessWidget {
                       Expanded(
                         child: PlantTile(
                           titleText: plant.date != null
-                              ? plant.date!.day.toString()
+                              ? plant.date!
+                                  .toString()
+                                  .replaceAll('00:00:00.000', '')
                               : "Неизвестно",
                           icon: Icons.timer_outlined,
                         ),

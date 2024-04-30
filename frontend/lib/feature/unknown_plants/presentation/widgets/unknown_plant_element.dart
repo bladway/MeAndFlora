@@ -1,16 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:me_and_flora/core/presentation/widgets/track_plant_image.dart';
-import 'package:me_and_flora/core/presentation/widgets/plant_tile.dart';
-import 'package:me_and_flora/feature/track/presentation/widgets/track_plant_info.dart';
 
 import '../../../../core/app_router/app_router.dart';
 import '../../../../core/domain/models/models.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../track/presentation/widgets/track_plant_info.dart';
 
-class TrackPlantElement extends StatelessWidget {
-  const TrackPlantElement({super.key, required this.plant, required this.iconSize});
+class UnknownPlantElement extends StatelessWidget {
+  const UnknownPlantElement({super.key, required this.plant, required this.iconSize});
 
   final Plant plant;
   final double iconSize;
@@ -27,7 +24,7 @@ class TrackPlantElement extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(8))),
       child: InkWell(
         onTap: () {
-          AutoRouter.of(context).push(PlantDetailsRoute(plant: plant));
+          context.pushRoute(PlantIdentFormRoute(plant: plant));
         },
         child: TrackPlantInfo(plant: plant, iconSize: iconSize,),
       ),

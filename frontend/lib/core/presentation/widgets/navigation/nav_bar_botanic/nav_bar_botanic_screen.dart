@@ -3,19 +3,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:me_and_flora/core/presentation/bloc/plant_ident/plant_ident.dart';
 
 import '../../../../app_router/app_router.dart';
-import '../../../../domain/models/models.dart';
 import '../../../../theme/theme.dart';
 import '../../../bloc/plant/plant.dart';
 import '../../../bloc/plant_history/plant_history.dart';
+import '../../../bloc/plant_ident/plant_ident.dart';
 import '../../../bloc/plant_track/plant_track.dart';
 import '../nav_bar_element.dart';
 
 @RoutePage()
-class NavBarAuthUserScreen extends StatelessWidget implements AutoRouteWrapper{
-  const NavBarAuthUserScreen({super.key});
+class NavBarBotanicScreen extends StatelessWidget implements AutoRouteWrapper {
+  const NavBarBotanicScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +31,7 @@ class NavBarAuthUserScreen extends StatelessWidget implements AutoRouteWrapper{
           HomeWrapperRoute(),
           CameraWrapperRoute(),
           HistoryWrapperRoute(),
-          TrackWrapperRoute(),
+          UnknownPlantsWrapperRoute(),
           AccountRoute(),
         ],
         builder: (context, child) {
@@ -51,7 +50,8 @@ class NavBarAuthUserScreen extends StatelessWidget implements AutoRouteWrapper{
                   labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
                   selectedIndex: tabsRouter.activeIndex,
                   indicatorColor: Colors.transparent,
-                  onDestinationSelected: (index) => _openPage(index, tabsRouter),
+                  onDestinationSelected: (index) =>
+                      _openPage(index, tabsRouter),
                   destinations: const [
                     NavBarElement(icon: Iconsax.home_1_copy),
                     NavBarElement(icon: Iconsax.camera_copy),
@@ -77,7 +77,8 @@ class NavBarAuthUserScreen extends StatelessWidget implements AutoRouteWrapper{
     return MultiBlocProvider(
       providers: [
         BlocProvider<PlantBloc>(lazy: false, create: (_) => PlantBloc()),
-        BlocProvider<PlantTrackBloc>(lazy: false, create: (_) => PlantTrackBloc()),
+        BlocProvider<PlantTrackBloc>(
+            lazy: false, create: (_) => PlantTrackBloc()),
         BlocProvider<PlantHistoryBloc>(create: (_) => PlantHistoryBloc()),
         BlocProvider<PlantIdentBloc>(create: (_) => PlantIdentBloc()),
       ],

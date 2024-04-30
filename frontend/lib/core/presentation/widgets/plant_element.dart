@@ -1,10 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:me_and_flora/core/app_router/app_router.dart';
+import 'package:me_and_flora/core/presentation/widgets/plant_image.dart';
 import 'package:me_and_flora/core/theme/theme.dart';
 
 import '../../domain/models/models.dart';
+import '../bloc/plant_track/plant_track.dart';
+import 'buttons/track_button.dart';
 
 class PlantElement extends StatefulWidget {
   const PlantElement({super.key, required this.plant});
@@ -45,34 +48,16 @@ class _PlantElementState extends State<PlantElement> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        Image.network(
-                          widget.plant.imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: colors.lightGray,
-                              alignment: Alignment.center,
-                              child: const Icon(
-                                Icons.photo_camera,
-                                size: 35,
-                              ),
-                            );
-                          },
-                        ),
+                        PlantImage(image: widget.plant.imageUrl, size: 35),
                         Align(
                           alignment: Alignment.topRight,
-                          child: IconButton(
-                            icon: Icon(
-                              widget.plant.isTracked
-                                  ? Iconsax.location
-                                  : Iconsax.location_copy,
-                              size: height * 0.1 * width * 0.39 * 0.0019,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              setState(() {});
-                            },
-                          ),
+                          child: BlocBuilder<PlantTrackBloc, PlantTrackState>(
+                              builder: (context, state) {
+                            return TrackButton(
+                              plant: widget.plant,
+                              size: height * width * 0.000074,
+                            );
+                          }),
                         ),
                       ],
                     ),

@@ -1,9 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:me_and_flora/core/app_router/app_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:me_and_flora/core/theme/theme.dart';
 
-import '../../domain/models/models.dart';
+import '../bloc/plant_search/plant_search.dart';
 
 class MySearchDelegate extends SearchDelegate {
   late String selectedResult;
@@ -48,15 +48,8 @@ class MySearchDelegate extends SearchDelegate {
         color: Colors.white,
       ),
       onPressed: () {
-        AutoRouter.of(context).push(PlantDetailsRoute(
-            plant: Plant(
-                name: selectedResult.toString(),
-                type: "Дерево",
-                description:
-                "fvjnsjnsdjfnsjkfnsjdbkjbilnbknlknjlkmlmjljmlknjknjkbjkbhnv kbjlkjbnlknklnjcnsdjcnscjsdc",
-                isTracked: true,
-                imageUrl: "something")));
-        //Navigator.pop(context);
+        selectedResult = query;
+        callback(query);
       },
     );
   }
@@ -66,22 +59,12 @@ class MySearchDelegate extends SearchDelegate {
     return Center(
       child: Text(selectedResult),
     );
-
-    ///Поменять на страницу с информацией
   }
 
   @override
   void showResults(BuildContext context) {
     selectedResult = query;
     callback(query);
-    AutoRouter.of(context).push(PlantDetailsRoute(
-        plant: Plant(
-            name: selectedResult.toString(),
-            type: "Дерево",
-            description:
-            "fvjnsjnsdjfnsjkfnsjdbkjbilnbknlknjlkmlmjljmlknjknjkbjkbhnv kbjlkjbnlknklnjcnsdjcnscjsdc",
-            isTracked: true,
-            imageUrl: "something")));
     //close(context, query);
   }
 
@@ -115,18 +98,13 @@ class MySearchDelegate extends SearchDelegate {
           onTap: () {
             selectedResult = searchResults[index];
             callback(selectedResult);
-            AutoRouter.of(context).push(PlantDetailsRoute(
-                plant: Plant(
-                    name: selectedResult.toString(),
-                    type: "Дерево",
-                    description:
-                        "fvjnsjnsdjfnsjkfnsjdbkjbilnbknlknjlkmlmjljmlknjknjkbjkbhnv kbjlkjbnlknklnjcnsdjcnscjsdc",
-                    isTracked: true,
-                    imageUrl: "something")));
-            //AutoRouter.of(context).back();
           },
         );
       },
     );
+  }
+
+  Future<void> _search(context, String plantName) async {
+    BlocProvider.of<PlantSearchBloc>(context).add(PlantSearchRequested(plantName));
   }
 }

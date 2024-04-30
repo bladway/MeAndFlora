@@ -1,17 +1,21 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:me_and_flora/core/domain/models/account.dart';
 
 import '../../../../app_router/app_router.dart';
 import '../../../../domain/models/models.dart';
 import '../../../../theme/theme.dart';
+import '../../../bloc/plant/plant.dart';
+import '../../../bloc/plant_history/plant_history.dart';
+import '../../../bloc/plant_ident/plant_ident.dart';
+import '../../../bloc/plant_track/plant_track.dart';
 import '../nav_bar_element.dart';
 
 @RoutePage()
-class NavigationBarDefaultScreen extends StatelessWidget {
-  const NavigationBarDefaultScreen({super.key});
+class NavBarDefaultScreen extends StatelessWidget implements AutoRouteWrapper {
+  const NavBarDefaultScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,17 +28,10 @@ class NavigationBarDefaultScreen extends StatelessWidget {
         return SynchronousFuture(!router.canNavigateBack);
       },
       child: AutoTabsRouter(
-        routes: [
-          const HomeRoute(),
-          const CameraRoute(),
-          AccountRoute(
-              account: const Account(
-                  name: "Name",
-                  surname: "Surname",
-                  email: "email",
-                  phone: "phone",
-                  password: "pass",
-                  accessLevel: AccessLevel.user)),
+        routes: const [
+          HomeWrapperRoute(),
+          CameraWrapperRoute(),
+          AccountRoute(),
         ],
         builder: (context, child) {
           final tabsRouter = AutoTabsRouter.of(context);
@@ -52,9 +49,8 @@ class NavigationBarDefaultScreen extends StatelessWidget {
                   labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
                   selectedIndex: tabsRouter.activeIndex,
                   indicatorColor: Colors.transparent,
-                  onDestinationSelected: (index) => {
-                    _openPage(index, tabsRouter)
-                  },
+                  onDestinationSelected: (index) =>
+                      {_openPage(index, tabsRouter)},
                   destinations: const [
                     NavBarElement(icon: Iconsax.home_1_copy),
                     NavBarElement(icon: Iconsax.camera_copy),
@@ -71,5 +67,19 @@ class NavigationBarDefaultScreen extends StatelessWidget {
 
   void _openPage(int index, TabsRouter tabsRouter) {
     tabsRouter.setActiveIndex(index);
+  }
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<PlantBloc>(lazy: false, create: (_) => PlantBloc()),
+        BlocProvider<PlantTrackBloc>(
+            lazy: false, create: (_) => PlantTrackBloc()),
+        BlocProvider<PlantHistoryBloc>(create: (_) => PlantHistoryBloc()),
+        BlocProvider<PlantIdentBloc>(create: (_) => PlantIdentBloc()),
+      ],
+      child: this,
+    );
   }
 }

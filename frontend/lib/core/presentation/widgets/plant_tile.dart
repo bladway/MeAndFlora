@@ -20,11 +20,9 @@ class PlantTile extends StatelessWidget {
           color: Colors.white, size: 18,
         ),
       ),
-      title: Expanded(
-        child: Text(titleText,
-          textAlign: TextAlign.left,
-          style: Theme.of(context).textTheme.labelSmall,
-        ),
+      title: Text(titleText,
+        textAlign: TextAlign.left,
+        style: Theme.of(context).textTheme.titleSmall,
       ),
     );
   }
