@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:equatable/equatable.dart';
 
@@ -30,15 +28,15 @@ class CameraLoadFailure extends CameraState {
   List<Object> get props => [errorMsg];
 }
 
-class CameraCapturedLoadInProgress extends CameraState {}
+class CameraPhotoLoadInProgress extends CameraState {}
 
-class CameraCapturedSuccess extends CameraState {
-  final File file;
+class PhotoLoadedSuccess extends CameraState {
+  final String imagePath;
 
-  const CameraCapturedSuccess({required this.file});
+  const PhotoLoadedSuccess({required this.imagePath});
 
   @override
-  List<Object> get props => [file];
+  List<Object> get props => [imagePath];
 }
 
 class CameraCapturedFailed extends CameraState {}

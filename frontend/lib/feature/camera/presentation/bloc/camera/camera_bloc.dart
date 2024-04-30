@@ -1,7 +1,7 @@
-import 'dart:io';
-
 import 'package:camera/camera.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../bloc.dart';
 
@@ -22,6 +22,9 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         }
         if (event is CameraCaptured) {
           await _makePhoto(event, emit);
+        }
+        if (event is GalleryLoaded) {
+          await _pickPhoto(event, emit);
         }
       },
     );
@@ -60,20 +63,35 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     }
 
     if (_cameraController != null) {
+      _cameraController!.setFlashMode(FlashMode.off);
       emit(CameraLoadSuccess(controller: _cameraController!, direction: direction));
     }
   }
 
   Future<void> _makePhoto(
       CameraCaptured event, Emitter<CameraState> emit) async {
-    emit(CameraCapturedLoadInProgress());
+    emit(CameraPhotoLoadInProgress());
     try {
-      XFile photo = await _cameraController!.takePicture();
-      emit(CameraCapturedSuccess(file: File(photo.path)));
-      //return File(photo.path);
+      final photo = await _cameraController!.takePicture();
+      emit(PhotoLoadedSuccess(imagePath: photo.path));
     } catch (e) {
-      emit(CameraCapturedFailed());
-      //return Future.error(e);
+      debugPrint(e.toString());
+      add(CameraInitialized());
+    }
+  }
+
+  Future<void> _pickPhoto(
+      GalleryLoaded event, Emitter<CameraState> emit) async {
+    emit(CameraPhotoLoadInProgress());
+    try {
+      final image = await ImagePicker()
+          .pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        emit(PhotoLoadedSuccess(imagePath: image.path));
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      add(CameraInitialized());
     }
   }
 }

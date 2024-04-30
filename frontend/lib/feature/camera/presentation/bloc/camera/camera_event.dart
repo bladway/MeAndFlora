@@ -7,11 +7,20 @@ abstract class CameraEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class CameraInitialized extends CameraEvent {
-}
+class CameraInitialized extends CameraEvent {}
 
-class CameraStopped extends CameraEvent {
-}
+class CameraStopped extends CameraEvent {}
 
+class CameraCaptured extends CameraEvent {}
+
+class GalleryLoaded extends CameraEvent {}
+
+/*
 class CameraCaptured extends CameraEvent {
-}
+  final XFile file;
+
+  const CameraCaptured(this.file);
+
+  @override
+  List<Object> get props => [file];
+}*/
