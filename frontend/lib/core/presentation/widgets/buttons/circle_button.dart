@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class Button extends StatelessWidget {
+class CircleButton extends StatelessWidget {
   final IconData icon;
 
-  const Button({super.key, required this.icon});
+  const CircleButton({super.key, required this.icon});
 
   @override
   Widget build(BuildContext context) {
