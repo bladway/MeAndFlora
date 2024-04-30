@@ -35,7 +35,6 @@ spring:
       topic: ProcRequestTopic
       key-serializer: org.apache.kafka.common.serialization.LongSerializer
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
-      client-id: ${MAINSERVER_KAFKA_CLIENT_ID}
     consumer:
       topic: ProcReturnTopic
       key-deserializer: org.apache.kafka.common.serialization.LongDeserializer

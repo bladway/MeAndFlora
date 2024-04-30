@@ -126,8 +126,8 @@ public class FloraServiceImpl implements FloraService {
         procRequest.setImagePath(procpath + procRequest.getRequestId() + ".jpg");
 
         // this logic needs to be separated for async work
-        //String floraName = "oduvanchik";
-        kafkaProducer.sendProcRequestMessage(jwt, image, procRequest);
+        String floraName = "oduvanchik";
+        /*kafkaProducer.sendProcRequestMessage(jwt, image, procRequest);
 
         while (!KafkaConsumer.procReturnFloraNames.containsKey(procRequest.getRequestId())) {
             try {
@@ -138,7 +138,7 @@ public class FloraServiceImpl implements FloraService {
         }
 
         String floraName = KafkaConsumer.procReturnFloraNames.get(procRequest.getRequestId());
-
+*/
         Optional<Flora> ifflora = floraRepository.findByName(floraName);
 
         if (ifflora.isEmpty()) {

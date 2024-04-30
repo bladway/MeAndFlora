@@ -49,12 +49,13 @@ public class FloraController {
             + "Provides: floraDto in body, multipart image in body (jpg)")
     @GetMapping(
             value = "/byname",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
             produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     public ResponseEntity<MultiValueMap<String, Object>> getPlantByName(
-            @RequestHeader String jwt,
-            @RequestPart @Schema(type = MediaType.APPLICATION_JSON_VALUE) byte[] name
+        @RequestHeader String jwt,
+        @RequestParam @Schema(
+                example = "oduvanchik"
+        ) String name
     ) {
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -63,15 +64,7 @@ public class FloraController {
 
         try {
 
-            String realName;
-
-            try {
-                realName = MainServerApplication.objectMapper.readValue(name, String.class);
-            } catch (IOException e) {
-                throw new InputException(objectPropertiesConfig.getInvalidinput(), e.getMessage());
-            }
-
-            Flora flora = floraService.requestFlora(jwt, realName);
+            Flora flora = floraService.requestFlora(jwt, name);
 
             body.add("floraDto", new FloraDto(
                     flora.getName(),
@@ -83,7 +76,7 @@ public class FloraController {
             status = HttpStatus.OK;
 
             floraLogger.info(
-                    "Get plant with name: " + realName + " is successful"
+                    "Get plant with name: " + name + " is successful"
             );
 
         } catch (JwtException | RightsException | ObjectException | InputException e) {
@@ -119,9 +112,12 @@ public class FloraController {
             produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     private ResponseEntity<MultiValueMap<String, Object>> procFloraRequest(
-            @RequestHeader String jwt,
-            @RequestPart(required = false) @Schema(type = MediaType.APPLICATION_JSON_VALUE) byte[] geoDto,
-            @RequestPart MultipartFile image
+        @RequestHeader String jwt,
+        @RequestPart(required = false) @Schema(
+                type = MediaType.APPLICATION_JSON_VALUE,
+                example = "{\"type\":\"Point\", \"coordinates\":[1.1, 1.2]}"
+        ) byte[] geoDto,
+        @RequestPart MultipartFile image
     ) {
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
