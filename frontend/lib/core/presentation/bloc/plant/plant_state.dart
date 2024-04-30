@@ -13,10 +13,21 @@ class PlantInitial extends PlantState {}
 
 class PlantLoadInProgress extends PlantState {}
 
+class PlantRemoveSuccess extends PlantState {}
+
 class PlantLoadSuccess extends PlantState {
+  final Plant plant;
+
+  const PlantLoadSuccess({required this.plant});
+
+  @override
+  List<Object> get props => [plant];
+}
+
+class PlantsLoadSuccess extends PlantState {
   final List<Plant> plantList;
 
-  const PlantLoadSuccess({required this.plantList});
+  const PlantsLoadSuccess({required this.plantList});
 
   @override
   List<Object> get props => [plantList];
