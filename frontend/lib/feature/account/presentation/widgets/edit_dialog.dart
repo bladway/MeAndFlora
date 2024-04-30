@@ -1,4 +1,6 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:me_and_flora/core/theme/strings.dart';
 
 import '../../../../core/theme/theme.dart';
 
@@ -13,11 +15,13 @@ class _EditDialogState extends State<EditDialog> {
   final _formKey = GlobalKey<FormState>();
   final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _passwordConfirmController = TextEditingController();
 
   @override
   void dispose() {
     _loginController.dispose();
     _passwordController.dispose();
+    _passwordConfirmController.dispose();
     super.dispose();
   }
 
@@ -45,8 +49,7 @@ class _EditDialogState extends State<EditDialog> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderSide:
-                  BorderSide(width: 1.5, color: colors.grayGreen),
+                  borderSide: BorderSide(width: 1.5, color: colors.grayGreen),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 counterStyle: Theme.of(context).textTheme.bodySmall,
@@ -54,7 +57,7 @@ class _EditDialogState extends State<EditDialog> {
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
                 return value != null && value.length < 6
-                    ? 'Введите минимум 6 символов'
+                    ? 'Минимум 6 символов'
                     : null;
               },
             ),
@@ -74,15 +77,41 @@ class _EditDialogState extends State<EditDialog> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderSide:
-                  BorderSide(width: 1.5, color: colors.grayGreen),
+                  borderSide: BorderSide(width: 1.5, color: colors.grayGreen),
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
                 return value != null && value.length < 6
-                    ? "Введите минимум 6 символов"
+                    ? "Минимум 6 символов"
+                    : null;
+              },
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Text(
+              'Актуальный пароль',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            TextFormField(
+              keyboardType: TextInputType.text,
+              controller: _passwordConfirmController,
+              obscureText: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(width: 1.5, color: colors.grayGreen),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (value) {
+                return value != null && value.length < 6
+                    ? "Минимум 6 символов"
                     : null;
               },
             ),
@@ -92,10 +121,14 @@ class _EditDialogState extends State<EditDialog> {
       actions: <Widget>[
         TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              AutoRouter.of(context).pop([
+                _loginController.value.text,
+                _passwordController.value.text,
+                _passwordConfirmController.value.text
+              ]);
             },
             child: Text(
-              "Отмена",
+              saveChanges,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -104,10 +137,10 @@ class _EditDialogState extends State<EditDialog> {
             )),
         TextButton(
             onPressed: () {
-
+              Navigator.pop(context);
             },
             child: Text(
-              "Ок",
+              cancelChanges,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
