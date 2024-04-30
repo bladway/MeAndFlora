@@ -12,8 +12,8 @@ class LocationInitial extends LocationState {}
 class LocationLoadInProcess extends LocationState {}
 
 class LocationLoadSuccess extends LocationState {
-  final String lat;
-  final String lon;
+  final double lat;
+  final double lon;
 
   const LocationLoadSuccess({required this.lat, required this.lon,});
 }

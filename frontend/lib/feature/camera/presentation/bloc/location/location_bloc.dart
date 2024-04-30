@@ -46,6 +46,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     emit(LocationLoadSuccess(
-        lat: position.latitude.toString(), lon: position.longitude.toString()));
+        lat: double.parse(position.latitude.toStringAsFixed(6)),
+        lon: double.parse(position.longitude.toStringAsFixed(6))));
   }
 }
