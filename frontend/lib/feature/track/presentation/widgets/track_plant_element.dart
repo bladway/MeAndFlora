@@ -1,8 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:me_and_flora/core/presentation/widgets/track_plant_image.dart';
-import 'package:me_and_flora/core/presentation/widgets/plant_tile.dart';
 import 'package:me_and_flora/feature/track/presentation/widgets/track_plant_info.dart';
 
 import '../../../../core/app_router/app_router.dart';

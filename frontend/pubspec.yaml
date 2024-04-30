@@ -66,7 +66,6 @@ flutter:
   assets:
     - assets/images/unsplash.png
     - assets/images/homeBackground.png
-    - assets/images/Iris.png
 
   fonts:
     - family: Reem_Kufi

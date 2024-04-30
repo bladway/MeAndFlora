@@ -106,8 +106,17 @@ abstract class _$AppRouter extends RootStackRouter {
         child: PlantDetailsScreen(
           key: args.key,
           plant: args.plant,
-          lon: args.lon,
-          lat: args.lat,
+        ),
+      );
+    },
+    PlantIdentDetailsRoute.name: (routeData) {
+      final args = routeData.argsAs<PlantIdentDetailsRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: PlantIdentDetailsScreen(
+          key: args.key,
+          plant: args.plant,
+          imageUrl: args.imageUrl,
         ),
       );
     },
@@ -125,6 +134,12 @@ abstract class _$AppRouter extends RootStackRouter {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const PlantPublicScreen(),
+      );
+    },
+    PlantPublicWrapperRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: WrappedRoute(child: const PlantPublicWrapperScreen()),
       );
     },
     SignInRoute.name: (routeData) {
@@ -374,16 +389,12 @@ class PlantDetailsRoute extends PageRouteInfo<PlantDetailsRouteArgs> {
   PlantDetailsRoute({
     Key? key,
     required Plant plant,
-    double? lon,
-    double? lat,
     List<PageRouteInfo>? children,
   }) : super(
           PlantDetailsRoute.name,
           args: PlantDetailsRouteArgs(
             key: key,
             plant: plant,
-            lon: lon,
-            lat: lat,
           ),
           initialChildren: children,
         );
@@ -398,21 +409,58 @@ class PlantDetailsRouteArgs {
   const PlantDetailsRouteArgs({
     this.key,
     required this.plant,
-    this.lon,
-    this.lat,
   });
 
   final Key? key;
 
   final Plant plant;
 
-  final double? lon;
+  @override
+  String toString() {
+    return 'PlantDetailsRouteArgs{key: $key, plant: $plant}';
+  }
+}
 
-  final double? lat;
+/// generated route for
+/// [PlantIdentDetailsScreen]
+class PlantIdentDetailsRoute extends PageRouteInfo<PlantIdentDetailsRouteArgs> {
+  PlantIdentDetailsRoute({
+    Key? key,
+    required Plant plant,
+    required String imageUrl,
+    List<PageRouteInfo>? children,
+  }) : super(
+          PlantIdentDetailsRoute.name,
+          args: PlantIdentDetailsRouteArgs(
+            key: key,
+            plant: plant,
+            imageUrl: imageUrl,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'PlantIdentDetailsRoute';
+
+  static const PageInfo<PlantIdentDetailsRouteArgs> page =
+      PageInfo<PlantIdentDetailsRouteArgs>(name);
+}
+
+class PlantIdentDetailsRouteArgs {
+  const PlantIdentDetailsRouteArgs({
+    this.key,
+    required this.plant,
+    required this.imageUrl,
+  });
+
+  final Key? key;
+
+  final Plant plant;
+
+  final String imageUrl;
 
   @override
   String toString() {
-    return 'PlantDetailsRouteArgs{key: $key, plant: $plant, lon: $lon, lat: $lat}';
+    return 'PlantIdentDetailsRouteArgs{key: $key, plant: $plant, imageUrl: $imageUrl}';
   }
 }
 
@@ -464,6 +512,20 @@ class PlantPublicRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'PlantPublicRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [PlantPublicWrapperScreen]
+class PlantPublicWrapperRoute extends PageRouteInfo<void> {
+  const PlantPublicWrapperRoute({List<PageRouteInfo>? children})
+      : super(
+          PlantPublicWrapperRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'PlantPublicWrapperRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }

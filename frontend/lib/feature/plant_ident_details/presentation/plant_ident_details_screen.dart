@@ -1,23 +1,24 @@
-import 'dart:io';
-
 import 'package:appmetrica_plugin/appmetrica_plugin.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:me_and_flora/core/presentation/widgets/buttons/track_button.dart';
+import 'package:me_and_flora/core/presentation/widgets/plant_image.dart';
+import 'package:me_and_flora/core/theme/theme.dart';
 
 import '../../../core/domain/models/models.dart';
 import '../../../core/presentation/bloc/plant_track/plant_track.dart';
+import 'widgets/ident_work_request.dart';
 import 'widgets/plant_description.dart';
 import '../../../core/presentation/widgets/widgets.dart';
 
 @RoutePage()
-class PlantDetailsScreen extends StatelessWidget {
-  const PlantDetailsScreen(
-      {super.key, required this.plant});
+class PlantIdentDetailsScreen extends StatelessWidget {
+  const PlantIdentDetailsScreen({super.key, required this.plant, required this.imageUrl});
 
   final Plant plant;
+  final String imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +37,11 @@ class PlantDetailsScreen extends StatelessWidget {
             color: Colors.white,
             icon: const Icon(Icons.arrow_back_ios),
             iconSize: 24,
-            onPressed: () {
+            onPressed: () async {
               AppMetrica.reportEvent(
-                  'Переход на страницу с детальной информацией о растении');
-              AutoRouter.of(context).pop();
+                  'Переход на страницу распознанного растения');
+              bool? isCorrectIdent = await _showNotification(context, plant);
+              AutoRouter.of(context).pop(isCorrectIdent ?? true);
             },
           ),
         ),
@@ -66,24 +68,43 @@ class PlantDetailsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                height: height * 0.35,
+                height: height * 0.45,
                 width: width,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20), // Image border
-                  child: Image.file(
-                    File(plant.imageUrl),
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey,
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.camera_alt,
+                child: Stack(
+                  children: [
+                    SizedBox(
+                      height: height * 0.35,
+                      width: width,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20), // Image border
+                        child: PlantImage(
+                          image: plant.imageUrl,
                           size: height * 0.1,
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        padding: const EdgeInsets.all(2), // Border width
+                        decoration: BoxDecoration(
+                          color: colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: SizedBox(
+                            height: height * 0.175,
+                            width: width * 0.5,
+                            child: PlantImage(
+                              image: imageUrl,
+                              size: height * 0.0175,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
               ),
               SizedBox(
@@ -126,4 +147,12 @@ class PlantDetailsScreen extends StatelessWidget {
       ),
     );
   }
+
+  Future<bool?> _showNotification(context, Plant plant) async => showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return IdentWorkRequest(plant: plant);
+        },
+      );
 }

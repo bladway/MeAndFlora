@@ -43,11 +43,12 @@ class CameraScreen extends StatelessWidget {
           BlocListener<PlantIdentBloc, PlantIdentState>(
               listener: (context, state) {
             if (state is PlantIdentLoadSuccess) {
-              imageUrl = state.plant.imageUrl;
+              //imageUrl = state.plant.imageUrl;
               AutoRouter.of(context)
-                  .push(PlantDetailsRoute(
+                  .push(PlantIdentDetailsRoute(
                       plant: state.plant
-                          .copyWith(lon: lon, lat: lat, date: DateTime.now())))
+                          .copyWith(lon: lon, lat: lat, date: DateTime.now()),
+                      imageUrl: imageUrl!))
                   .then((value) => {
                         if (value != null && value == true)
                           {
@@ -102,6 +103,7 @@ class CameraScreen extends StatelessWidget {
                   return CameraPreview(state.controller);
                 }
                 if (state is PhotoLoadedSuccess) {
+                  imageUrl = state.imagePath;
                   BlocProvider.of<PlantIdentBloc>(context)
                       .add(PlantIdentRequested(state.imagePath));
                   return Container(
