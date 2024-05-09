@@ -15,7 +15,6 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +35,7 @@ public class KafkaConsumer {
     public static final Map<Long, String> procReturnFloraNames = new HashMap<>();
 
     @KafkaListener(topics = "${spring.kafka.consumer.topic}", groupId = "${spring.kafka.consumer.group-id}")
-    public void getProcReturnMessage(ConsumerRecord<Long, String> record) {
+    public void getProcReturnMessage(ConsumerRecord<Integer, String> record) {
 
         boolean jwtGood = false;
         boolean requestIdGood = false;
