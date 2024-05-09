@@ -90,7 +90,7 @@ class AuthorizationController {
             produces = {MediaType.APPLICATION_JSON_VALUE}
     )
     public ResponseEntity<Object> login(
-        @RequestPart @Schema(
+        @RequestBody @Schema(
                 example = "{\"login\":\"testuser\", \"password\":\"testuser\", \"ipAddress\":\"1.1.1.1\"}"
         ) NamedAuthDto namedAuthDto
     ) {
@@ -140,7 +140,7 @@ class AuthorizationController {
             produces = {MediaType.APPLICATION_JSON_VALUE}
     )
     public ResponseEntity<Object> anonymousLogin(
-        @RequestPart @Schema(
+        @RequestBody @Schema(
                 example = "{\"ipAddress\":\"1.1.1.1\"}"
         ) UnnamedAuthDto unnamedAuthDto
     ) {
