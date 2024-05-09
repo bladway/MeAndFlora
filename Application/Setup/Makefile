@@ -36,7 +36,7 @@ soft-rm:
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env rm -f
 
 soft-up:
-		docker pull ${MAINSERVER_REPOSITORY}
+	docker pull ${MAINSERVER_REPOSITORY}
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env up -d
 
 soft-restart:
