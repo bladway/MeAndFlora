@@ -78,7 +78,7 @@ services:
       - zookeeper
 
   MainServer:
-    image: bladway/maf-mainserver:1.3-test-3
+    image: bladway/maf-mainserver
     container_name: MeAndFlora-MainServer
     hostname: MainServer
     restart: always
