@@ -12,7 +12,7 @@ log/
 src/test/resources/application-test.yml
 
 src/main/resources/META-INF/
-MainServer.log
+MainServer.log*
 
 
 ### STS ###

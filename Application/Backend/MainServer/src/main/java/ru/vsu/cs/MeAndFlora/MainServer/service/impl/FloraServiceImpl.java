@@ -50,7 +50,7 @@ public class FloraServiceImpl implements FloraService {
 
     private final KafkaProducer kafkaProducer;
 
-    private final KafkaConsumer kafkaConsumer;
+    //private final KafkaConsumer kafkaConsumer;
 
     private final JwtPropertiesConfig jwtPropertiesConfig;
 
@@ -122,19 +122,30 @@ public class FloraServiceImpl implements FloraService {
         procRequest.setImagePath(procpath + procRequest.getRequestId() + ".jpg");
 
         // this logic needs to be separated for async work
-        String floraName = "oduvanchik";
-        /*kafkaProducer.sendProcRequestMessage(jwt, image, procRequest);
+        //String floraName = "oduvanchik";
+        kafkaProducer.sendProcRequestMessage(jwt, image, procRequest);
 
+        int waitIntervals = 100;
         while (!KafkaConsumer.procReturnFloraNames.containsKey(procRequest.getRequestId())) {
+            if (waitIntervals == 0) {
+                procRequestRepository.delete(procRequest);
+                throw new ObjectException(
+                        objectPropertiesConfig.getNeuraltimeout(),
+                        "neural network result hasn't got in expected period"
+                );
+            }
+
             try {
                 wait(1500);
             } catch (InterruptedException e) {
                 break;
             }
+
+            waitIntervals--;
         }
 
-        String floraName = KafkaConsumer.procReturnFloraNames.get(procRequest.getRequestId());
-*/
+        String floraName = KafkaConsumer.procReturnFloraNames.remove(procRequest.getRequestId());
+
         Optional<Flora> ifflora = floraRepository.findByName(floraName);
 
         if (ifflora.isEmpty()) {
