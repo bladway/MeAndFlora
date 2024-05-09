@@ -28,6 +28,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -136,9 +137,9 @@ public class FloraServiceImpl implements FloraService {
             }
 
             try {
-                wait(1500);
+                TimeUnit.SECONDS.sleep(2);
             } catch (InterruptedException e) {
-                break;
+                continue;
             }
 
             waitIntervals--;

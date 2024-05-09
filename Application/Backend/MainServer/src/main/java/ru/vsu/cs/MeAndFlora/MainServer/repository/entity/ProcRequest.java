@@ -31,7 +31,7 @@ public class ProcRequest {
     @Column(name = "REQUEST_ID", nullable = false)
     private Long requestId;
 
-    @Column(name = "IMAGE_PATH", nullable = false, unique = true)
+    @Column(name = "IMAGE_PATH", nullable = false)
     private String imagePath;
 
     @Column(name = "CREATED_TIME", nullable = false)

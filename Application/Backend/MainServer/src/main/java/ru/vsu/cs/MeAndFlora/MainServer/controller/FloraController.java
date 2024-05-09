@@ -47,17 +47,16 @@ public class FloraController {
     @Operation(description = "Get. Get flora by name. Requires: jwt in header, name of plant in body."
             + "Provides: floraDto in body, multipart image in body (jpg)")
     @GetMapping(
-            value = "/byname",
-            produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
+            value = "/byname"
     )
-    public ResponseEntity<MultiValueMap<String, Object>> getPlantByName(
+    public ResponseEntity<Object> getPlantByName(
         @RequestHeader String jwt,
         @RequestParam @Schema(
                 example = "oduvanchik"
         ) String name
     ) {
 
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        Object body;
         HttpHeaders headers = new HttpHeaders();
         HttpStatus status;
 
@@ -65,25 +64,30 @@ public class FloraController {
 
             Flora flora = floraService.requestFlora(jwt, name);
 
-            body.add("floraDto", new FloraDto(
+            MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
+
+            bodyMap.add("floraDto", new FloraDto(
                     flora.getName(),
                     flora.getDescription(),
                     flora.getType()
             ));
-            body.add("image", fileService.getImage(flora.getImagePath(), null));
+            bodyMap.add("image", fileService.getImage(flora.getImagePath(), null));
+
+            body = bodyMap;
+
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
             status = HttpStatus.OK;
 
             floraLogger.info(
-                    "Get plant with name: " + name + " is successful"
+                    "Get plant with name: {} is successful", name
             );
 
         } catch (JwtException | RightsException | ObjectException | InputException e) {
 
-            ExceptionDto exceptionDto =
-                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            body.add("exceptionDto", exceptionDto);
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
             status = e.getClass() == JwtException.class ?
                     HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
@@ -91,11 +95,10 @@ public class FloraController {
                     HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
                     HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
 
-            floraLogger.warn(e.getShortMessage() + ": " + e.getMessage());
+            floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
         }
 
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.add("jwt", jwt);
 
         return new ResponseEntity<>(body, headers, status);
@@ -107,10 +110,9 @@ public class FloraController {
             + "Provides: FloraDto in body, multipart image in body (jpg)")
     @PostMapping(
             value = "/request",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
-            produces = {MediaType.MULTIPART_FORM_DATA_VALUE}
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
-    private ResponseEntity<MultiValueMap<String, Object>> procFloraRequest(
+    private ResponseEntity<Object> procFloraRequest(
         @RequestHeader String jwt,
         @RequestPart(required = false) @Schema(
                 type = MediaType.APPLICATION_JSON_VALUE,
@@ -119,7 +121,7 @@ public class FloraController {
         @RequestPart MultipartFile image
     ) {
 
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        Object body;
         HttpHeaders headers = new HttpHeaders();
         HttpStatus status;
 
@@ -140,26 +142,31 @@ public class FloraController {
 
             fileService.putImage(image, dto.getProcRequest().getImagePath(), dto.getProcRequest());
 
-            body.add("floraDto", new FloraDto(
+            MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
+
+            bodyMap.add("floraDto", new FloraDto(
                     dto.getFlora().getName(),
                     dto.getFlora().getDescription(),
                     dto.getFlora().getType()
             ));
-            body.add("image", fileService.getImage(dto.getFlora().getImagePath(), dto.getProcRequest()));
+            bodyMap.add("image", fileService.getImage(dto.getFlora().getImagePath(), dto.getProcRequest()));
+
+            body = bodyMap;
+
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
             status = HttpStatus.OK;
 
             floraLogger.info(
-                    "Processing request defined flora as: " + dto.getFlora().getName()
+                    "Processing request defined flora as: {}", dto.getFlora().getName()
             );
 
 
         } catch (JwtException | RightsException | ObjectException | InputException e) {
 
-            ExceptionDto exceptionDto =
-                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            body.add("exceptionDto", exceptionDto);
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
             status = e.getClass() == JwtException.class ?
                     HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
@@ -167,11 +174,11 @@ public class FloraController {
                     HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
                     HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
 
-            floraLogger.warn(e.getShortMessage() + ": " + e.getMessage());
+            floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
 
         }
 
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.add("jwt", jwt);
 
         return new ResponseEntity<>(body, headers, status);
