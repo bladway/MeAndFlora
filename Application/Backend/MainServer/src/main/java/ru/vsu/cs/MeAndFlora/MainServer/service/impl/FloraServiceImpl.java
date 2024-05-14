@@ -122,8 +122,6 @@ public class FloraServiceImpl implements FloraService {
 
         procRequest.setImagePath(procpath + procRequest.getRequestId() + ".jpg");
 
-        // this logic needs to be separated for async work
-        //String floraName = "oduvanchik";
         kafkaProducer.sendProcRequestMessage(jwt, image, procRequest);
 
         int waitIntervals = 100;

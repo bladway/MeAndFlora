@@ -15,6 +15,8 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
+
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -47,13 +49,14 @@ public class KafkaConsumer {
                 case "jwt":
                     try {
 
-                        jwt = MainServerApplication.objectMapper.readValue(header.value(), String.class);
+                        jwt = new String(header.value(), StandardCharsets.UTF_8);
 
                         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
                         jwtGood = ifsession.isPresent();
 
                     } catch (Exception ignored) {}
+                    break;
 
                 case "requestId":
                     try {
@@ -66,6 +69,7 @@ public class KafkaConsumer {
                                 ifprocRequest.get().getStatus().equals(ProcRequestStatus.NEURAL_PROC.getName());
 
                     } catch (Exception ignored) {}
+                    break;
             }
         }
 
