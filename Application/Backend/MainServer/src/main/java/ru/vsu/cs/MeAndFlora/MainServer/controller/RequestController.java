@@ -119,7 +119,6 @@ public class RequestController {
 
             requestLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
-
         }
 
         headers.add("jwt", jwt);

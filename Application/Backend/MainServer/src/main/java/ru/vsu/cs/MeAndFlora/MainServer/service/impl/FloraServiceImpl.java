@@ -10,10 +10,13 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.RightsPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringsDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.FloraRepository;
+import ru.vsu.cs.MeAndFlora.MainServer.repository.MafUserRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
+import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
 
@@ -36,6 +39,7 @@ public class FloraServiceImpl implements FloraService {
     private final RightsPropertiesConfig rightsPropertiesConfig;
 
     private final ObjectPropertiesConfig objectPropertiesConfig;
+    private final MafUserRepository mafUserRepository;
 
     @Override
     public Flora requestFlora(String jwt, String floraName) {
@@ -156,6 +160,63 @@ public class FloraServiceImpl implements FloraService {
         }
 
         return new StringsDto(floraNames);
+    }
+
+    @Override
+    public StringDto unsubOrSub(String jwt, String floraName) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    jwtPropertiesConfig.getBadjwt(),
+                    "provided jwt not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+            throw new JwtException(
+                    jwtPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.USER.getName()))) {
+            throw new RightsException(
+                    rightsPropertiesConfig.getNorights(),
+                    "only user can unsub or sub plant"
+            );
+        }
+
+        Optional<Flora> ifflora = floraRepository.findByName(floraName);
+
+        if (ifflora.isEmpty()) {
+            throw new ObjectException(
+                    objectPropertiesConfig.getFloranotfound(),
+                    "flora to subscribe not found"
+            );
+        }
+
+        Flora flora = ifflora.get();
+        MafUser user = session.getUser();
+
+        int floraIndex = -1;
+
+        for (int i = 0; i < user.getTrackedPlants().size(); i++) {
+            if (user.getTrackedPlants().get(i).getName().equals(flora.getName())) {
+                floraIndex = i;
+                break;
+            }
+        }
+
+        if (floraIndex > -1) {
+            user.getTrackedPlants().remove(floraIndex);
+        } else {
+            user.getTrackedPlants().add(flora);
+        }
+        mafUserRepository.save(user);
+        return new StringDto(floraName);
     }
 
 }

@@ -35,4 +35,12 @@ public class MafUser {
     @OneToMany(mappedBy = "user")
     private List<USession> sessionList;
 
+    @ManyToMany
+    @JoinTable(
+        name = "FLORA_SUBSCRIPTION",
+        joinColumns = @JoinColumn(name = "USER_ID"),
+        inverseJoinColumns = @JoinColumn(name = "FLORA_ID")
+    )
+    private List<Flora> trackedPlants;
+
 }

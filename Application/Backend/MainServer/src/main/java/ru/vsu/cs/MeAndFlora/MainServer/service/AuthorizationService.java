@@ -1,8 +1,7 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service;
 
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.AccountChangesDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LoginDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 
 public interface AuthorizationService {
 
@@ -14,6 +13,6 @@ public interface AuthorizationService {
 
     DiJwtDto refresh(String jwtR);
 
-    LoginDto change(String jwt, String newLogin, String newPassword, String oldPassword);
+    StringDto change(String jwt, String newLogin, String newPassword, String oldPassword);
 
 }

@@ -13,21 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import ru.vsu.cs.MeAndFlora.MainServer.MainServerApplication;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraProcRequestDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
-import java.io.IOException;
 
 @RequiredArgsConstructor
 @RestController
@@ -51,7 +41,7 @@ public class FloraController {
         @RequestHeader String jwt,
         @RequestParam @Schema(
                 example = "Одуванчик"
-        ) String name
+        ) String floraName
     ) {
 
         Object body;
@@ -60,7 +50,7 @@ public class FloraController {
 
         try {
 
-            Flora flora = floraService.requestFlora(jwt, name);
+            Flora flora = floraService.requestFlora(jwt, floraName);
 
             MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
 
@@ -78,7 +68,7 @@ public class FloraController {
             status = HttpStatus.OK;
 
             floraLogger.info(
-                    "Get plant with name: {} is successful", name
+                    "Get plant with name: {} is successful", floraName
             );
 
         } catch (JwtException | RightsException | ObjectException | InputException e) {
@@ -179,6 +169,53 @@ public class FloraController {
                     HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
                     HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
                     HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
+
+    @Operation(description = "Post. Subscribe/unsubscribe to/from plant."
+            + " Requires: jwt in header, name of plant in query param."
+            + " Provides: StringDto with plant name in body.")
+    @PostMapping(
+            value = "/subscribe"
+    )
+    public ResponseEntity<Object> unsubOrSub(
+            @RequestHeader String jwt,
+            @RequestParam @Schema(
+                    example = "Одуванчик"
+            ) String floraName
+    ) {
+
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            body = floraService.unsubOrSub(jwt, floraName);
+
+            status = HttpStatus.OK;
+
+            floraLogger.info(
+                    "Change of subscription on: {} has passed successfully", floraName
+            );
+
+        } catch (JwtException | AuthException | RightsException | InputException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            status = e.getClass() == JwtException.class ?
+                    HttpStatus.UNAUTHORIZED : e.getClass() == AuthException.class ?
+                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
+                    HttpStatus.FORBIDDEN : e.getClass() == InputException.class ?
+                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
 
             floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 

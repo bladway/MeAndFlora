@@ -11,9 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
 
@@ -197,7 +195,7 @@ class AuthorizationController {
     }
 
     @Operation(description = "Post. Change actual account data. Requires: jwt in header. AccountChangesDto in body"
-            + "Provides: UserNameDto with actual username in body.")
+            + "Provides: StringDto with actual username in body.")
     @PostMapping(
             value = "/change"
     )
@@ -212,7 +210,7 @@ class AuthorizationController {
 
         try {
 
-            LoginDto returnDto = authorizationService.change(jwt,
+            StringDto returnDto = authorizationService.change(jwt,
                     accountChangesDto.getNewLogin(),
                     accountChangesDto.getNewPassword(),
                     accountChangesDto.getOldPassword()
@@ -223,21 +221,24 @@ class AuthorizationController {
             status = HttpStatus.OK;
 
             authorizationLogger.info(
-                    "Account data for actual user: {} has saved successfully", returnDto.getLogin()
+                    "Account data for actual user: {} has saved successfully", returnDto.getString()
             );
 
-        } catch (JwtException | AuthException | InputException e) {
+        } catch (JwtException | AuthException | RightsException | InputException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             status = e.getClass() == JwtException.class ?
                     HttpStatus.UNAUTHORIZED : e.getClass() == AuthException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == InputException.class ?
+                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
+                    HttpStatus.FORBIDDEN : e.getClass() == InputException.class ?
                     HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
 
             authorizationLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
         }
+
+        headers.add("jwt", jwt);
 
         return new ResponseEntity<>(body, headers, status);
 

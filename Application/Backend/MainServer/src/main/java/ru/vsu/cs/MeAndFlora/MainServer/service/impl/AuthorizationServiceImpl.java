@@ -7,13 +7,14 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.AuthPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.RightsPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LoginDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.MafUserRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
@@ -169,7 +170,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public LoginDto change(String jwt, String newLogin, String newPassword, String oldPassword) {
+    public StringDto change(String jwt, String newLogin, String newPassword, String oldPassword) {
         boolean changeLogin = false;
         boolean changePassword = false;
         validatePassword(oldPassword);
@@ -199,17 +200,17 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         USession session = ifsession.get();
 
-        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.USER.getName()))) {
-            throw new AuthException(
-                    rightsPropertiesConfig.getNorights(),
-                    "only user can change account data"
-            );
-        }
-
         if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
             throw new JwtException(
                     jwtPropertiesConfig.getExpired(),
-                    "jwt lifetime has ended, try to get new with jwtr"
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.USER.getName()))) {
+            throw new RightsException(
+                    rightsPropertiesConfig.getNorights(),
+                    "only user can change account data"
             );
         }
 
@@ -231,7 +232,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         user = mafUserRepository.save(user);
 
-        return new LoginDto(user.getLogin());
+        return new StringDto(user.getLogin());
     }
 
 }

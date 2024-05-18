@@ -39,4 +39,7 @@ public class Flora {
     @OneToMany(mappedBy = "flora")
     private List<ProcRequest> procRequestList;
 
+    @ManyToMany(mappedBy = "trackedPlants")
+    private List<MafUser> subscribedUsers;
+
 }

@@ -5,12 +5,12 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class LoginDto {
+public class StringDto {
 
-    public LoginDto(String login) {
-        this.login = login;
+    public StringDto(String string) {
+        this.string = string;
     }
 
-    private String login;
+    private String string;
 
 }

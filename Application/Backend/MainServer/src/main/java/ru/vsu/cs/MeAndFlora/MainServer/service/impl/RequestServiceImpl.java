@@ -86,7 +86,7 @@ public class RequestServiceImpl implements RequestService {
         Point geoPos = geoDto == null ? null : jsonUtil.jsonToPoint(geoDto);
 
         ProcRequest procRequest = procRequestRepository.save(new ProcRequest(
-                "", null, geoPos, ProcRequestStatus.NEURAL_PROC.getName(), session, null));
+                null, null, geoPos, ProcRequestStatus.NEURAL_PROC.getName(), session, null));
 
         procRequest.setImagePath(procpath + procRequest.getRequestId() + ".jpg");
 
