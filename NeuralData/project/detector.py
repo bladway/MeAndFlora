@@ -4,9 +4,15 @@ import torchvision.transforms as transform
 from PIL import Image
 import sys
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+device = None
 
-resnet50 = torch.load('resnet50_model.pth')
+if torch.cuda.is_available():
+    device = torch.device('cuda:0')
+    resnet50 = torch.load('resnet50_model.pth')
+else:
+    device = torch.device('cpu')
+    resnet50 = torch.load('resnet50_model.pth', map_location=torch.device('cpu'))
+
 resnet50.to(device)
 resnet50.eval()
 
@@ -14,10 +20,13 @@ resnet50.eval()
 def preprocess_image(image_path):
     image = Image.open(image_path)
     preprocess = transform.Compose([
-        transform.Resize((220, 220)),
+        transform.Resize((256, 256)),
+        transform.CenterCrop(224),
         transform.ToTensor(),
-        transform.Normalize((0.4124234616756439, 0.3674212694168091, 0.2578217089176178),
-                            (0.3268945515155792, 0.29282665252685547, 0.29053378105163574))
+        transform.Normalize(
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225]
+        )
     ])
     return preprocess(image)
 
@@ -39,9 +48,7 @@ def detection(path):
     print("----------------------------------")
     sys.stdout.flush()
 
-    return [plants[top3_indices[0][0].item()],
-            plants[top3_indices[0][1].item()],
-            plants[top3_indices[0][2].item()]]
+    return plants[top3_indices[0][0].item()]
 
 
 plants = [

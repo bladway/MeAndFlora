@@ -8,4 +8,4 @@ COPY . /app
 WORKDIR /app
 
 # Убедитесь, что ваш код будет запущен при старте контейнера
-CMD ["python", "consumer.py"]
+CMD ["python", "image_processor.py"]
