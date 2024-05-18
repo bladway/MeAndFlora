@@ -7,8 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class MainServerApplication {
 
-    public static ObjectMapper objectMapper = new ObjectMapper();
-
     public static void main(String[] args) {
         SpringApplication.run(MainServerApplication.class, args);
     }

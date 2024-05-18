@@ -2,6 +2,7 @@ package ru.vsu.cs.MeAndFlora.MainServer.config.component;
 
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Component;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
@@ -14,8 +15,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JsonUtil {
 
+    private final GeometryFactory geometryFactory;
+
     public Point jsonToPoint(GeoJsonPointDto geoDto) {
-        return FloraServiceImpl.geometryFactory.createPoint(new Coordinate(
+        return geometryFactory.createPoint(new Coordinate(
 
                         geoDto.getCoordinates().get(0),
                         geoDto.getCoordinates().get(1)

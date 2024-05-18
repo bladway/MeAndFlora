@@ -1,5 +1,6 @@
 package ru.vsu.cs.MeAndFlora.MainServer.config.component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
@@ -34,6 +35,8 @@ public class KafkaConsumer {
 
     private final FloraRepository floraRepository;
 
+    private final ObjectMapper objectMapper;
+
     public static final Map<Long, String> procReturnFloraNames = new HashMap<>();
 
     @KafkaListener(topics = "${spring.kafka.consumer.topic}", groupId = "${spring.kafka.consumer.group-id}")
@@ -61,7 +64,7 @@ public class KafkaConsumer {
                 case "requestId":
                     try {
 
-                        requestId = MainServerApplication.objectMapper.readValue(header.value(), Long.class);
+                        requestId = objectMapper.readValue(header.value(), Long.class);
 
                         Optional<ProcRequest> ifprocRequest = procRequestRepository.findById(requestId);
 
