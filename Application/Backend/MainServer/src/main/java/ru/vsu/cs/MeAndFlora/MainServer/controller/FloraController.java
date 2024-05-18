@@ -42,7 +42,7 @@ public class FloraController {
 
     private final FileService fileService;
 
-    @Operation(description = "Get. Get flora by name. Requires: jwt in header, name of plant in body."
+    @Operation(description = "Get. Get flora by name. Requires: jwt in header, name of plant in query param."
             + "Provides: floraDto in body, multipart image in body (jpg)")
     @GetMapping(
             value = "/byname"
@@ -104,7 +104,7 @@ public class FloraController {
     }
 
     @Operation(description = "Get. Get types of flora. Requires: jwt in header."
-            + "Provides: TypesDto in body")
+            + "Provides: StringsDto with list of flora type names in body")
     @GetMapping(
             value = "/types"
     )
@@ -126,15 +126,59 @@ public class FloraController {
                     "Get types of flora is successful"
             );
 
-        } catch (JwtException | RightsException | ObjectException | InputException e) {
+        } catch (JwtException | RightsException | ObjectException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
             status = e.getClass() == JwtException.class ?
                     HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
                     HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
-                    HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+                    HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
+
+    @Operation(description = "Get. Get all flora names of some type. Requires: jwt in header, name of type in query param."
+            + "Provides: StringsDto with list of flora names of the requested type in body")
+    @GetMapping(
+            value = "/bytype"
+    )
+    public ResponseEntity<Object> getFloraTypes(
+        @RequestHeader String jwt,
+        @RequestParam @Schema(
+                example = "Дерево"
+        ) String typeName
+    ) {
+
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            body = floraService.getFloraByType(jwt, typeName);
+
+            status = HttpStatus.OK;
+
+            floraLogger.info(
+                    "Get flora of type: {} is successful", typeName
+            );
+
+        } catch (JwtException | RightsException | ObjectException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            status = e.getClass() == JwtException.class ?
+                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
+                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
+                    HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR;
 
             floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 

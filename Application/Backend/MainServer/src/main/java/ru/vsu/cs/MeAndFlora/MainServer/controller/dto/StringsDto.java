@@ -7,12 +7,12 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class TypesDto {
+public class StringsDto {
 
-    public TypesDto(List<String> types) {
-        this.types = types;
+    public StringsDto(List<String> strings) {
+        this.strings = strings;
     }
 
-    private List<String> types;
+    private List<String> strings;
 
 }

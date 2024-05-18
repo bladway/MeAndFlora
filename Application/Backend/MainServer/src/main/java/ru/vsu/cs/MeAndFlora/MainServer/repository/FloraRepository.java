@@ -18,4 +18,6 @@ public interface FloraRepository extends JpaRepository<Flora, Long> {
     )
     List<String> getTypesOfFlora();
 
+    List<Flora> findByType(String type);
+
 }

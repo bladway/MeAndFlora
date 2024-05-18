@@ -10,13 +10,14 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.RightsPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.TypesDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringsDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.FloraRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,7 +78,7 @@ public class FloraServiceImpl implements FloraService {
     }
 
     @Override
-    public TypesDto getTypes(String jwt) {
+    public StringsDto getTypes(String jwt) {
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -113,8 +114,48 @@ public class FloraServiceImpl implements FloraService {
             );
         }
 
-        return new TypesDto(types);
+        return new StringsDto(types);
     }
 
+    @Override
+    public StringsDto getFloraByType(String jwt, String typeName) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    jwtPropertiesConfig.getBadjwt(),
+                    "provided jwt not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+            throw new JwtException(
+                    jwtPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
+            throw new RightsException(
+                    rightsPropertiesConfig.getNorights(),
+                    "admin has no rights to get flora names by type"
+            );
+        }
+
+        List<Flora> floras = floraRepository.findByType(typeName);
+        List<String> floraNames = new ArrayList<>();
+        floras.forEach(flora -> floraNames.add(flora.getName()));
+
+        if (floraNames.isEmpty()) {
+            throw new ObjectException(
+                    objectPropertiesConfig.getFloranotfound(),
+                    "there are no flora of requested type"
+            );
+        }
+
+        return new StringsDto(floraNames);
+    }
 
 }
