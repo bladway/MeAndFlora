@@ -13,6 +13,7 @@ public class ObjectPropertiesConfig {
     private String imagenotfound;
     private String imagenotuploaded;
     private String invalidinput;
+    private String changeisnull;
     private String neuraltimeout;
 
 }

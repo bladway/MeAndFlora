@@ -39,7 +39,7 @@ public class USession {
     private String jwtR;
 
     @ManyToOne
-    @JoinColumn(name = "LOGIN", foreignKey = @ForeignKey)
+    @JoinColumn(name = "USER_ID", foreignKey = @ForeignKey)
     private MafUser user;
 
     @OneToMany(mappedBy = "session")

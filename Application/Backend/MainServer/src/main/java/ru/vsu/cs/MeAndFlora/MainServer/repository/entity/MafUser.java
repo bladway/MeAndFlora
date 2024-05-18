@@ -19,7 +19,11 @@ public class MafUser {
     }
 
     @Id
-    @Column(name = "LOGIN", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "USER_ID", nullable = false)
+    private Long userId;
+
+    @Column(name = "LOGIN", nullable = false, unique = true)
     private String login;
 
     @Column(name = "PASSWORD", nullable = false)

@@ -5,11 +5,15 @@ import org.apache.commons.validator.routines.InetAddressValidator;
 import org.springframework.stereotype.Service;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.AuthPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.RightsPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LoginDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.MafUserRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
@@ -32,6 +36,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private final JwtPropertiesConfig jwtPropertiesConfig;
 
+    private final ObjectPropertiesConfig objectPropertiesConfig;
+    private final RightsPropertiesConfig rightsPropertiesConfig;
+
     private void validateLogin(String login) {
         if (login.length() < 6 || login.length() > 25) {
             throw new AuthException(
@@ -39,6 +46,17 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                     "login does not match expected length: 6 - 25"
             );
         }
+    }
+
+    private void validateLoginDuplication(String login) {
+        mafUserRepository.findByLogin(login).ifPresent(
+                mafUser -> {
+                    throw new AuthException(
+                            authPropertiesConfig.getDoublelogin(),
+                            "such login exists in the database"
+                    );
+                }
+        );
     }
 
     private void validatePassword(String password) {
@@ -62,18 +80,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public DiJwtDto register(String login, String password, String ipAddress) {
         validateLogin(login);
-
-        mafUserRepository.findById(login).ifPresent(
-                mafUser -> {
-                    throw new AuthException(
-                            authPropertiesConfig.getDoublelogin(),
-                            "such login exists in the database"
-                    );
-                }
-        );
-
         validatePassword(password);
         validateIpAddress(ipAddress);
+        validateLoginDuplication(login);
 
         MafUser user = mafUserRepository.save(new MafUser(login, password, UserRole.USER.getName()));
 
@@ -93,7 +102,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         validatePassword(password);
         validateIpAddress(ipAddress);
 
-        Optional<MafUser> ifuser = mafUserRepository.findById(login);
+        Optional<MafUser> ifuser = mafUserRepository.findByLogin(login);
 
         if (ifuser.isEmpty()) {
             throw new AuthException(
@@ -157,6 +166,72 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         uSessionRepository.save(newSession);
 
         return new DiJwtDto(newSession.getJwt(), newSession.getJwtR());
+    }
+
+    @Override
+    public LoginDto change(String jwt, String newLogin, String newPassword, String oldPassword) {
+        boolean changeLogin = false;
+        boolean changePassword = false;
+        validatePassword(oldPassword);
+        if (newLogin != null) {
+            validateLogin(newLogin);
+            changeLogin = true;
+        }
+        if (newPassword != null) {
+            validatePassword(newPassword);
+            changePassword = true;
+        }
+        if (!(changeLogin || changePassword)) {
+            throw new InputException(
+                    objectPropertiesConfig.getChangeisnull(),
+                    "provide at least one: newLogin or newPassword"
+            );
+        }
+
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    jwtPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.USER.getName()))) {
+            throw new AuthException(
+                    rightsPropertiesConfig.getNorights(),
+                    "only user can change account data"
+            );
+        }
+
+        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+            throw new JwtException(
+                    jwtPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, try to get new with jwtr"
+            );
+        }
+
+        MafUser user = session.getUser();
+
+        if (!user.getPassword().equals(oldPassword)) {
+            throw new AuthException(
+                    authPropertiesConfig.getBadpassword(),
+                    "provided old password is wrong"
+            );
+        }
+
+        if (changeLogin) {
+            user.setLogin(newLogin);
+        }
+        if (changePassword) {
+            user.setPassword(newPassword);
+        }
+
+        user = mafUserRepository.save(user);
+
+        return new LoginDto(user.getLogin());
     }
 
 }
