@@ -23,6 +23,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 @Service
@@ -162,19 +163,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             );
         }
 
-        USession newSession = uSessionRepository.save(new USession(session.getIpAddress(), "", "", session.getUser()));
+        session.setJwt(jwtUtil.generateToken(session.getSessionId()));
+        session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
+        session.setJwtCreatedTime(OffsetDateTime.now());
 
-        newSession.setJwt(jwtUtil.generateToken(newSession.getSessionId()));
-        newSession.setJwtR(jwtUtil.generateRToken(newSession.getSessionId()));
+        session = uSessionRepository.save(session);
 
-        newSession = uSessionRepository.save(newSession);
-
-        for (ProcRequest request : session.getProcRequestList()) {
-            request.setSession(newSession);
-            procRequestRepository.save(request);
-        }
-
-        return new DiJwtDto(newSession.getJwt(), newSession.getJwtR());
+        return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
 
     @Override

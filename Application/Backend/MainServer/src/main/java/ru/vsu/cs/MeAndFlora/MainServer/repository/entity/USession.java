@@ -16,6 +16,7 @@ public class USession {
     public USession(String ipAddress, String jwt, String jwtR, MafUser user) {
         this.ipAddress = ipAddress;
         this.createdTime = OffsetDateTime.now();
+        this.jwtCreatedTime = OffsetDateTime.now();
         this.jwt = jwt;
         this.jwtR = jwtR;
         this.user = user;
@@ -31,6 +32,9 @@ public class USession {
 
     @Column(name = "CREATED_TIME", nullable = false)
     private OffsetDateTime createdTime;
+
+    @Column(name = "JWT_CREATED_TIME", nullable = false)
+    private OffsetDateTime jwtCreatedTime;
 
     @Column(name = "JWT", nullable = false, unique = true)
     private String jwt;

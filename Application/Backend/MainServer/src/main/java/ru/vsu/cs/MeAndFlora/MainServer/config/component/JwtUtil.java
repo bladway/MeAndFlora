@@ -10,6 +10,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .claim("type", "access")
                 .claim("sessionId", sessionId.toString())
+                .claim("createdTime", Date.from(OffsetDateTime.now().toInstant()))
                 .signWith(key)
                 .compact();
     }
@@ -31,6 +33,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .claim("type", "refresh")
                 .claim("sessionId", sessionId.toString())
+                .claim("createdTime", Date.from(OffsetDateTime.now().toInstant()))
                 .signWith(key)
                 .compact();
     }
