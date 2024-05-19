@@ -11,16 +11,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.vsu.cs.MeAndFlora.MainServer.MainServerApplication;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
-import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
-import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;
 
 import java.io.IOException;
@@ -36,15 +32,13 @@ public class RequestController {
 
     private final RequestService requestService;
 
-    private final FileService fileService;
-
     private final ObjectPropertiesConfig objectPropertiesConfig;
 
     private final ObjectMapper objectMapper;
 
-    @Operation(description = "Post. Post new processing request. Requires: jwt in header, "
-            + "GeoJsonPoint in body (optionally), multipart image in body."
-            + "Provides: FloraDto in body, multipart image in body (jpg)")
+    @Operation(description = "Post. Post new processing request."
+            + " Requires: jwt in header, GeoJsonPoint in body (optionally), multipart image in body."
+            + " Provides: FloraDto in body, multipart image in body (jpg)")
     @PostMapping(
             value = "/request",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
@@ -66,39 +60,23 @@ public class RequestController {
 
             GeoJsonPointDto realGeoDto;
 
-            byte[] realImage;
-
             try {
                 realGeoDto = geoDto == null ? null : objectMapper.readValue(geoDto, GeoJsonPointDto.class);
-                realImage = image.getBytes();
             } catch (IOException e) {
                 throw new InputException(objectPropertiesConfig.getInvalidinput(), e.getMessage());
             }
 
-            FloraProcRequestDto dto = requestService.procFloraRequest(jwt, realImage, realGeoDto);
-
-            fileService.putImage(image, dto.getProcRequest().getImagePath(), dto.getProcRequest());
-
-            MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
-
-            bodyMap.add("stringDto", dto.getProcRequest().getRequestId());
-            bodyMap.add("floraDto", new FloraDto(
-                    dto.getFlora().getName(),
-                    dto.getFlora().getDescription(),
-                    dto.getFlora().getType()
-            ));
-            bodyMap.add("image", fileService.getImage(dto.getFlora().getImagePath(), dto.getProcRequest()));
-
-            body = bodyMap;
+            body = requestService.procFloraRequest(jwt, image, realGeoDto);
 
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
             status = HttpStatus.OK;
 
             requestLogger.info(
-                    "Processing request defined flora as: {}", dto.getFlora().getName()
+                    "Processing request {} defined flora as: {}",
+                    ((MultiValueMap<String, Object>)body).getFirst("requestId"),
+                    ((FloraDto)((MultiValueMap<String, Object>)body).getFirst("floraDto")).getName()
             );
-
 
         } catch (JwtException | RightsException | ObjectException | InputException | StateException e) {
 
@@ -151,7 +129,9 @@ public class RequestController {
             status = HttpStatus.OK;
 
             requestLogger.info(
-                    "Processing request move into state: {}", dto.getString()
+                    "Processing request {} move into state: {}",
+                    answerDto.getRequestId(),
+                    dto.getString()
             );
 
         } catch (JwtException | RightsException | ObjectException | InputException | StateException e) {

@@ -80,6 +80,7 @@ object:
   invalidinput: invalidinput
   neuraltimeout: neuraltimeout
   changeisnull: changeisnull
+  doubleflora: doubleflora
 
 state:
   neuraltouserbad: neuraltouserbad

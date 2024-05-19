@@ -1,5 +1,6 @@
 package ru.vsu.cs.MeAndFlora.MainServer.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,11 +14,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
-import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,10 +34,13 @@ public class FloraController {
 
     private final FloraService floraService;
 
-    private final FileService fileService;
+    private final ObjectPropertiesConfig objectPropertiesConfig;
 
-    @Operation(description = "Get. Get flora by name. Requires: jwt in header, name of plant in query param."
-            + "Provides: floraDto in body, multipart image in body (jpg)")
+    private final ObjectMapper objectMapper;
+
+    @Operation(description = "Get. Get flora by name."
+            + " Requires: jwt in header, name of plant in query param."
+            + " Provides: floraDto in body, multipart image in body (jpg)")
     @GetMapping(
             value = "/byname"
     )
@@ -50,18 +57,7 @@ public class FloraController {
 
         try {
 
-            Flora flora = floraService.requestFlora(jwt, floraName);
-
-            MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
-
-            bodyMap.add("floraDto", new FloraDto(
-                    flora.getName(),
-                    flora.getDescription(),
-                    flora.getType()
-            ));
-            bodyMap.add("image", fileService.getImage(flora.getImagePath(), null));
-
-            body = bodyMap;
+            body = floraService.requestFlora(jwt, floraName);
 
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
@@ -93,8 +89,77 @@ public class FloraController {
 
     }
 
-    @Operation(description = "Get. Get types of flora. Requires: jwt in header."
-            + "Provides: StringsDto with list of flora type names in body")
+    @Operation(description = "Post. Create new flora by botanist."
+            + " Requires: jwt in header, FloraDto in body, multipart image in body."
+            + " Provides: StringDto with name of created flora")
+    @PostMapping(
+            value = "/new",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+    )
+    public ResponseEntity<Object> createNewFlora(
+            @RequestHeader String jwt,
+            @RequestPart @Schema(
+                    type = MediaType.APPLICATION_JSON_VALUE,
+                    example = "{\"name\":\"Фикус\", \"description\":\"Лучший друг\", \"type\":\"Цветок\"}"
+            ) byte[] floraDto,
+            @RequestPart MultipartFile image
+    ) {
+
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            FloraDto realFloraDto;
+
+            try {
+                realFloraDto = objectMapper.readValue(floraDto, FloraDto.class);
+            } catch (IOException e) {
+                throw new InputException(objectPropertiesConfig.getInvalidinput(), e.getMessage());
+            }
+
+            body = floraService.createFlora(
+                    jwt,
+                    realFloraDto.getName(),
+                    realFloraDto.getDescription(),
+                    realFloraDto.getType(),
+                    image
+            );
+
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            status = HttpStatus.OK;
+
+            floraLogger.info(
+                    "Create plant with name: {} is successful", realFloraDto.getName()
+            );
+
+        } catch (JwtException | RightsException | ObjectException | InputException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            status = e.getClass() == JwtException.class ?
+                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
+                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
+                    HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
+                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
+
+    @Operation(description = "Get. Get types of flora."
+            + " Requires: jwt in header."
+            + " Provides: StringsDto with list of flora type names in body")
     @GetMapping(
             value = "/types"
     )
@@ -135,8 +200,9 @@ public class FloraController {
 
     }
 
-    @Operation(description = "Get. Get all flora names of some type. Requires: jwt in header, name of type in query param."
-            + "Provides: StringsDto with list of flora names of the requested type in body")
+    @Operation(description = "Get. Get all flora names of some type."
+            + " Requires: jwt in header, name of type in query param."
+            + " Provides: StringsDto with list of flora names of the requested type in body")
     @GetMapping(
             value = "/bytype"
     )

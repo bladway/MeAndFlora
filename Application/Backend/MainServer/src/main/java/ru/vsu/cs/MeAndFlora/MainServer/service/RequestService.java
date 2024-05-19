@@ -1,12 +1,13 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service;
 
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraProcRequestDto;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 
 public interface RequestService {
 
-    FloraProcRequestDto procFloraRequest(String jwt, byte[] image, GeoJsonPointDto geoDto);
+    MultiValueMap<String, Object> procFloraRequest(String jwt, MultipartFile image, GeoJsonPointDto geoDto);
 
     StringDto proceedRequest(String jwt, Long requestId, String answer);
 

@@ -15,5 +15,6 @@ public class ObjectPropertiesConfig {
     private String invalidinput;
     private String changeisnull;
     private String neuraltimeout;
+    private String doubleflora;
 
 }

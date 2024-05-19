@@ -1,16 +1,14 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import ru.vsu.cs.MeAndFlora.MainServer.config.component.JsonUtil;
-import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
-import ru.vsu.cs.MeAndFlora.MainServer.config.component.KafkaConsumer;
-import ru.vsu.cs.MeAndFlora.MainServer.config.component.KafkaProducer;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
+import ru.vsu.cs.MeAndFlora.MainServer.config.component.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
@@ -19,7 +17,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.property.StatePropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.ProcRequestStatus;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserResponse;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraProcRequestDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.FloraRepository;
@@ -30,8 +28,9 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.time.OffsetDateTime;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -52,6 +51,8 @@ public class RequestServiceImpl implements RequestService {
 
     private final JsonUtil jsonUtil;
 
+    private final FileUtil fileUtil;
+
     private final KafkaProducer kafkaProducer;
 
     private final JwtPropertiesConfig jwtPropertiesConfig;
@@ -63,7 +64,7 @@ public class RequestServiceImpl implements RequestService {
     private final StatePropertiesConfig statePropertiesConfig;
 
     @Override
-    public FloraProcRequestDto procFloraRequest(String jwt, byte[] image, GeoJsonPointDto geoDto) {
+    public MultiValueMap<String, Object> procFloraRequest(String jwt, MultipartFile image, GeoJsonPointDto geoDto) {
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -96,7 +97,15 @@ public class RequestServiceImpl implements RequestService {
 
         procRequest.setImagePath(procpath + procRequest.getRequestId() + ".jpg");
 
-        kafkaProducer.sendProcRequestMessage(jwt, image, procRequest);
+        try {
+            kafkaProducer.sendProcRequestMessage(jwt, image, procRequest);
+        } catch (IOException e) {
+            procRequestRepository.delete(procRequest);
+            throw new ObjectException(
+                    objectPropertiesConfig.getImagenotuploaded(),
+                    "server can't process provided image"
+            );
+        }
 
         int waitIntervals = 100;
         while (!KafkaConsumer.procReturnFloraNames.containsKey(procRequest.getRequestId())) {
@@ -142,10 +151,39 @@ public class RequestServiceImpl implements RequestService {
             );
         }
 
-        procRequestRepository.save(procRequest);
+        procRequest = procRequestRepository.save(procRequest);
 
-        return new FloraProcRequestDto(flora, procRequest);
+        try {
+            fileUtil.putImage(image, procRequest.getImagePath());
+        } catch (IOException e) {
+            procRequestRepository.delete(procRequest);
+            throw new ObjectException(
+                    objectPropertiesConfig.getImagenotuploaded(),
+                    "server can't process provided image"
+            );
+        }
 
+        Resource resource;
+        try {
+            resource = fileUtil.getImage(procRequest.getFlora().getImagePath());
+        } catch (MalformedURLException e) {
+            procRequestRepository.delete(procRequest);
+            throw new ObjectException(
+                    objectPropertiesConfig.getImagenotfound(),
+                    "requested image not found"
+            );
+        }
+
+        MultiValueMap<String, Object> multiValueMap = new LinkedMultiValueMap<>();
+        multiValueMap.add("requestId", procRequest.getRequestId());
+        multiValueMap.add("floraDto", new FloraDto(
+                procRequest.getFlora().getName(),
+                procRequest.getFlora().getDescription(),
+                procRequest.getFlora().getType()
+        ));
+        multiValueMap.add("image", resource);
+
+        return multiValueMap;
     }
 
     @Override

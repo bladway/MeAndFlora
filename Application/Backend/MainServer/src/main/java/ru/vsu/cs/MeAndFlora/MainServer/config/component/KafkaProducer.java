@@ -5,7 +5,10 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
+
+import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
@@ -16,10 +19,13 @@ public class KafkaProducer {
 
     private final KafkaTemplate<Integer, byte[]> kafkaTemplate;
 
-    public void sendProcRequestMessage(String jwt, byte[] image, ProcRequest procRequest) {
-        Integer partition = procRequest.getSession().getUser() == null ? 0 : (procRequest.getSession().getUser().getLogin().hashCode() % 4 + 1);
+    public void sendProcRequestMessage(String jwt, MultipartFile image, ProcRequest procRequest) throws IOException {
+        Integer partition =
+                Math.toIntExact(
+                        procRequest.getSession().getUser() == null ?
+                                0 : (procRequest.getSession().getUser().getUserId() % 4 + 1));
 
-        ProducerRecord<Integer, byte[]> record = new ProducerRecord<>(requestTopic, partition, partition, image);
+        ProducerRecord<Integer, byte[]> record = new ProducerRecord<>(requestTopic, partition, partition, image.getBytes());
         record.headers().add("jwt", jwt.getBytes());
         record.headers().add("requestId", procRequest.getRequestId().toString().getBytes());
 
