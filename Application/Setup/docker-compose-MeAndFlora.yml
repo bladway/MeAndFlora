@@ -65,6 +65,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       ZOOKEEPER_SASL_ENABLED: false
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_ADVERTISED_LISTENERS: EXTERNAL://${SERVER_IP}:${KAFKA_PORT_EXTERNAL},INTERNAL://localhost:${KAFKA_PORT_INTERNAL},CONTAINER://kafka:${KAFKA_PORT_CONTAINER}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:SASL_PLAINTEXT,INTERNAL:SASL_PLAINTEXT,CONTAINER:SASL_PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: CONTAINER
@@ -97,6 +98,17 @@ services:
       MAINSERVER_PORT: ${MAINSERVER_PORT}
     volumes:
       - MeAndFlora-Images:/images
+    depends_on:
+      - kafka
+      - postgres
+
+  NeuralMicroservice:
+    image: dkotx/detector
+    container_name: MeAndFlora-NeuralMicroservice
+    hostname: NeuralMicroservice
+    restart: always
+    depends_on:
+      - kafka
 
 volumes:
   MeAndFlora-Database:

@@ -24,7 +24,8 @@ hard-up:
 	sudo mkdir /server/MeAndFlora-Mongo && \
 	sudo mkdir /server/MeAndFlora-Cachebase && \
 	sudo mkdir /server/MeAndFlora-Images && \
-	docker pull ${MAINSERVER_REPOSITORY}
+	docker pull bladway/maf-mainserver
+	docker pull dkotx/detector
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env up -d
 
 hard-restart:
@@ -36,7 +37,8 @@ soft-rm:
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env rm -f
 
 soft-up:
-	docker pull ${MAINSERVER_REPOSITORY}
+	docker pull bladway/maf-mainserver
+	docker pull dkotx/detector
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env up -d
 
 soft-restart:
