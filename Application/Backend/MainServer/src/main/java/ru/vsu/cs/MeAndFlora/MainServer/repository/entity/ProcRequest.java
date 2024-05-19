@@ -16,7 +16,8 @@ public class ProcRequest {
     public ProcRequest(
             String imagePath, OffsetDateTime postedTime,
             Point geoPos, String status,
-            USession session, Flora flora
+            USession session, Flora flora,
+            boolean isBotanistVerified
     ) {
         this.imagePath = imagePath;
         this.createdTime = OffsetDateTime.now();
@@ -25,6 +26,7 @@ public class ProcRequest {
         this.status = status;
         this.session = session;
         this.flora = flora;
+        this.isBotanistVerified = isBotanistVerified;
     }
 
     @Id
@@ -46,6 +48,9 @@ public class ProcRequest {
 
     @Column(name = "STATUS", nullable = false)
     private String status;
+
+    @Column(name = "IS_BOTANIST_VERIFIED", nullable = false)
+    private boolean isBotanistVerified;
 
     @ManyToOne
     @JoinColumn(name = "SESSION_ID", foreignKey = @ForeignKey, nullable = false)

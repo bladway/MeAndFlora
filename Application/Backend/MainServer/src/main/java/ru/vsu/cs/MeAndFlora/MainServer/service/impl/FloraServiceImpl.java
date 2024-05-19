@@ -104,11 +104,22 @@ public class FloraServiceImpl implements FloraService {
             );
         }
 
+        boolean isSubscribed = false;
+        if (session.getUser() != null) {
+            for (Flora curFlora : session.getUser().getTrackedPlants()) {
+                if (flora.getName().equals(curFlora.getName())) {
+                    isSubscribed = true;
+                    break;
+                }
+            }
+        }
+
         MultiValueMap<String, Object> multiValueMap = new LinkedMultiValueMap<>();
         multiValueMap.add("floraDto", new FloraDto(
                 flora.getName(),
                 flora.getDescription(),
-                flora.getType()
+                flora.getType(),
+                isSubscribed
         ));
         multiValueMap.add("image", resource);
 

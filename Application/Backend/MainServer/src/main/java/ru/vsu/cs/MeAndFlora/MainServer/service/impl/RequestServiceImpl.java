@@ -93,7 +93,14 @@ public class RequestServiceImpl implements RequestService {
         Point geoPos = geoDto == null ? null : jsonUtil.jsonToPoint(geoDto);
 
         ProcRequest procRequest = procRequestRepository.save(new ProcRequest(
-                null, null, geoPos, ProcRequestStatus.NEURAL_PROC.getName(), session, null));
+                null,
+                null,
+                geoPos,
+                ProcRequestStatus.NEURAL_PROC.getName(),
+                session,
+                null,
+                false)
+        );
 
         procRequest.setImagePath(procpath + procRequest.getRequestId() + ".jpg");
 
@@ -174,12 +181,23 @@ public class RequestServiceImpl implements RequestService {
             );
         }
 
+        boolean isSubscribed = false;
+        if (procRequest.getSession().getUser() != null) {
+            for (Flora curFlora : procRequest.getSession().getUser().getTrackedPlants()) {
+                if (procRequest.getFlora().getName().equals(curFlora.getName())) {
+                    isSubscribed = true;
+                    break;
+                }
+            }
+        }
+
         MultiValueMap<String, Object> multiValueMap = new LinkedMultiValueMap<>();
         multiValueMap.add("requestId", procRequest.getRequestId());
         multiValueMap.add("floraDto", new FloraDto(
                 procRequest.getFlora().getName(),
                 procRequest.getFlora().getDescription(),
-                procRequest.getFlora().getType()
+                procRequest.getFlora().getType(),
+                isSubscribed
         ));
         multiValueMap.add("image", resource);
 
