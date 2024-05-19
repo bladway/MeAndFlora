@@ -20,6 +20,7 @@ public class ProcRequest {
     ) {
         this.imagePath = imagePath;
         this.createdTime = OffsetDateTime.now();
+        this.postedTime = postedTime;
         this.geoPos = geoPos;
         this.status = status;
         this.session = session;

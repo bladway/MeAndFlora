@@ -16,15 +16,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.MainServerApplication;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraProcRequestDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;
@@ -87,6 +81,7 @@ public class RequestController {
 
             MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
 
+            bodyMap.add("stringDto", dto.getProcRequest().getRequestId());
             bodyMap.add("floraDto", new FloraDto(
                     dto.getFlora().getName(),
                     dto.getFlora().getDescription(),
@@ -105,7 +100,7 @@ public class RequestController {
             );
 
 
-        } catch (JwtException | RightsException | ObjectException | InputException e) {
+        } catch (JwtException | RightsException | ObjectException | InputException | StateException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
@@ -115,7 +110,62 @@ public class RequestController {
                     HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
                     HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
                     HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+                    HttpStatus.BAD_REQUEST : e.getClass() == StateException.class ?
+                    HttpStatus.CONFLICT : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            requestLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
+
+    @Operation(description = "Post. Post for user answer on image (NOT USE FIRST). Requires: jwt in header,"
+            + " UserOnNetworkAnswerDto in body."
+            + " Provides: StringDto with proc request state.")
+    @PostMapping(
+            value = "/answered"
+    )
+    private ResponseEntity<Object> procFloraRequest(
+            @RequestHeader String jwt,
+            @RequestBody UserOnNetworkAnswerDto answerDto
+    ) {
+
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            StringDto dto = requestService.proceedRequest(
+                    jwt,
+                    answerDto.getRequestId(),
+                    answerDto.getAnswer()
+            );
+
+            body = dto;
+
+            status = HttpStatus.OK;
+
+            requestLogger.info(
+                    "Processing request move into state: {}", dto.getString()
+            );
+
+        } catch (JwtException | RightsException | ObjectException | InputException | StateException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            status = e.getClass() == JwtException.class ?
+                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
+                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
+                    HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
+                    HttpStatus.BAD_REQUEST : e.getClass() == StateException.class ?
+                    HttpStatus.CONFLICT : HttpStatus.INTERNAL_SERVER_ERROR;
 
             requestLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 

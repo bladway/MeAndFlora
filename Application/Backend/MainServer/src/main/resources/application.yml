@@ -80,3 +80,7 @@ object:
   invalidinput: invalidinput
   neuraltimeout: neuraltimeout
   changeisnull: changeisnull
+
+state:
+  neuraltouserbad: neuraltouserbad
+  usertoanotherbad: usertoanotherbad

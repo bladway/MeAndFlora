@@ -16,8 +16,10 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.MafUserRepository;
+import ru.vsu.cs.MeAndFlora.MainServer.repository.ProcRequestRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
+import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
 
@@ -39,6 +41,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private final ObjectPropertiesConfig objectPropertiesConfig;
     private final RightsPropertiesConfig rightsPropertiesConfig;
+    private final ProcRequestRepository procRequestRepository;
 
     private void validateLogin(String login) {
         if (login.length() < 6 || login.length() > 25) {
@@ -164,7 +167,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         newSession.setJwt(jwtUtil.generateToken(newSession.getSessionId()));
         newSession.setJwtR(jwtUtil.generateRToken(newSession.getSessionId()));
 
-        uSessionRepository.save(newSession);
+        newSession = uSessionRepository.save(newSession);
+
+        for (ProcRequest request : session.getProcRequestList()) {
+            request.setSession(newSession);
+            procRequestRepository.save(request);
+        }
 
         return new DiJwtDto(newSession.getJwt(), newSession.getJwtR());
     }
