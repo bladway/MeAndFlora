@@ -11,4 +11,6 @@ public interface RequestService {
 
     StringDto proceedRequest(String jwt, Long requestId, String answer);
 
+    StringDto botanistDecisionProc(String jwt, Long requestId, String answer);
+
 }

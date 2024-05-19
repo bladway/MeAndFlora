@@ -283,4 +283,77 @@ public class RequestServiceImpl implements RequestService {
 
     }
 
+    @Override
+    public StringDto botanistDecisionProc(String jwt, Long requestId, String answer) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    jwtPropertiesConfig.getBadjwt(),
+                    "provided jwt not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+            throw new JwtException(
+                    jwtPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.BOTANIST.getName()))) {
+            throw new RightsException(
+                    rightsPropertiesConfig.getNorights(),
+                    "only botanist can decide what to do with request"
+            );
+        }
+
+        Optional<ProcRequest> ifrequest = procRequestRepository.findById(requestId);
+
+        if (ifrequest.isEmpty()) {
+            throw new InputException(
+                    objectPropertiesConfig.getDoubleflora(),
+                    "provided requestId not valid"
+            );
+        }
+
+        ProcRequest request = ifrequest.get();
+
+        if (!request.getStatus().equals(ProcRequestStatus.BOTANIST_PROC.getName())) {
+            throw new StateException(
+                    statePropertiesConfig.getBotanisttoanotherbad(),
+                    "invalid state transition from botanist proc to another"
+            );
+        }
+
+        String status;
+        Optional<Flora> ifflora = floraRepository.findByName(answer);
+
+        if (answer.equals(ProcRequestStatus.BAD.getName())) {
+            status = ProcRequestStatus.BAD.getName();
+        } else if (ifflora.isPresent()) {
+            if (request.getGeoPos() != null) {
+                status = ProcRequestStatus.PUBLISHED.getName();
+                request.setPostedTime(OffsetDateTime.now());
+            } else {
+                status = ProcRequestStatus.SAVED.getName();
+            }
+            request.setFlora(ifflora.get());
+        } else {
+            throw new InputException(
+                    objectPropertiesConfig.getInvalidinput(),
+                    "invalid flora name provided by botanist"
+            );
+        }
+
+        request.setBotanistVerified(true);
+        request.setStatus(status);
+        procRequestRepository.save(request);
+
+        return new StringDto(status);
+
+    }
+
 }

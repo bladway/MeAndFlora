@@ -102,14 +102,14 @@ public class RequestController {
     }
 
     @Operation(description = "Post. Post for user answer on image (NOT USE FIRST). Requires: jwt in header,"
-            + " UserOnNetworkAnswerDto in body."
+            + " AnswerDto in body with requestId and user answer."
             + " Provides: StringDto with proc request state.")
     @PostMapping(
             value = "/answered"
     )
     private ResponseEntity<Object> procFloraRequest(
             @RequestHeader String jwt,
-            @RequestBody UserOnNetworkAnswerDto answerDto
+            @RequestBody AnswerDto answerDto
     ) {
 
         Object body;
@@ -130,6 +130,62 @@ public class RequestController {
 
             requestLogger.info(
                     "Processing request {} move into state: {}",
+                    answerDto.getRequestId(),
+                    dto.getString()
+            );
+
+        } catch (JwtException | RightsException | ObjectException | InputException | StateException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            status = e.getClass() == JwtException.class ?
+                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
+                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
+                    HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
+                    HttpStatus.BAD_REQUEST : e.getClass() == StateException.class ?
+                    HttpStatus.CONFLICT : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            requestLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
+
+    @Operation(description = "Post. Post for botanist on proc request image. Requires: jwt in header,"
+            + " AnswerDto in body with requestId and \"bad\" if photo bad and \"<floraname>\" if good."
+            + " Provides: StringDto with proc request state.")
+    @PostMapping(
+            value = "/decision"
+    )
+    private ResponseEntity<Object> botanistProcDecision(
+            @RequestHeader String jwt,
+            @RequestBody AnswerDto answerDto
+    ) {
+
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            StringDto dto = requestService.botanistDecisionProc(
+                    jwt,
+                    answerDto.getRequestId(),
+                    answerDto.getAnswer()
+            );
+
+            body = dto;
+
+            status = HttpStatus.OK;
+
+            requestLogger.info(
+                    "Processing request {} moved into state: {}",
                     answerDto.getRequestId(),
                     dto.getString()
             );

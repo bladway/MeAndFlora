@@ -11,5 +11,6 @@ public class StatePropertiesConfig {
 
     private String neuraltouserbad;
     private String usertoanotherbad;
+    private String botanisttoanotherbad;
 
 }

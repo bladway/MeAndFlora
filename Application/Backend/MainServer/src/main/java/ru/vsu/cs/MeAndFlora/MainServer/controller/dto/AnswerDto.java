@@ -5,9 +5,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class UserOnNetworkAnswerDto {
+public class AnswerDto {
 
-    public UserOnNetworkAnswerDto(Long requestId, String answer) {
+    public AnswerDto(Long requestId, String answer) {
         this.requestId = requestId;
         this.answer = answer;
     }
