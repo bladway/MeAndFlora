@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
-import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
+import ru.vsu.cs.MeAndFlora.MainServer.service.UserService;
 
 @RequiredArgsConstructor
 @RestController
@@ -24,7 +24,7 @@ class AuthorizationController {
     public static final Logger authorizationLogger =
             LoggerFactory.getLogger(AuthorizationController.class);
 
-    private final AuthorizationService authorizationService;
+    private final UserService authorizationService;
 
     @Operation(description = "Post. User registration and automatic login. Requires: NamedAuthDto in body."
             + "Provides: DiJwtDto in body.")
@@ -54,13 +54,17 @@ class AuthorizationController {
                 "Register with username: {} is successful", namedAuthDto.getLogin()
             );
 
-        } catch (AuthException | InputException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            status = e.getClass() == AuthException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
                  
             authorizationLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
@@ -98,13 +102,17 @@ class AuthorizationController {
                 "Login with username: {} is successful", namedAuthDto.getLogin()
             );
 
-        } catch (AuthException | InputException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            status = e.getClass() == AuthException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
             authorizationLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
@@ -140,13 +148,17 @@ class AuthorizationController {
                 "Anonymous login on ip: {} is successful", unnamedAuthDto.getIpAddress()
             );
 
-        } catch (AuthException | InputException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            status = e.getClass() == AuthException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
             authorizationLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
@@ -179,13 +191,18 @@ class AuthorizationController {
                 "Refresh token: {} has worked successfully", jwtr
             );
 
-        } catch (JwtException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            status = e.getClass() == JwtException.class ?
-                    HttpStatus.UNAUTHORIZED : HttpStatus.INTERNAL_SERVER_ERROR;
-        
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
+
             authorizationLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
         }
@@ -224,15 +241,17 @@ class AuthorizationController {
                     "Account data for actual user: {} has saved successfully", returnDto.getString()
             );
 
-        } catch (JwtException | AuthException | RightsException | InputException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            status = e.getClass() == JwtException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == AuthException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
-                    HttpStatus.FORBIDDEN : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
             authorizationLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 

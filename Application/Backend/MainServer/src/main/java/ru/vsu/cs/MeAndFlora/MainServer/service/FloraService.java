@@ -4,7 +4,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringsDto;
-import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 
 public interface FloraService {
 

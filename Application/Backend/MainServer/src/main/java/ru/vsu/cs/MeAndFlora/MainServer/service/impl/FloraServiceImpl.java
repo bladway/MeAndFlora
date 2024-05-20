@@ -12,9 +12,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.RightsPropertiesConfig;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
@@ -40,21 +38,17 @@ public class FloraServiceImpl implements FloraService {
     @Value("${images.getpath}")
     private String getpath;
 
+    private final ErrorPropertiesConfig errorPropertiesConfig;
+
     private final FloraRepository floraRepository;
 
     private final USessionRepository uSessionRepository;
 
+    private final MafUserRepository mafUserRepository;
+
     private final JwtUtil jwtUtil;
 
     private final FileUtil fileUtil;
-
-    private final JwtPropertiesConfig jwtPropertiesConfig;
-
-    private final RightsPropertiesConfig rightsPropertiesConfig;
-
-    private final ObjectPropertiesConfig objectPropertiesConfig;
-
-    private final MafUserRepository mafUserRepository;
 
     @Override
     public MultiValueMap<String, Object> requestFlora(String jwt, String floraName) {
@@ -62,7 +56,7 @@ public class FloraServiceImpl implements FloraService {
 
         if (ifsession.isEmpty()) {
             throw new JwtException(
-                    jwtPropertiesConfig.getBadjwt(),
+                    errorPropertiesConfig.getBadjwt(),
                     "provided jwt not valid"
             );
         }
@@ -71,14 +65,14 @@ public class FloraServiceImpl implements FloraService {
 
         if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
             throw new JwtException(
-                    jwtPropertiesConfig.getExpired(),
+                    errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
             );
         }
 
         if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
             throw new RightsException(
-                    rightsPropertiesConfig.getNorights(),
+                    errorPropertiesConfig.getNorights(),
                     "admin has no rights to request flora"
             );
         }
@@ -87,7 +81,7 @@ public class FloraServiceImpl implements FloraService {
 
         if (ifflora.isEmpty()) {
             throw new ObjectException(
-                    objectPropertiesConfig.getFloranotfound(),
+                    errorPropertiesConfig.getFloranotfound(),
                     "requested flora not found"
             );
         }
@@ -99,7 +93,7 @@ public class FloraServiceImpl implements FloraService {
             resource = fileUtil.getImage(flora.getImagePath());
         } catch (MalformedURLException e) {
             throw new ObjectException(
-                    objectPropertiesConfig.getImagenotfound(),
+                    errorPropertiesConfig.getImagenotfound(),
                     "requested image not found"
             );
         }
@@ -133,7 +127,7 @@ public class FloraServiceImpl implements FloraService {
 
         if (ifsession.isEmpty()) {
             throw new JwtException(
-                    jwtPropertiesConfig.getBadjwt(),
+                    errorPropertiesConfig.getBadjwt(),
                     "provided jwt not valid"
             );
         }
@@ -142,14 +136,14 @@ public class FloraServiceImpl implements FloraService {
 
         if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
             throw new JwtException(
-                    jwtPropertiesConfig.getExpired(),
+                    errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
             );
         }
 
         if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.BOTANIST.getName()))) {
             throw new RightsException(
-                    rightsPropertiesConfig.getNorights(),
+                    errorPropertiesConfig.getNorights(),
                     "only botanist can create flora"
             );
         }
@@ -158,7 +152,7 @@ public class FloraServiceImpl implements FloraService {
 
         if (ifflora.isPresent()) {
             throw new ObjectException(
-                    objectPropertiesConfig.getDoubleflora(),
+                    errorPropertiesConfig.getDoubleflora(),
                     "requested to create flora already exists"
             );
         }
@@ -167,7 +161,7 @@ public class FloraServiceImpl implements FloraService {
             fileUtil.putImage(image, getpath + floraName + ".jpg");
         } catch (IOException e) {
             throw new ObjectException(
-                objectPropertiesConfig.getImagenotuploaded(),
+                    errorPropertiesConfig.getImagenotuploaded(),
                 "server can't upload provided image"
             );
         }
@@ -183,7 +177,7 @@ public class FloraServiceImpl implements FloraService {
 
         if (ifsession.isEmpty()) {
             throw new JwtException(
-                    jwtPropertiesConfig.getBadjwt(),
+                    errorPropertiesConfig.getBadjwt(),
                     "provided jwt not valid"
             );
         }
@@ -192,14 +186,14 @@ public class FloraServiceImpl implements FloraService {
 
         if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
             throw new JwtException(
-                    jwtPropertiesConfig.getExpired(),
+                    errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
             );
         }
 
         if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
             throw new RightsException(
-                    rightsPropertiesConfig.getNorights(),
+                    errorPropertiesConfig.getNorights(),
                     "admin has no rights to get types of flora"
             );
         }
@@ -208,7 +202,7 @@ public class FloraServiceImpl implements FloraService {
 
         if (types.isEmpty()) {
             throw new ObjectException(
-                    objectPropertiesConfig.getFloranotfound(),
+                    errorPropertiesConfig.getFloranotfound(),
                     "there are no typed flora"
             );
         }
@@ -222,7 +216,7 @@ public class FloraServiceImpl implements FloraService {
 
         if (ifsession.isEmpty()) {
             throw new JwtException(
-                    jwtPropertiesConfig.getBadjwt(),
+                    errorPropertiesConfig.getBadjwt(),
                     "provided jwt not valid"
             );
         }
@@ -231,14 +225,14 @@ public class FloraServiceImpl implements FloraService {
 
         if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
             throw new JwtException(
-                    jwtPropertiesConfig.getExpired(),
+                    errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
             );
         }
 
         if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
             throw new RightsException(
-                    rightsPropertiesConfig.getNorights(),
+                    errorPropertiesConfig.getNorights(),
                     "admin has no rights to get flora names by type"
             );
         }
@@ -249,7 +243,7 @@ public class FloraServiceImpl implements FloraService {
 
         if (floraNames.isEmpty()) {
             throw new ObjectException(
-                    objectPropertiesConfig.getFloranotfound(),
+                    errorPropertiesConfig.getFloranotfound(),
                     "there are no flora of requested type"
             );
         }
@@ -263,7 +257,7 @@ public class FloraServiceImpl implements FloraService {
 
         if (ifsession.isEmpty()) {
             throw new JwtException(
-                    jwtPropertiesConfig.getBadjwt(),
+                    errorPropertiesConfig.getBadjwt(),
                     "provided jwt not valid"
             );
         }
@@ -272,14 +266,14 @@ public class FloraServiceImpl implements FloraService {
 
         if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
             throw new JwtException(
-                    jwtPropertiesConfig.getExpired(),
+                    errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
             );
         }
 
         if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.USER.getName()))) {
             throw new RightsException(
-                    rightsPropertiesConfig.getNorights(),
+                    errorPropertiesConfig.getNorights(),
                     "only user can unsub or sub plant"
             );
         }
@@ -288,7 +282,7 @@ public class FloraServiceImpl implements FloraService {
 
         if (ifflora.isEmpty()) {
             throw new ObjectException(
-                    objectPropertiesConfig.getFloranotfound(),
+                    errorPropertiesConfig.getFloranotfound(),
                     "flora to subscribe not found"
             );
         }

@@ -15,7 +15,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
 import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;
 
@@ -30,9 +30,9 @@ public class RequestController {
     public static final Logger requestLogger =
             LoggerFactory.getLogger(RequestController.class);
 
-    private final RequestService requestService;
+    private final ErrorPropertiesConfig errorPropertiesConfig;
 
-    private final ObjectPropertiesConfig objectPropertiesConfig;
+    private final RequestService requestService;
 
     private final ObjectMapper objectMapper;
 
@@ -63,7 +63,7 @@ public class RequestController {
             try {
                 realGeoDto = geoDto == null ? null : objectMapper.readValue(geoDto, GeoJsonPointDto.class);
             } catch (IOException e) {
-                throw new InputException(objectPropertiesConfig.getInvalidinput(), e.getMessage());
+                throw new InputException(errorPropertiesConfig.getInvalidinput(), e.getMessage());
             }
 
             body = requestService.procFloraRequest(jwt, image, realGeoDto);
@@ -78,18 +78,17 @@ public class RequestController {
                     ((FloraDto)((MultiValueMap<String, Object>)body).getFirst("floraDto")).getName()
             );
 
-        } catch (JwtException | RightsException | ObjectException | InputException | StateException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            status = e.getClass() == JwtException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
-                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
-                    HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : e.getClass() == StateException.class ?
-                    HttpStatus.CONFLICT : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
             requestLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
@@ -107,7 +106,7 @@ public class RequestController {
     @PostMapping(
             value = "/answered"
     )
-    private ResponseEntity<Object> procFloraRequest(
+    private ResponseEntity<Object> proceedRequest(
             @RequestHeader String jwt,
             @RequestBody AnswerDto answerDto
     ) {
@@ -134,18 +133,17 @@ public class RequestController {
                     dto.getString()
             );
 
-        } catch (JwtException | RightsException | ObjectException | InputException | StateException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            status = e.getClass() == JwtException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
-                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
-                    HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : e.getClass() == StateException.class ?
-                    HttpStatus.CONFLICT : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
             requestLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
@@ -190,18 +188,17 @@ public class RequestController {
                     dto.getString()
             );
 
-        } catch (JwtException | RightsException | ObjectException | InputException | StateException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            status = e.getClass() == JwtException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
-                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
-                    HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : e.getClass() == StateException.class ?
-                    HttpStatus.CONFLICT : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
             requestLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
@@ -212,7 +209,5 @@ public class RequestController {
         return new ResponseEntity<>(body, headers, status);
 
     }
-
-
 
 }

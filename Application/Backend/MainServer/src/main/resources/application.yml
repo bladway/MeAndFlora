@@ -48,32 +48,24 @@ images:
   procpath: ${MAINSERVER_IMAGES_PROC_PATH}
   getpath: ${MAINSERVER_IMAGES_GET_PATH}
 
-
 jwt:
   password: ${MAINSERVER_JWT_PASSWORD}
   passwordr: ${MAINSERVER_JWT_R_PASSWORD}
   lifetime: ${MAINSERVER_JWT_LIFETIME}
   lifetimer: ${MAINSERVER_JWT_R_LIFETIME}
+
+error:
   expired: expired
   expiredr: expiredr
   badjwt: badjwt
   badjwtr: badjwtr
-
-
-auth:
   badlogin: badlogin
   badpassword: badpassword
   badip: badip
   usrnotfound: usrnotfound
   sessionidproblem: sessionidproblem
   doublelogin: doublelogin
-
-
-rights:
   norights: norights
-
-
-object:
   floranotfound: floranotfound
   imagenotfound: imagenotfound
   imagenotuploaded: imagenotuploaded
@@ -81,8 +73,6 @@ object:
   neuraltimeout: neuraltimeout
   changeisnull: changeisnull
   doubleflora: doubleflora
-
-state:
   neuraltouserbad: neuraltouserbad
   usertoanotherbad: usertoanotherbad
   botanisttoanotherbad: botanisttoanotherbad

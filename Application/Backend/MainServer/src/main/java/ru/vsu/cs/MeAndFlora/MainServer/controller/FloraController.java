@@ -11,14 +11,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
-import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FloraService;
 
 import java.io.IOException;
@@ -32,9 +30,9 @@ public class FloraController {
     public static final Logger floraLogger =
             LoggerFactory.getLogger(FloraController.class);
 
-    private final FloraService floraService;
+    private final ErrorPropertiesConfig errorPropertiesConfig;
 
-    private final ObjectPropertiesConfig objectPropertiesConfig;
+    private final FloraService floraService;
 
     private final ObjectMapper objectMapper;
 
@@ -67,17 +65,17 @@ public class FloraController {
                     "Get plant with name: {} is successful", floraName
             );
 
-        } catch (JwtException | RightsException | ObjectException | InputException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            status = e.getClass() == JwtException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
-                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
-                    HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
             floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
@@ -116,7 +114,7 @@ public class FloraController {
             try {
                 realFloraDto = objectMapper.readValue(floraDto, FloraDto.class);
             } catch (IOException e) {
-                throw new InputException(objectPropertiesConfig.getInvalidinput(), e.getMessage());
+                throw new InputException(errorPropertiesConfig.getInvalidinput(), e.getMessage());
             }
 
             body = floraService.createFlora(
@@ -135,17 +133,17 @@ public class FloraController {
                     "Create plant with name: {} is successful", realFloraDto.getName()
             );
 
-        } catch (JwtException | RightsException | ObjectException | InputException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            status = e.getClass() == JwtException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
-                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
-                    HttpStatus.NOT_FOUND : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
             floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
@@ -181,14 +179,17 @@ public class FloraController {
                     "Get types of flora is successful"
             );
 
-        } catch (JwtException | RightsException | ObjectException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            status = e.getClass() == JwtException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
-                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
-                    HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
             floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
@@ -227,14 +228,17 @@ public class FloraController {
                     "Get flora of type: {} is successful", typeName
             );
 
-        } catch (JwtException | RightsException | ObjectException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            status = e.getClass() == JwtException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
-                    HttpStatus.FORBIDDEN : e.getClass() == ObjectException.class ?
-                    HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
             floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
@@ -273,15 +277,17 @@ public class FloraController {
                     "Change of subscription on: {} has passed successfully", floraName
             );
 
-        } catch (JwtException | AuthException | RightsException | InputException e) {
+        } catch (CustomRuntimeException e) {
 
             body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            status = e.getClass() == JwtException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == AuthException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == RightsException.class ?
-                    HttpStatus.FORBIDDEN : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
             floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 

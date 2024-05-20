@@ -1,6 +1,5 @@
 package ru.vsu.cs.MeAndFlora.MainServer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

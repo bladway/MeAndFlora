@@ -10,15 +10,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.RightsPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.StatePropertiesConfig;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.ProcRequestStatus;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserResponse;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LongDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.FloraRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.ProcRequestRepository;
@@ -41,6 +39,8 @@ public class RequestServiceImpl implements RequestService {
     @Value("${images.procpath}")
     private String procpath;
 
+    private final ErrorPropertiesConfig errorPropertiesConfig;
+
     private final FloraRepository floraRepository;
 
     private final ProcRequestRepository procRequestRepository;
@@ -55,21 +55,13 @@ public class RequestServiceImpl implements RequestService {
 
     private final KafkaProducer kafkaProducer;
 
-    private final JwtPropertiesConfig jwtPropertiesConfig;
-
-    private final RightsPropertiesConfig rightsPropertiesConfig;
-
-    private final ObjectPropertiesConfig objectPropertiesConfig;
-
-    private final StatePropertiesConfig statePropertiesConfig;
-
     @Override
     public MultiValueMap<String, Object> procFloraRequest(String jwt, MultipartFile image, GeoJsonPointDto geoDto) {
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
             throw new JwtException(
-                    jwtPropertiesConfig.getBadjwt(),
+                    errorPropertiesConfig.getBadjwt(),
                     "provided jwt not valid"
             );
         }
@@ -78,14 +70,14 @@ public class RequestServiceImpl implements RequestService {
 
         if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
             throw new JwtException(
-                    jwtPropertiesConfig.getExpired(),
+                    errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
             );
         }
 
         if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
             throw new RightsException(
-                    rightsPropertiesConfig.getNorights(),
+                    errorPropertiesConfig.getNorights(),
                     "admin has no rights to process flora request"
             );
         }
@@ -109,7 +101,7 @@ public class RequestServiceImpl implements RequestService {
         } catch (IOException e) {
             procRequestRepository.delete(procRequest);
             throw new ObjectException(
-                    objectPropertiesConfig.getImagenotuploaded(),
+                    errorPropertiesConfig.getImagenotuploaded(),
                     "server can't process provided image"
             );
         }
@@ -119,7 +111,7 @@ public class RequestServiceImpl implements RequestService {
             if (waitIntervals == 0) {
                 procRequestRepository.delete(procRequest);
                 throw new ObjectException(
-                        objectPropertiesConfig.getNeuraltimeout(),
+                        errorPropertiesConfig.getNeuraltimeout(),
                         "neural network result hasn't got in expected period"
                 );
             }
@@ -140,7 +132,7 @@ public class RequestServiceImpl implements RequestService {
         if (ifflora.isEmpty()) {
             procRequestRepository.delete(procRequest);
             throw new ObjectException(
-                    objectPropertiesConfig.getFloranotfound(),
+                    errorPropertiesConfig.getFloranotfound(),
                     "neural network give unexpected result, internal backend error"
             );
         }
@@ -153,7 +145,7 @@ public class RequestServiceImpl implements RequestService {
         } else {
             procRequestRepository.delete(procRequest);
             throw new StateException(
-                    statePropertiesConfig.getNeuraltouserbad(),
+                    errorPropertiesConfig.getNeuraltouserbad(),
                     "invalid state transition from neural network to user"
             );
         }
@@ -165,7 +157,7 @@ public class RequestServiceImpl implements RequestService {
         } catch (IOException e) {
             procRequestRepository.delete(procRequest);
             throw new ObjectException(
-                    objectPropertiesConfig.getImagenotuploaded(),
+                    errorPropertiesConfig.getImagenotuploaded(),
                     "server can't process provided image"
             );
         }
@@ -176,7 +168,7 @@ public class RequestServiceImpl implements RequestService {
         } catch (MalformedURLException e) {
             procRequestRepository.delete(procRequest);
             throw new ObjectException(
-                    objectPropertiesConfig.getImagenotfound(),
+                    errorPropertiesConfig.getImagenotfound(),
                     "requested image not found"
             );
         }
@@ -210,7 +202,7 @@ public class RequestServiceImpl implements RequestService {
 
         if (ifsession.isEmpty()) {
             throw new JwtException(
-                    jwtPropertiesConfig.getBadjwt(),
+                    errorPropertiesConfig.getBadjwt(),
                     "provided jwt not valid"
             );
         }
@@ -219,7 +211,7 @@ public class RequestServiceImpl implements RequestService {
 
         if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
             throw new JwtException(
-                    jwtPropertiesConfig.getExpired(),
+                    errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
             );
         }
@@ -236,21 +228,21 @@ public class RequestServiceImpl implements RequestService {
         }
         if (!exists) {
             throw new InputException(
-                    objectPropertiesConfig.getInvalidinput(),
+                    errorPropertiesConfig.getInvalidinput(),
                     "invalid request id provided"
             );
         }
 
         if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
             throw new RightsException(
-                    rightsPropertiesConfig.getNorights(),
+                    errorPropertiesConfig.getNorights(),
                     "admin has no rights to process flora request"
             );
         }
 
         if (!request.getStatus().equals(ProcRequestStatus.USER_PROC.getName())) {
             throw new StateException(
-                    statePropertiesConfig.getNeuraltouserbad(),
+                    errorPropertiesConfig.getNeuraltouserbad(),
                     "invalid state transition from user to another"
             );
         }
@@ -271,7 +263,7 @@ public class RequestServiceImpl implements RequestService {
             status = ProcRequestStatus.SAVED.getName();
         } else {
             throw new InputException(
-                    objectPropertiesConfig.getInvalidinput(),
+                    errorPropertiesConfig.getInvalidinput(),
                     "invalid user answer provided"
             );
         }
@@ -289,7 +281,7 @@ public class RequestServiceImpl implements RequestService {
 
         if (ifsession.isEmpty()) {
             throw new JwtException(
-                    jwtPropertiesConfig.getBadjwt(),
+                    errorPropertiesConfig.getBadjwt(),
                     "provided jwt not valid"
             );
         }
@@ -298,14 +290,14 @@ public class RequestServiceImpl implements RequestService {
 
         if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
             throw new JwtException(
-                    jwtPropertiesConfig.getExpired(),
+                    errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
             );
         }
 
         if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.BOTANIST.getName()))) {
             throw new RightsException(
-                    rightsPropertiesConfig.getNorights(),
+                    errorPropertiesConfig.getNorights(),
                     "only botanist can decide what to do with request"
             );
         }
@@ -314,7 +306,7 @@ public class RequestServiceImpl implements RequestService {
 
         if (ifrequest.isEmpty()) {
             throw new InputException(
-                    objectPropertiesConfig.getDoubleflora(),
+                    errorPropertiesConfig.getDoubleflora(),
                     "provided requestId not valid"
             );
         }
@@ -323,7 +315,7 @@ public class RequestServiceImpl implements RequestService {
 
         if (!request.getStatus().equals(ProcRequestStatus.BOTANIST_PROC.getName())) {
             throw new StateException(
-                    statePropertiesConfig.getBotanisttoanotherbad(),
+                    errorPropertiesConfig.getBotanisttoanotherbad(),
                     "invalid state transition from botanist proc to another"
             );
         }
@@ -343,7 +335,7 @@ public class RequestServiceImpl implements RequestService {
             request.setFlora(ifflora.get());
         } else {
             throw new InputException(
-                    objectPropertiesConfig.getInvalidinput(),
+                    errorPropertiesConfig.getInvalidinput(),
                     "invalid flora name provided by botanist"
             );
         }
@@ -353,6 +345,57 @@ public class RequestServiceImpl implements RequestService {
         procRequestRepository.save(request);
 
         return new StringDto(status);
+
+    }
+
+    @Override
+    public LongDto deleteProcRequest(String jwt, Long requestId) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName()))) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "only admin can delete publications"
+            );
+        }
+
+        Optional<ProcRequest> ifrequest = procRequestRepository.findById(requestId);
+
+        if (ifrequest.isEmpty()) {
+            throw new InputException(
+                    errorPropertiesConfig.getInvalidinput(),
+                    "publication with provided requestId not found"
+            );
+        }
+
+        ProcRequest request = ifrequest.get();
+
+        if (!request.getStatus().equals(ProcRequestStatus.PUBLISHED.getName())) {
+            throw new ObjectException(
+                    errorPropertiesConfig.getInvalidinput(),
+                    "request to delete is not a publication"
+            );
+        }
+
+        procRequestRepository.delete(request);
+
+        return new LongDto(request.getRequestId());
 
     }
 

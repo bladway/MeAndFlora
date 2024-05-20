@@ -3,7 +3,7 @@ package ru.vsu.cs.MeAndFlora.MainServer.service;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 
-public interface AuthorizationService {
+public interface UserService {
 
     DiJwtDto register(String login, String password, String ipAddress);
 
@@ -14,5 +14,9 @@ public interface AuthorizationService {
     DiJwtDto refresh(String jwtR);
 
     StringDto change(String jwt, String newLogin, String newPassword, String oldPassword);
+
+    StringDto createUser(String jwt, String login, String password, String role);
+
+    StringDto deleteUser(String jwt, String login);
 
 }

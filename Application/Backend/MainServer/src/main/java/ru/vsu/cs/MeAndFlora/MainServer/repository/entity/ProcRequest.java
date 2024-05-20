@@ -53,7 +53,7 @@ public class ProcRequest {
     private boolean isBotanistVerified;
 
     @ManyToOne
-    @JoinColumn(name = "SESSION_ID", foreignKey = @ForeignKey, nullable = false)
+    @JoinColumn(name = "SESSION_ID", foreignKey = @ForeignKey)
     private USession session;
 
     @ManyToOne

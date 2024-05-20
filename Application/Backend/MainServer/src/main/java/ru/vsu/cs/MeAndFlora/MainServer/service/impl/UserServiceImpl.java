@@ -8,27 +8,24 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.AuthPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.JwtPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.ObjectPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.config.property.RightsPropertiesConfig;
+import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.MafUserRepository;
-import ru.vsu.cs.MeAndFlora.MainServer.repository.ProcRequestRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
-import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
-import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
+import ru.vsu.cs.MeAndFlora.MainServer.service.UserService;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class AuthorizationServiceImpl implements AuthorizationService {
+public class UserServiceImpl implements UserService {
+
+    private final ErrorPropertiesConfig errorPropertiesConfig;
 
     private final MafUserRepository mafUserRepository;
 
@@ -36,18 +33,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private final JwtUtil jwtUtil;
 
-    private final AuthPropertiesConfig authPropertiesConfig;
-
-    private final JwtPropertiesConfig jwtPropertiesConfig;
-
-    private final ObjectPropertiesConfig objectPropertiesConfig;
-    private final RightsPropertiesConfig rightsPropertiesConfig;
-    private final ProcRequestRepository procRequestRepository;
-
     private void validateLogin(String login) {
         if (login.length() < 6 || login.length() > 25) {
             throw new AuthException(
-                    authPropertiesConfig.getBadlogin(),
+                    errorPropertiesConfig.getBadlogin(),
                     "login does not match expected length: 6 - 25"
             );
         }
@@ -57,7 +46,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         mafUserRepository.findByLogin(login).ifPresent(
                 mafUser -> {
                     throw new AuthException(
-                            authPropertiesConfig.getDoublelogin(),
+                            errorPropertiesConfig.getDoublelogin(),
                             "such login exists in the database"
                     );
                 }
@@ -67,7 +56,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private void validatePassword(String password) {
         if (password.length() < 6 || password.length() > 25) {
             throw new AuthException(
-                    authPropertiesConfig.getBadpassword(),
+                    errorPropertiesConfig.getBadpassword(),
                     "password does not match expected length: 6 - 25"
             );
         }
@@ -76,7 +65,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private void validateIpAddress(String ipAddress) {
         if (!InetAddressValidator.getInstance().isValidInet4Address(ipAddress)) {
             throw new AuthException(
-                    authPropertiesConfig.getBadip(),
+                    errorPropertiesConfig.getBadip(),
                     "ip address does not match expected template: 0-255.0-255.0-255.0-255"
             );
         }
@@ -96,7 +85,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         session.setJwt(jwtUtil.generateToken(session.getSessionId()));
         session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
 
-        uSessionRepository.save(session);
+        session = uSessionRepository.save(session);
 
         return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
@@ -111,7 +100,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         if (ifuser.isEmpty()) {
             throw new AuthException(
-                    authPropertiesConfig.getUsrnotfound(),
+                    errorPropertiesConfig.getUsrnotfound(),
                     "this user has not found in the database"
             );
         }
@@ -123,7 +112,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         session.setJwt(jwtUtil.generateToken(session.getSessionId()));
         session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
 
-        uSessionRepository.save(session);
+        session = uSessionRepository.save(session);
 
         return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
@@ -137,7 +126,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         session.setJwt(jwtUtil.generateToken(session.getSessionId()));
         session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
 
-        uSessionRepository.save(session);
+        session = uSessionRepository.save(session);
 
         return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
@@ -149,7 +138,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         if (ifsession.isEmpty()) {
             throw new JwtException(
-                    jwtPropertiesConfig.getBadjwtr(),
+                    errorPropertiesConfig.getBadjwtr(),
                     "provided refresh jwt is not valid"
             );
         }
@@ -158,7 +147,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         if (jwtUtil.ifJwtRExpired(session.getCreatedTime())) {
             throw new JwtException(
-                    jwtPropertiesConfig.getExpiredr(),
+                    errorPropertiesConfig.getExpiredr(),
                     "refresh jwt lifetime has ended, relogin, please"
             );
         }
@@ -174,6 +163,31 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public StringDto change(String jwt, String newLogin, String newPassword, String oldPassword) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.USER.getName()))) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "only user can change account data"
+            );
+        }
+
         boolean changeLogin = false;
         boolean changePassword = false;
         validatePassword(oldPassword);
@@ -187,33 +201,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
         if (!(changeLogin || changePassword)) {
             throw new InputException(
-                    objectPropertiesConfig.getChangeisnull(),
+                    errorPropertiesConfig.getChangeisnull(),
                     "provide at least one: newLogin or newPassword"
-            );
-        }
-
-        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
-
-        if (ifsession.isEmpty()) {
-            throw new JwtException(
-                    jwtPropertiesConfig.getBadjwt(),
-                    "provided jwt is not valid"
-            );
-        }
-
-        USession session = ifsession.get();
-
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
-            throw new JwtException(
-                    jwtPropertiesConfig.getExpired(),
-                    "jwt lifetime has ended, get a new one by refresh token"
-            );
-        }
-
-        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.USER.getName()))) {
-            throw new RightsException(
-                    rightsPropertiesConfig.getNorights(),
-                    "only user can change account data"
             );
         }
 
@@ -221,7 +210,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         if (!user.getPassword().equals(oldPassword)) {
             throw new AuthException(
-                    authPropertiesConfig.getBadpassword(),
+                    errorPropertiesConfig.getBadpassword(),
                     "provided old password is wrong"
             );
         }
@@ -236,6 +225,104 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         user = mafUserRepository.save(user);
 
         return new StringDto(user.getLogin());
+    }
+
+    @Override
+    public StringDto createUser(String jwt, String login, String password, String role) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName()))) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "only admin can create users"
+            );
+        }
+
+        validateLogin(login);
+        validatePassword(password);
+        validateLoginDuplication(login);
+
+        MafUser user;
+        if (!(role.equals(UserRole.USER.getName()) || role.equals(UserRole.BOTANIST.getName()))) {
+            throw new InputException(
+                    errorPropertiesConfig.getInvalidinput(),
+                    "provided role of user is not valid"
+            );
+        }
+
+        user = mafUserRepository.save(new MafUser(login, password, role));
+
+        return new StringDto(user.getLogin());
+
+    }
+
+    @Override
+    public StringDto deleteUser(String jwt, String login) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName()))) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "only admin can delete users"
+            );
+        }
+
+        validateLogin(login);
+
+        Optional<MafUser> ifuser = mafUserRepository.findByLogin(login);
+
+        if (ifuser.isEmpty()) {
+            throw new InputException(
+                    errorPropertiesConfig.getInvalidinput(),
+                    "user with provided login not found to delete"
+            );
+        }
+
+        MafUser user = ifuser.get();
+
+        if (user.getRole().equals(UserRole.ADMIN.getName())) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "no one can delete admin accounts"
+            );
+        }
+
+        mafUserRepository.delete(user);
+
+        return new StringDto(user.getLogin());
+
     }
 
 }
