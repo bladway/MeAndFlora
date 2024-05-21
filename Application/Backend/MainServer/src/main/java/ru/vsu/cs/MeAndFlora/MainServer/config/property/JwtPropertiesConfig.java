@@ -8,7 +8,7 @@ import java.time.Duration;
 
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "jwt")
+@ConfigurationProperties(prefix = "application.jwt")
 public class JwtPropertiesConfig {
 
     private String password;

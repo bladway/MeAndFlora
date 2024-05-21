@@ -42,37 +42,39 @@ spring:
       auto-offset-reset: earliest
       group-id: MeAndFlora
 
-
-images:
-  path: ${MAINSERVER_IMAGES_PATH}
-  procpath: ${MAINSERVER_IMAGES_PROC_PATH}
-  getpath: ${MAINSERVER_IMAGES_GET_PATH}
-
-jwt:
-  password: ${MAINSERVER_JWT_PASSWORD}
-  passwordr: ${MAINSERVER_JWT_R_PASSWORD}
-  lifetime: ${MAINSERVER_JWT_LIFETIME}
-  lifetimer: ${MAINSERVER_JWT_R_LIFETIME}
-
-error:
-  expired: expired
-  expiredr: expiredr
-  badjwt: badjwt
-  badjwtr: badjwtr
-  badlogin: badlogin
-  badpassword: badpassword
-  badip: badip
-  usrnotfound: usrnotfound
-  sessionidproblem: sessionidproblem
-  doublelogin: doublelogin
-  norights: norights
-  floranotfound: floranotfound
-  imagenotfound: imagenotfound
-  imagenotuploaded: imagenotuploaded
-  invalidinput: invalidinput
-  neuraltimeout: neuraltimeout
-  changeisnull: changeisnull
-  doubleflora: doubleflora
-  neuraltouserbad: neuraltouserbad
-  usertoanotherbad: usertoanotherbad
-  botanisttoanotherbad: botanisttoanotherbad
+application:
+  limits:
+    anonymous: 5
+    user: 10
+  images:
+    path: ${MAINSERVER_IMAGES_PATH}
+    procpath: ${MAINSERVER_IMAGES_PROC_PATH}
+    getpath: ${MAINSERVER_IMAGES_GET_PATH}
+  jwt:
+    password: ${MAINSERVER_JWT_PASSWORD}
+    passwordr: ${MAINSERVER_JWT_R_PASSWORD}
+    lifetime: ${MAINSERVER_JWT_LIFETIME}
+    lifetimer: ${MAINSERVER_JWT_R_LIFETIME}
+  error:
+    expired: expired
+    expiredr: expiredr
+    badjwt: badjwt
+    badjwtr: badjwtr
+    badlogin: badlogin
+    badpassword: badpassword
+    badip: badip
+    usrnotfound: usrnotfound
+    sessionidproblem: sessionidproblem
+    doublelogin: doublelogin
+    norights: norights
+    floranotfound: floranotfound
+    imagenotfound: imagenotfound
+    imagenotuploaded: imagenotuploaded
+    invalidinput: invalidinput
+    neuraltimeout: neuraltimeout
+    changeisnull: changeisnull
+    doubleflora: doubleflora
+    neuraltouserbad: neuraltouserbad
+    usertoanotherbad: usertoanotherbad
+    botanisttoanotherbad: botanisttoanotherbad
+    limitsexceeded: limitsexceeded

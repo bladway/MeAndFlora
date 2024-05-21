@@ -18,6 +18,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LongDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
+import ru.vsu.cs.MeAndFlora.MainServer.repository.AdvertisementViewRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.FloraRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.ProcRequestRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
@@ -28,7 +29,9 @@ import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
 
-    @Value("${images.procpath}")
+    @Value("${application.images.procpath}")
     private String procpath;
 
     private final ErrorPropertiesConfig errorPropertiesConfig;
@@ -46,6 +49,8 @@ public class RequestServiceImpl implements RequestService {
     private final ProcRequestRepository procRequestRepository;
 
     private final USessionRepository uSessionRepository;
+
+    private final AdvertisementViewRepository advertisementViewRepository;
 
     private final JwtUtil jwtUtil;
 
@@ -68,7 +73,7 @@ public class RequestServiceImpl implements RequestService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
@@ -79,6 +84,76 @@ public class RequestServiceImpl implements RequestService {
             throw new RightsException(
                     errorPropertiesConfig.getNorights(),
                     "admin has no rights to process flora request"
+            );
+        }
+
+        int currentDayRequestsMaxCount = -1;
+        int currentDayRequestsMade = 0;
+        if (session.getUser() == null) {
+            currentDayRequestsMaxCount =
+                    advertisementViewRepository.findByCreatedTimeAfterAndSession(
+                            OffsetDateTime
+                                    .now()
+                                    .toLocalDate()
+                                    .atStartOfDay()
+                                    .atOffset(
+                                           ZoneId
+                                               .of("Europe/Moscow")
+                                               .getRules()
+                                               .getOffset(LocalDateTime.now())
+                                    ),
+                            session
+                    ).size() + 5;
+            currentDayRequestsMade =
+                    procRequestRepository.findByCreatedTimeAfterAndSession(
+                            OffsetDateTime
+                                    .now()
+                                    .toLocalDate()
+                                    .atStartOfDay()
+                                    .atOffset(
+                                            ZoneId
+                                                    .of("Europe/Moscow")
+                                                    .getRules()
+                                                    .getOffset(LocalDateTime.now())
+                                    ),
+                            session
+                    ).size();
+        } else if (session.getUser().getRole().equals(UserRole.USER.getName())) {
+            currentDayRequestsMaxCount =
+                    advertisementViewRepository.findByCreatedTimeAfterAndSessionIn(
+                            OffsetDateTime
+                                    .now()
+                                    .toLocalDate()
+                                    .atStartOfDay()
+                                    .atOffset(
+                                            ZoneId
+                                                    .of("Europe/Moscow")
+                                                    .getRules()
+                                                    .getOffset(LocalDateTime.now())
+                                    ),
+                            session.getUser().getSessionList()
+                    ).size() + 10;
+            currentDayRequestsMade =
+                    procRequestRepository.findByCreatedTimeAfterAndSessionIn(
+                            OffsetDateTime
+                                    .now()
+                                    .toLocalDate()
+                                    .atStartOfDay()
+                                    .atOffset(
+                                            ZoneId
+                                                    .of("Europe/Moscow")
+                                                    .getRules()
+                                                    .getOffset(LocalDateTime.now())
+                                    ),
+                            session.getUser().getSessionList()
+                    ).size();
+        }
+
+        if ((currentDayRequestsMaxCount != -1) &&
+                (currentDayRequestsMaxCount <= currentDayRequestsMade)) {
+            throw new StateException(
+                    errorPropertiesConfig.getLimitsexceeded(),
+                    "too much requests made, watch the advertisement!"
             );
         }
 
@@ -106,7 +181,7 @@ public class RequestServiceImpl implements RequestService {
             );
         }
 
-        int waitIntervals = 100;
+        int waitIntervals = 50;
         while (!KafkaConsumer.procReturnFloraNames.containsKey(procRequest.getRequestId())) {
             if (waitIntervals == 0) {
                 procRequestRepository.delete(procRequest);
@@ -209,7 +284,7 @@ public class RequestServiceImpl implements RequestService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
@@ -288,7 +363,7 @@ public class RequestServiceImpl implements RequestService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
@@ -361,7 +436,7 @@ public class RequestServiceImpl implements RequestService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"

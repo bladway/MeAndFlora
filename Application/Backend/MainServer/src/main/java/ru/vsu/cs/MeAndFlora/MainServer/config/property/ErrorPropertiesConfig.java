@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "error")
+@ConfigurationProperties(prefix = "application.error")
 public class ErrorPropertiesConfig {
 
     private String expired;
@@ -30,6 +30,6 @@ public class ErrorPropertiesConfig {
     private String neuraltouserbad;
     private String usertoanotherbad;
     private String botanisttoanotherbad;
-
+    private String limitsexceeded;
 
 }

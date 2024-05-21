@@ -1,7 +1,6 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service;
 
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LongDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UserInfoDto;
 

@@ -146,7 +146,7 @@ public class UserServiceImpl implements UserService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtRExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtRExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpiredr(),
                     "refresh jwt lifetime has ended, relogin, please"
@@ -193,7 +193,7 @@ public class UserServiceImpl implements UserService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
@@ -245,7 +245,7 @@ public class UserServiceImpl implements UserService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
@@ -288,7 +288,7 @@ public class UserServiceImpl implements UserService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
@@ -339,7 +339,7 @@ public class UserServiceImpl implements UserService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"

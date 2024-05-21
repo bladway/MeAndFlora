@@ -9,7 +9,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.FileUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
@@ -33,7 +36,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FloraServiceImpl implements FloraService {
 
-    @Value("${images.getpath}")
+    @Value("${application.images.getpath}")
     private String getpath;
 
     private final ErrorPropertiesConfig errorPropertiesConfig;
@@ -90,7 +93,7 @@ public class FloraServiceImpl implements FloraService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
@@ -165,7 +168,7 @@ public class FloraServiceImpl implements FloraService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
@@ -215,7 +218,7 @@ public class FloraServiceImpl implements FloraService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
@@ -256,7 +259,7 @@ public class FloraServiceImpl implements FloraService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"
@@ -299,7 +302,7 @@ public class FloraServiceImpl implements FloraService {
 
         USession session = ifsession.get();
 
-        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
             throw new JwtException(
                     errorPropertiesConfig.getExpired(),
                     "jwt lifetime has ended, get a new one by refresh token"

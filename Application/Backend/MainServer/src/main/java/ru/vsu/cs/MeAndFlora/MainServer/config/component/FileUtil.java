@@ -15,7 +15,7 @@ import java.net.MalformedURLException;
 @RequiredArgsConstructor
 public class FileUtil {
 
-    @Value("${images.path}")
+    @Value("${application.images.path}")
     private String path;
 
     public Resource getImage(String path) throws MalformedURLException {
