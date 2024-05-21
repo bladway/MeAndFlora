@@ -13,12 +13,12 @@ import java.util.List;
 @Data
 public class USession {
 
-    public USession(String ipAddress, String jwt, String jwtR, MafUser user) {
-        this.ipAddress = ipAddress;
+    public USession(String jwt, String jwtR, String ipAddress, MafUser user) {
         this.createdTime = OffsetDateTime.now();
         this.jwtCreatedTime = OffsetDateTime.now();
         this.jwt = jwt;
         this.jwtR = jwtR;
+        this.ipAddress = ipAddress;
         this.user = user;
     }
 
@@ -26,9 +26,6 @@ public class USession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "SESSION_ID", nullable = false)
     private Long sessionId;
-
-    @Column(name = "IP_ADDRESS", nullable = false)
-    private String ipAddress;
 
     @Column(name = "CREATED_TIME", nullable = false)
     private OffsetDateTime createdTime;
@@ -42,11 +39,17 @@ public class USession {
     @Column(name = "JWT_R", nullable = false, unique = true)
     private String jwtR;
 
+    @Column(name = "IP_ADDRESS", nullable = false)
+    private String ipAddress;
+
     @ManyToOne
     @JoinColumn(name = "USER_ID", foreignKey = @ForeignKey)
     private MafUser user;
 
     @OneToMany(mappedBy = "session")
     private List<ProcRequest> procRequestList;
+
+    @OneToMany(mappedBy = "session")
+    private List<AdvertisementView> advertisementViewsList;
 
 }

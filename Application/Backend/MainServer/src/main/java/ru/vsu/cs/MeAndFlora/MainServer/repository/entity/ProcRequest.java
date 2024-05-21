@@ -14,14 +14,14 @@ import java.time.OffsetDateTime;
 public class ProcRequest {
 
     public ProcRequest(
-            String imagePath, OffsetDateTime postedTime,
+            OffsetDateTime postedTime, String imagePath,
             Point geoPos, String status,
             USession session, Flora flora,
             boolean isBotanistVerified
     ) {
-        this.imagePath = imagePath;
         this.createdTime = OffsetDateTime.now();
         this.postedTime = postedTime;
+        this.imagePath = imagePath;
         this.geoPos = geoPos;
         this.status = status;
         this.session = session;

@@ -9,9 +9,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.FileUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.ObjectException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
@@ -50,8 +48,37 @@ public class FloraServiceImpl implements FloraService {
 
     private final FileUtil fileUtil;
 
+    private void validateFloraName(String floraName) {
+        if (floraName.length() > 256) {
+            throw new InputException(
+                    errorPropertiesConfig.getInvalidinput(),
+                    "provided flora name size is incorrect"
+            );
+        }
+    }
+
+    private void validateFloraDescription(String floraDescription) {
+        if (floraDescription.length() > 1000) {
+            throw new InputException(
+                    errorPropertiesConfig.getInvalidinput(),
+                    "provided flora description size is incorrect"
+            );
+        }
+    }
+
+    private void validateFloraType(String floraType) {
+        if (floraType.length() > 128) {
+            throw new InputException(
+                    errorPropertiesConfig.getInvalidinput(),
+                    "provided flora type size is incorrect"
+            );
+        }
+    }
+
     @Override
     public MultiValueMap<String, Object> requestFlora(String jwt, String floraName) {
+        validateFloraName(floraName);
+
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -123,6 +150,10 @@ public class FloraServiceImpl implements FloraService {
 
     @Override
     public StringDto createFlora(String jwt, String floraName, String description, String type, MultipartFile image) {
+        validateFloraName(floraName);
+        validateFloraDescription(description);
+        validateFloraType(type);
+
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -211,7 +242,9 @@ public class FloraServiceImpl implements FloraService {
     }
 
     @Override
-    public StringsDto getFloraByType(String jwt, String typeName) {
+    public StringsDto getFloraByType(String jwt, String floraType) {
+        validateFloraType(floraType);
+
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -237,7 +270,7 @@ public class FloraServiceImpl implements FloraService {
             );
         }
 
-        List<Flora> floras = floraRepository.findByType(typeName);
+        List<Flora> floras = floraRepository.findByType(floraType);
         List<String> floraNames = new ArrayList<>();
         floras.forEach(flora -> floraNames.add(flora.getName()));
 
@@ -253,6 +286,8 @@ public class FloraServiceImpl implements FloraService {
 
     @Override
     public StringDto unsubOrSub(String jwt, String floraName) {
+        validateFloraName(floraName);
+
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {

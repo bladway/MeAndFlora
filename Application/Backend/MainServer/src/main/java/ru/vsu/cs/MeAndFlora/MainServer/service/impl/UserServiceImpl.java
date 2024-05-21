@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
 
         MafUser user = mafUserRepository.save(new MafUser(login, password, UserRole.USER.getName()));
 
-        USession session = uSessionRepository.save(new USession(ipAddress, "", "", user));
+        USession session = uSessionRepository.save(new USession("", "", ipAddress, user));
 
         session.setJwt(jwtUtil.generateToken(session.getSessionId()));
         session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
 
         MafUser user = ifuser.get();
 
-        USession session = uSessionRepository.save(new USession(ipAddress, "", "", user));
+        USession session = uSessionRepository.save(new USession("", "", ipAddress, user));
 
         session.setJwt(jwtUtil.generateToken(session.getSessionId()));
         session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
@@ -122,7 +122,7 @@ public class UserServiceImpl implements UserService {
     public DiJwtDto anonymousLogin(String ipAddress) {
         validateIpAddress(ipAddress);
 
-        USession session = uSessionRepository.save(new USession(ipAddress, "", "", null));
+        USession session = uSessionRepository.save(new USession("", "", ipAddress, null));
 
         session.setJwt(jwtUtil.generateToken(session.getSessionId()));
         session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
@@ -164,6 +164,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public StringDto change(String jwt, String newLogin, String newPassword, String oldPassword) {
+        boolean changeLogin = false;
+        boolean changePassword = false;
+        validatePassword(oldPassword);
+        if (newLogin != null) {
+            validateLogin(newLogin);
+            changeLogin = true;
+        }
+        if (newPassword != null) {
+            validatePassword(newPassword);
+            changePassword = true;
+        }
+        if (!(changeLogin || changePassword)) {
+            throw new InputException(
+                    errorPropertiesConfig.getChangeisnull(),
+                    "provide at least one: newLogin or newPassword"
+            );
+        }
+
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -186,24 +204,6 @@ public class UserServiceImpl implements UserService {
             throw new RightsException(
                     errorPropertiesConfig.getNorights(),
                     "only user can change account data"
-            );
-        }
-
-        boolean changeLogin = false;
-        boolean changePassword = false;
-        validatePassword(oldPassword);
-        if (newLogin != null) {
-            validateLogin(newLogin);
-            changeLogin = true;
-        }
-        if (newPassword != null) {
-            validatePassword(newPassword);
-            changePassword = true;
-        }
-        if (!(changeLogin || changePassword)) {
-            throw new InputException(
-                    errorPropertiesConfig.getChangeisnull(),
-                    "provide at least one: newLogin or newPassword"
             );
         }
 
@@ -230,6 +230,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public StringDto createUser(String jwt, String login, String password, String role) {
+        validateLogin(login);
+        validatePassword(password);
+        validateLoginDuplication(login);
+
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -255,10 +259,6 @@ public class UserServiceImpl implements UserService {
             );
         }
 
-        validateLogin(login);
-        validatePassword(password);
-        validateLoginDuplication(login);
-
         MafUser user;
         if (!(role.equals(UserRole.USER.getName()) || role.equals(UserRole.BOTANIST.getName()))) {
             throw new InputException(
@@ -275,6 +275,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public StringDto deleteUser(String jwt, String login) {
+        validateLogin(login);
+
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -299,8 +301,6 @@ public class UserServiceImpl implements UserService {
                     "only admin can delete users"
             );
         }
-
-        validateLogin(login);
 
         Optional<MafUser> ifuser = mafUserRepository.findByLogin(login);
 
@@ -354,7 +354,7 @@ public class UserServiceImpl implements UserService {
         }
 
         MafUser user = session.getUser();
-        
+
         return new UserInfoDto(user.getLogin(), user.getRole());
     }
 

@@ -12,10 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UserDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UserInfoDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
+import ru.vsu.cs.MeAndFlora.MainServer.service.AdvertisementService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.UserService;
 
 @RequiredArgsConstructor
@@ -30,6 +28,8 @@ public class UserController {
     private final ErrorPropertiesConfig errorPropertiesConfig;
 
     private final UserService userService;
+
+    private final AdvertisementService advertisementService;
 
     private final ObjectMapper objectMapper;
 
@@ -205,6 +205,55 @@ public class UserController {
             userLogger.info(
                     "Delete user: {} is successful",
                     stringDto.getString()
+            );
+
+        } catch (CustomRuntimeException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            userLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
+
+    @Operation(description = "Post. User has seen the advertisement."
+            + " Requires: jwt in header."
+            + " Provides: LongDto with sessionId.")
+    @PostMapping(
+            value = "/seeadv"
+    )
+    public ResponseEntity<Object> seeAdvertisement(
+            @RequestHeader String jwt
+    ) {
+
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            LongDto sessionIdDto = advertisementService.addAdvertisement(jwt);
+
+            body = sessionIdDto;
+
+            status = HttpStatus.OK;
+
+            userLogger.info(
+                    "User in session: {} has seen the advertisement",
+                    sessionIdDto.getNumber()
             );
 
         } catch (CustomRuntimeException e) {
