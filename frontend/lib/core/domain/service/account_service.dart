@@ -18,7 +18,8 @@ class AccountService {
     if (login == "" && password == "") {
       throw AccountEditException();
     }
-    Account account = await AuthService().getAccount(prevLogin);
+    Account account = await AuthService.loadUser();
+    //Account account = await AuthService().getAccount(prevLogin);
     //final response = await Dio().update("", data: {});
     if (passwordConfirm != account.password) {
       throw AccountEditException();

@@ -11,7 +11,7 @@ class Account {
   AccessLevel accessLevel;
 
   Account({
-    this.login = "Пользователь",
+    this.login = "Незарегистрированный пользователь",
     this.password = "Пароль",
     this.accessLevel = AccessLevel.unauth_user,
   });

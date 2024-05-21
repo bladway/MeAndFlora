@@ -6,7 +6,6 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:me_and_flora/core/presentation/bloc/plant_ident/plant_ident.dart';
 
 import '../../../../app_router/app_router.dart';
-import '../../../../domain/models/models.dart';
 import '../../../../theme/theme.dart';
 import '../../../bloc/plant/plant.dart';
 import '../../../bloc/plant_history/plant_history.dart';

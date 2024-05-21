@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:me_and_flora/core/app_router/app_router.dart';
 import 'package:me_and_flora/core/presentation/widgets/app_bar.dart';
-import 'package:me_and_flora/core/presentation/widgets/background.dart';
 import 'package:me_and_flora/core/theme/theme.dart';
 import 'package:me_and_flora/feature/account_list/presentation/widgets/account_tile.dart';
 
@@ -16,7 +15,6 @@ class AccountListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.sizeOf(context).width;
     double height = MediaQuery.sizeOf(context).height;
 
     return MultiBlocProvider(
