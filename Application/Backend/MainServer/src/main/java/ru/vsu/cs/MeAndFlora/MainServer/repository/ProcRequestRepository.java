@@ -1,7 +1,10 @@
 package ru.vsu.cs.MeAndFlora.MainServer.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 
@@ -16,5 +19,7 @@ public interface ProcRequestRepository extends JpaRepository<ProcRequest, Long> 
     List<ProcRequest> findByCreatedTimeAfterAndSessionIn(OffsetDateTime createdTime, List<USession> sessionList);
 
     List<ProcRequest> findByCreatedTimeBetween(OffsetDateTime startTime, OffsetDateTime endTime);
+
+    Page<ProcRequest> findByFloraIn(List<Flora> floraList, Pageable pageable);
 
 }

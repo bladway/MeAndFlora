@@ -167,11 +167,11 @@ public class UserServiceImpl implements UserService {
         boolean changeLogin = false;
         boolean changePassword = false;
         validatePassword(oldPassword);
-        if (newLogin != null) {
+        if (!newLogin.isEmpty()) {
             validateLogin(newLogin);
             changeLogin = true;
         }
-        if (newPassword != null) {
+        if (!newPassword.isEmpty()) {
             validatePassword(newPassword);
             changePassword = true;
         }

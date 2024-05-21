@@ -20,6 +20,9 @@ spring:
       ddl-auto: none
     show-sql: true
     database: postgresql
+    properties:
+      hibernate:
+        format_sql: true
   kafka:
     bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
     jaas:

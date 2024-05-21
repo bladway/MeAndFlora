@@ -4,6 +4,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LongDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LongsDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 
 import java.time.OffsetDateTime;
@@ -19,5 +20,9 @@ public interface RequestService {
     LongDto deleteProcRequest(String jwt, Long requestId);
 
     LongDto getCountOfRequestsInPeriod(String jwt, OffsetDateTime startTime, OffsetDateTime endTime);
+
+    LongsDto getAllPublications(String jwt, int page, int size);
+
+    LongsDto getWatchedPublications(String jwt, int page, int size);
 
 }

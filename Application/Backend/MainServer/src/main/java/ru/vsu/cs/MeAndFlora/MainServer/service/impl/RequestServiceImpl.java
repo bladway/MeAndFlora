@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -14,15 +17,13 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.ProcRequestStatus;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserResponse;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LongDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.AdvertisementViewRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.FloraRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.ProcRequestRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
+import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;
@@ -32,6 +33,7 @@ import java.net.MalformedURLException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -504,6 +506,78 @@ public class RequestServiceImpl implements RequestService {
         List<ProcRequest> requests = procRequestRepository.findByCreatedTimeBetween(startTime, endTime);
 
         return new LongDto((long) requests.size());
+    }
+
+    public LongsDto getAllPublications(String jwt, int page, int size) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName()))) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "only admin can get a list of all publications"
+            );
+        }
+
+        Page<ProcRequest> procRequestPage = procRequestRepository.findAll(PageRequest.of(page, size, Sort.by("postedTime").descending()));
+        List<Long> requestIds = new ArrayList<>();
+        procRequestPage.forEach(procRequest -> requestIds.add(procRequest.getRequestId()));
+        return new LongsDto(requestIds);
+
+    }
+
+    public LongsDto getWatchedPublications(String jwt, int page, int size) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.USER.getName()))) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "only user can get a list of all watched publications"
+            );
+        }
+
+        MafUser user = session.getUser();
+        List<Flora> tracked = user.getTrackedPlants();
+
+        Page<ProcRequest> procRequestPage = procRequestRepository.findByFloraIn(
+                tracked,
+                PageRequest.of(page, size, Sort.by("postedTime").descending())
+        );
+        List<Long> requestIds = new ArrayList<>();
+        procRequestPage.forEach(procRequest -> requestIds.add(procRequest.getRequestId()));
+        return new LongsDto(requestIds);
+
     }
 
 }
