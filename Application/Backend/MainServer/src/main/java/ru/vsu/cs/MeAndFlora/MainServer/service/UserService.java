@@ -2,6 +2,7 @@ package ru.vsu.cs.MeAndFlora.MainServer.service;
 
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UserInfoDto;
 
 public interface UserService {
 
@@ -18,5 +19,7 @@ public interface UserService {
     StringDto createUser(String jwt, String login, String password, String role);
 
     StringDto deleteUser(String jwt, String login);
+
+    UserInfoDto getUserInfo(String jwt);
 
 }

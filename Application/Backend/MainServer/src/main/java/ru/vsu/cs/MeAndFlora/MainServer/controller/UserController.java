@@ -15,6 +15,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UserDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UserInfoDto;
 import ru.vsu.cs.MeAndFlora.MainServer.service.UserService;
 
 @RequiredArgsConstructor
@@ -32,7 +33,55 @@ public class UserController {
 
     private final ObjectMapper objectMapper;
 
+    @Operation(description = "Get. Get user login and role by jwt."
+            + " Requires: jwt in header."
+            + " Provides: UserInfoDto in body.")
+    @GetMapping(
+            value = "/get"
+    )
+    public ResponseEntity<Object> getUserInfo(
+            @RequestHeader String jwt
+    ) {
 
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            UserInfoDto infoDto = userService.getUserInfo(jwt);
+
+            body = infoDto;
+
+            status = HttpStatus.OK;
+
+            userLogger.info(
+                    "Get user info with login: {} with role: {} is successful",
+                    infoDto.getLogin(),
+                    infoDto.getRole()
+            );
+
+        } catch (CustomRuntimeException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            userLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
 
     /*@Operation(description = "Get. Get all users by admin."
             + " Requires: jwt in header."

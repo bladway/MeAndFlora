@@ -12,6 +12,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UserInfoDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.MafUserRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
@@ -323,6 +324,38 @@ public class UserServiceImpl implements UserService {
 
         return new StringDto(user.getLogin());
 
+    }
+
+    @Override
+    public UserInfoDto getUserInfo(String jwt) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (session.getUser() == null) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "anonymous don't have user info"
+            );
+        }
+
+        MafUser user = session.getUser();
+        
+        return new UserInfoDto(user.getLogin(), user.getRole());
     }
 
 }
