@@ -15,4 +15,6 @@ public interface ProcRequestRepository extends JpaRepository<ProcRequest, Long> 
 
     List<ProcRequest> findByCreatedTimeAfterAndSessionIn(OffsetDateTime createdTime, List<USession> sessionList);
 
+    List<ProcRequest> findByCreatedTimeBetween(OffsetDateTime startTime, OffsetDateTime endTime);
+
 }

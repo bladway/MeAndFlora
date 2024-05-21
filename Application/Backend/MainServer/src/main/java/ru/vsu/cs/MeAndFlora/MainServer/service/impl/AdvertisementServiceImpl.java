@@ -14,6 +14,8 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.AdvertisementView;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AdvertisementService;
 
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -58,6 +60,38 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         advertisementViewRepository.save(new AdvertisementView(session));
 
         return new LongDto(session.getSessionId());
+    }
+
+    @Override
+    public LongDto getCountOfAdvertisementInPeriod(String jwt, OffsetDateTime startTime, OffsetDateTime endTime) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName()))) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "only admin can request stats"
+            );
+        }
+
+        List<AdvertisementView> viewList = advertisementViewRepository.findByCreatedTimeBetween(startTime, endTime);
+
+        return new LongDto((long) viewList.size());
     }
 
 }

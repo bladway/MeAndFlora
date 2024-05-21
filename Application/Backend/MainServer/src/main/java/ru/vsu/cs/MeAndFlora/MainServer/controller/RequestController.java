@@ -20,6 +20,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
 import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 
 @RequiredArgsConstructor
 @RestController
@@ -155,7 +156,8 @@ public class RequestController {
 
     }
 
-    @Operation(description = "Post. Post for botanist on proc request image. Requires: jwt in header,"
+    @Operation(description = "Post. Post for botanist on proc request image."
+            + " Requires: jwt in header,"
             + " AnswerDto in body with requestId and \"bad\" if photo bad and \"<floraname>\" if good."
             + " Provides: StringDto with proc request state.")
     @PostMapping(
@@ -209,5 +211,6 @@ public class RequestController {
         return new ResponseEntity<>(body, headers, status);
 
     }
+
 
 }

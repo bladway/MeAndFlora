@@ -32,6 +32,7 @@ import java.net.MalformedURLException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -472,6 +473,37 @@ public class RequestServiceImpl implements RequestService {
 
         return new LongDto(request.getRequestId());
 
+    }
+
+    public LongDto getCountOfRequestsInPeriod(String jwt, OffsetDateTime startTime, OffsetDateTime endTime) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName()))) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "only admin can request stats"
+            );
+        }
+
+        List<ProcRequest> requests = procRequestRepository.findByCreatedTimeBetween(startTime, endTime);
+
+        return new LongDto((long) requests.size());
     }
 
 }
