@@ -1,6 +1,3 @@
-const String url = 'http://10.10.10.1:8080';
-const String appMetrica = '7ff8ebc2-35a7-4e6a-853c-5c57ef33223e';
-
 const String registration = 'Регистрация';
 const String authorization = 'Авторизация';
 const String register = "Зарегистрироваться";
