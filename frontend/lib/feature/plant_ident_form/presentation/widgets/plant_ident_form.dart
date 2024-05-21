@@ -114,24 +114,6 @@ class _PlantIdentFormState extends State<PlantIdentForm> {
               });
             },
             items: dropdownItems),
-        /*
-        TextFormField(
-          keyboardType: TextInputType.text,
-          controller: _typeController,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(width: 1.5, color: colors.grayGreen),
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          validator: (value) {
-            return value == null ? "Поле не должно быть пустым" : null;
-          },
-        ),*/
         const SizedBox(
           height: 10,
         ),

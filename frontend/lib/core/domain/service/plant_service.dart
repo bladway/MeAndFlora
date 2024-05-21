@@ -191,7 +191,6 @@ class PlantService {
   }
 
   Future<Plant> findPlantByName(String plantName) async {
-    /*
     final response = await Dio().get("path");
     final data = response.data as Map<String, dynamic>;
 
@@ -201,7 +200,6 @@ class PlantService {
         description: e.value['description'],
         isLiked: e.value['isLiked'],
         imageUrl: e.value['imageUrl']);
-        */
     if (plantName == "Error") {
       throw PlantNotFoundException();
     }
