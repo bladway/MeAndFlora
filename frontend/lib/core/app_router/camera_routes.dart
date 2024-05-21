@@ -8,7 +8,6 @@ abstract class CameraRoutes {
     children: [
       AutoRoute(page: CameraRoute.page, initial: true),
       AutoRoute(page: PlantIdentDetailsRoute.page),
-      //AutoRoute(page: PlantDetailsRoute.page),
     ],
   );
 }
