@@ -59,7 +59,7 @@ public class RequestServiceImpl implements RequestService {
 
     private final JsonUtil jsonUtil;
 
-    private final FileUtil fileUtil;
+    private final ImageUtil fileUtil;
 
     private final KafkaProducer kafkaProducer;
 
@@ -350,7 +350,6 @@ public class RequestServiceImpl implements RequestService {
         procRequestRepository.save(request);
 
         return new StringDto(status);
-
     }
 
     @Override
@@ -423,7 +422,6 @@ public class RequestServiceImpl implements RequestService {
         procRequestRepository.save(request);
 
         return new StringDto(status);
-
     }
 
     @Override
@@ -474,7 +472,6 @@ public class RequestServiceImpl implements RequestService {
         procRequestRepository.delete(request);
 
         return new LongDto(request.getRequestId());
-
     }
 
     public LongDto getCountOfRequestsInPeriod(String jwt, OffsetDateTime startTime, OffsetDateTime endTime) {
@@ -538,7 +535,6 @@ public class RequestServiceImpl implements RequestService {
         List<Long> requestIds = new ArrayList<>();
         procRequestPage.forEach(procRequest -> requestIds.add(procRequest.getRequestId()));
         return new LongsDto(requestIds);
-
     }
 
     public LongsDto getWatchedPublications(String jwt, int page, int size) {
@@ -577,6 +573,169 @@ public class RequestServiceImpl implements RequestService {
         List<Long> requestIds = new ArrayList<>();
         procRequestPage.forEach(procRequest -> requestIds.add(procRequest.getRequestId()));
         return new LongsDto(requestIds);
+    }
+
+    @Override
+    public LongsDto getBotanistProcessingRequests(String jwt, int page, int size) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.BOTANIST.getName()))) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "only botanist can get a list of all requests needed to evaluate"
+            );
+        }
+
+        Page<ProcRequest> procRequestPage = procRequestRepository.findByStatus(
+                ProcRequestStatus.BOTANIST_PROC.getName(),
+                PageRequest.of(page, size, Sort.by("createdTime").descending())
+        );
+        List<Long> requestIds = new ArrayList<>();
+        procRequestPage.forEach(procRequest -> requestIds.add(procRequest.getRequestId()));
+        return new LongsDto(requestIds);
+    }
+
+    @Override
+    public LongsDto getHistory(String jwt, int page, int size) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && (session.getUser().getRole().equals(UserRole.BOTANIST.getName())
+        || session.getUser().getRole().equals(UserRole.USER.getName())))) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "only botanist or user can get a history ids"
+            );
+        }
+
+        MafUser user = session.getUser();
+
+        Page<ProcRequest> procRequestPage = procRequestRepository.findBySessionIn(
+                user.getSessionList(),
+                PageRequest.of(page, size, Sort.by("createdTime").descending())
+        );
+        List<Long> requestIds = new ArrayList<>();
+        procRequestPage.forEach(procRequest -> requestIds.add(procRequest.getRequestId()));
+        return new LongsDto(requestIds);
+    }
+
+    @Override
+    public MultiValueMap<String, Object> getProcessingRequest(String jwt, Long requestId) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (session.getUser() == null) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "anonymous can't directly get requests"
+            );
+        }
+
+        MafUser user = session.getUser();
+
+        Optional<ProcRequest> ifrequest = procRequestRepository.findById(requestId);
+
+        if (ifrequest.isEmpty()) {
+            throw new ObjectException(
+                    errorPropertiesConfig.getRequestnotfound(),
+                    "requested request :) not found"
+            );
+        }
+
+        ProcRequest request = ifrequest.get();
+
+        if (request.getStatus().equals(ProcRequestStatus.NEURAL_PROC.getName())
+                || request.getStatus().equals(ProcRequestStatus.USER_PROC.getName())) {
+            throw new ObjectException(
+                    errorPropertiesConfig.getBadrequeststate(),
+                    "requested request :) not allowed to get"
+            );
+        }
+
+        if (request.getStatus().equals(ProcRequestStatus.BOTANIST_PROC.getName())
+                && !user.getRole().equals(UserRole.BOTANIST.getName())) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "only botanist can get this request"
+            );
+        }
+
+        if (!request.getStatus().equals(ProcRequestStatus.PUBLISHED.getName())
+                && user.getRole().equals(UserRole.ADMIN.getName())) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "admin can get only publication requests"
+            );
+        }
+
+        Resource resource;
+        try {
+            resource = fileUtil.getImage(request.getImagePath());
+        } catch (MalformedURLException e) {
+            throw new ObjectException(
+                    errorPropertiesConfig.getImagenotfound(),
+                    "image of this request not found"
+            );
+        }
+
+        MultiValueMap<String, Object> multiValueMap = new LinkedMultiValueMap<>();
+        multiValueMap.add("requestDto", new RequestDto(
+                request.getFlora() != null ? request.getFlora().getName() : "",
+                request.getGeoPos() != null ? jsonUtil.pointToJson(request.getGeoPos()) : null,
+                request.getStatus(),
+                request.isBotanistVerified(),
+                request.getCreatedTime(),
+                request.getPostedTime()
+        ));
+        multiValueMap.add("image", resource);
+
+        return multiValueMap;
 
     }
 

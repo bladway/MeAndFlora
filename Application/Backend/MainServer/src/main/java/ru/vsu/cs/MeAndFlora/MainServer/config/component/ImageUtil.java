@@ -13,7 +13,7 @@ import java.net.MalformedURLException;
 
 @Service
 @RequiredArgsConstructor
-public class FileUtil {
+public class ImageUtil {
 
     @Value("${application.images.path}")
     private String path;

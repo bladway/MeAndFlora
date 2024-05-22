@@ -11,9 +11,9 @@ public interface FloraService {
 
     StringDto createFlora(String jwt, String floraName, String description, String type, MultipartFile image);
 
-    StringsDto getTypes(String jwt);
+    StringsDto getTypes(String jwt, int page, int size);
 
-    StringsDto getFloraByType(String jwt, String typeName);
+    StringsDto getFloraByType(String jwt, String typeName, int page, int size);
 
     StringDto unsubOrSub(String jwt, String floraName);
 

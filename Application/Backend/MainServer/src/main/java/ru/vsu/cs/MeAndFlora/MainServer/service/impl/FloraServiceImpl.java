@@ -3,11 +3,13 @@ package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
-import ru.vsu.cs.MeAndFlora.MainServer.config.component.FileUtil;
+import ru.vsu.cs.MeAndFlora.MainServer.config.component.ImageUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
@@ -49,7 +51,7 @@ public class FloraServiceImpl implements FloraService {
 
     private final JwtUtil jwtUtil;
 
-    private final FileUtil fileUtil;
+    private final ImageUtil fileUtil;
 
     private void validateFloraName(String floraName) {
         if (floraName.length() > 256) {
@@ -206,7 +208,7 @@ public class FloraServiceImpl implements FloraService {
     }
 
     @Override
-    public StringsDto getTypes(String jwt) {
+    public StringsDto getTypes(String jwt, int page, int size) {
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -232,20 +234,22 @@ public class FloraServiceImpl implements FloraService {
             );
         }
 
-        List<String> types = floraRepository.getTypesOfFlora();
+        Page<String> typePage = floraRepository.getTypesOfFlora(PageRequest.of(page, size));
+        List<String> typeList = new ArrayList<>();
+        typePage.forEach(type -> typeList.add(type));
 
-        if (types.isEmpty()) {
+        /*if (typeList.isEmpty()) {
             throw new ObjectException(
                     errorPropertiesConfig.getFloranotfound(),
                     "there are no typed flora"
             );
-        }
+        }*/
 
-        return new StringsDto(types);
+        return new StringsDto(typeList);
     }
 
     @Override
-    public StringsDto getFloraByType(String jwt, String floraType) {
+    public StringsDto getFloraByType(String jwt, String floraType, int page, int size) {
         validateFloraType(floraType);
 
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
@@ -273,18 +277,18 @@ public class FloraServiceImpl implements FloraService {
             );
         }
 
-        List<Flora> floras = floraRepository.findByType(floraType);
-        List<String> floraNames = new ArrayList<>();
-        floras.forEach(flora -> floraNames.add(flora.getName()));
+        Page<Flora> floraList = floraRepository.findByType(floraType, PageRequest.of(page, size));
+        List<String> floraNameList = new ArrayList<>();
+        floraList.forEach(flora -> floraNameList.add(flora.getName()));
 
-        if (floraNames.isEmpty()) {
+        /*if (floraNameList.isEmpty()) {
             throw new ObjectException(
                     errorPropertiesConfig.getFloranotfound(),
                     "there are no flora of requested type"
             );
-        }
+        }*/
 
-        return new StringsDto(floraNames);
+        return new StringsDto(floraNameList);
     }
 
     @Override

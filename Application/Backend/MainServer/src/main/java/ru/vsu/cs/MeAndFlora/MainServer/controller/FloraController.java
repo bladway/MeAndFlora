@@ -156,13 +156,15 @@ public class FloraController {
     }
 
     @Operation(description = "Get. Get types of flora."
-            + " Requires: jwt in header."
+            + " Requires: jwt in header, page and size in query params (optionally)."
             + " Provides: StringsDto with list of flora type names in body")
     @GetMapping(
             value = "/types"
     )
     public ResponseEntity<Object> getFloraTypes(
-            @RequestHeader String jwt
+            @RequestHeader String jwt,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
     ) {
 
         Object body;
@@ -171,7 +173,7 @@ public class FloraController {
 
         try {
 
-            body = floraService.getTypes(jwt);
+            body = floraService.getTypes(jwt, page, size);
 
             status = HttpStatus.OK;
 
@@ -202,7 +204,7 @@ public class FloraController {
     }
 
     @Operation(description = "Get. Get all flora names of some type."
-            + " Requires: jwt in header, name of type in query param."
+            + " Requires: jwt in header, page and size in query params (optionally)."
             + " Provides: StringsDto with list of flora names of the requested type in body")
     @GetMapping(
             value = "/bytype"
@@ -211,7 +213,9 @@ public class FloraController {
         @RequestHeader String jwt,
         @RequestParam @Schema(
                 example = "Дерево"
-        ) String typeName
+        ) String typeName,
+        @RequestParam(required = false, defaultValue = "0") int page,
+        @RequestParam(required = false, defaultValue = "10") int size
     ) {
 
         Object body;
@@ -220,7 +224,7 @@ public class FloraController {
 
         try {
 
-            body = floraService.getFloraByType(jwt, typeName);
+            body = floraService.getFloraByType(jwt, typeName, page, size);
 
             status = HttpStatus.OK;
 

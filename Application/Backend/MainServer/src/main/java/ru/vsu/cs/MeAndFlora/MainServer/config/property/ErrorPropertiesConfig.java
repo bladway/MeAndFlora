@@ -20,6 +20,7 @@ public class ErrorPropertiesConfig {
     private String sessionidproblem;
     private String doublelogin;
     private String floranotfound;
+    private String requestnotfound;
     private String imagenotfound;
     private String imagenotuploaded;
     private String invalidinput;
@@ -31,5 +32,6 @@ public class ErrorPropertiesConfig {
     private String usertoanotherbad;
     private String botanisttoanotherbad;
     private String limitsexceeded;
+    private String badrequeststate;
 
 }

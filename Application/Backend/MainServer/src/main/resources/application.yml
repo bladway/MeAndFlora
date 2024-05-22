@@ -43,7 +43,7 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.IntegerDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       auto-offset-reset: earliest
-      group-id: MeAndFlora
+      group-id: ${MAINSERVER_KAFKA_LISTENER_GROUP_ID}
 
 application:
   limits:
@@ -71,6 +71,7 @@ application:
     doublelogin: doublelogin
     norights: norights
     floranotfound: floranotfound
+    requestnotfound: requestnotfound
     imagenotfound: imagenotfound
     imagenotuploaded: imagenotuploaded
     invalidinput: invalidinput
@@ -81,3 +82,5 @@ application:
     usertoanotherbad: usertoanotherbad
     botanisttoanotherbad: botanisttoanotherbad
     limitsexceeded: limitsexceeded
+    badrequeststate: badrequeststate
+

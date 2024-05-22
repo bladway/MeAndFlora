@@ -1,11 +1,12 @@
 package ru.vsu.cs.MeAndFlora.MainServer.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -16,8 +17,8 @@ public interface FloraRepository extends JpaRepository<Flora, Long> {
     @Query(value =
         "SELECT new java.lang.String(f.type) FROM Flora f GROUP BY f.type"
     )
-    List<String> getTypesOfFlora();
+    Page<String> getTypesOfFlora(Pageable pageable);
 
-    List<Flora> findByType(String type);
+    Page<Flora> findByType(String type, Pageable pageable);
 
 }

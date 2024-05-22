@@ -20,7 +20,6 @@ import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
 import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;
 
 import java.io.IOException;
-import java.time.OffsetDateTime;
 
 @RequiredArgsConstructor
 @RestController
@@ -28,7 +27,7 @@ import java.time.OffsetDateTime;
 @RequestMapping(path = "/request")
 public class RequestController {
 
-    public static final Logger requestLogger =
+    private static final Logger requestLogger =
             LoggerFactory.getLogger(RequestController.class);
 
     private final ErrorPropertiesConfig errorPropertiesConfig;
@@ -36,6 +35,107 @@ public class RequestController {
     private final RequestService requestService;
 
     private final ObjectMapper objectMapper;
+
+    @Operation(description = "Get. Get processing request information."
+            + " Requires: jwt in header, requestId in query param."
+            + " Provides: RequestDto in body, multipart image in body (jpg)")
+    @PostMapping(
+            value = "/get"
+    )
+    private ResponseEntity<Object> getProcessingRequest(
+            @RequestHeader String jwt,
+            @RequestParam Long requestId
+    ) {
+
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            body = requestService.getProcessingRequest(jwt, requestId);
+
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            status = HttpStatus.OK;
+
+            requestLogger.info(
+                    "Processing request {} defined flora as: {}",
+                    ((MultiValueMap<String, Object>)body).getFirst("requestId"),
+                    ((RequestDto)((MultiValueMap<String, Object>)body).getFirst("requestDto")).getFloraName()
+            );
+
+        } catch (CustomRuntimeException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            requestLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
+
+    @Operation(description = "Get. Get all request ids on which is needs to be botanist processed."
+            + " Requires: jwt in header, page and size in query params (optionally)."
+            + " Provides: longsDto with sorted request ids in body (first is much latest).")
+    @GetMapping(
+            value = "/botanreqs"
+    )
+    public ResponseEntity<Object> getWatchedPublications(
+            @RequestHeader String jwt,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
+    ) {
+
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            body =  requestService.getBotanistProcessingRequests(jwt, page, size);
+
+            status = HttpStatus.OK;
+
+            requestLogger.info(
+                    "Get publication watched by user, page: {}, with size: {} is successful",
+                    page,
+                    size
+            );
+
+        } catch (CustomRuntimeException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            requestLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
 
     @Operation(description = "Post. Post new processing request."
             + " Requires: jwt in header, GeoJsonPoint in body (optionally), multipart image in body."

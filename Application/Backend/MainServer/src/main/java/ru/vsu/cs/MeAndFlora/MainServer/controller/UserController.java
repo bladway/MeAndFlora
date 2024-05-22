@@ -33,6 +33,56 @@ public class UserController {
 
     private final ObjectMapper objectMapper;
 
+    @Operation(description = "Get. Get all users (except admins) by admin to select and delete."
+            + " Requires: jwt in header, page and size in query params (optionally)."
+            + " Provides: UserInfoDto in body.")
+    @GetMapping(
+            value = "/getall"
+    )
+    public ResponseEntity<Object> getAllUsersInfo(
+            @RequestHeader String jwt,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
+    ) {
+
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            body = userService.getAllUserInfo(jwt, page, size);
+
+            status = HttpStatus.OK;
+
+            userLogger.info(
+                    "Get users info, page: {} size: {} is successful",
+                    page,
+                    size
+            );
+
+        } catch (CustomRuntimeException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            userLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
+
     @Operation(description = "Get. Get user login and role by jwt."
             + " Requires: jwt in header."
             + " Provides: UserInfoDto in body.")

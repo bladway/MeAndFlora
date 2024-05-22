@@ -25,4 +25,10 @@ public interface RequestService {
 
     LongsDto getWatchedPublications(String jwt, int page, int size);
 
+    LongsDto getBotanistProcessingRequests(String jwt, int page, int size);
+
+    LongsDto getHistory(String jwt, int page, int size);
+
+    MultiValueMap<String, Object> getProcessingRequest(String jwt, Long requestId);
+
 }

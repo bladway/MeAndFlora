@@ -2,6 +2,9 @@ package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.validator.routines.InetAddressValidator;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
@@ -13,6 +16,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UserInfoDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UserInfoDtosDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.MafUserRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.MafUser;
@@ -20,6 +24,8 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.UserService;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -356,6 +362,46 @@ public class UserServiceImpl implements UserService {
         MafUser user = session.getUser();
 
         return new UserInfoDto(user.getLogin(), user.getRole());
+    }
+
+    public UserInfoDtosDto getAllUserInfo(String jwt, int page, int size) {
+        Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
+
+        if (ifsession.isEmpty()) {
+            throw new JwtException(
+                    errorPropertiesConfig.getBadjwt(),
+                    "provided jwt is not valid"
+            );
+        }
+
+        USession session = ifsession.get();
+
+        if (jwtUtil.ifJwtExpired(session.getJwtCreatedTime())) {
+            throw new JwtException(
+                    errorPropertiesConfig.getExpired(),
+                    "jwt lifetime has ended, get a new one by refresh token"
+            );
+        }
+
+        if (!(session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName()))) {
+            throw new RightsException(
+                    errorPropertiesConfig.getNorights(),
+                    "only admin can get a list of all users"
+            );
+        }
+
+        List<String> userAndBotRoles = new ArrayList<>();
+        userAndBotRoles.add(UserRole.USER.getName());
+        userAndBotRoles.add(UserRole.BOTANIST.getName());
+
+        Page<MafUser> mafUserPage = mafUserRepository.findByRoleIn(
+                userAndBotRoles,
+                PageRequest.of(page, size, Sort.by("role").and(Sort.by("login")))
+        );
+        List<UserInfoDto> userList = new ArrayList<>();
+        mafUserPage.forEach(user -> userList.add(new UserInfoDto(user.getLogin(), user.getRole())));
+
+        return new UserInfoDtosDto(userList);
     }
 
 }
