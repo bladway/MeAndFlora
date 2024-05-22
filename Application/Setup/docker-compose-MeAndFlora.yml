@@ -16,6 +16,18 @@ services:
     volumes:
       - MeAndFlora-Database:/var/lib/postgresql/data
 
+  postgres-test:
+    image: postgis/postgis:16-3.4
+    container_name: MeAndFlora-TestDatabase
+    hostname: postgres-test
+    restart: always
+    ports:
+      - "${POSTGRES_TEST_PORT}:${POSTGRES_PORT}"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
   mongo:
     image: mongo:7.0.8
     container_name: MeAndFlora-Mongo
@@ -71,15 +83,13 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: CONTAINER
       KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
       KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
-      #KAFKA_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"admin\" password=\"${KF_PASSWORD}\";"
-      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/configs/kafka_server_jaas.conf"
-    volumes:
-      - ./kafka_server_jaas.conf:/etc/kafka/configs/kafka_server_jaas.conf
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/home/appuser/kafka_server_jaas.conf"
     depends_on:
       - zookeeper
+    command: /bin/bash -c "echo -e \"KafkaServer {org.apache.kafka.common.security.plain.PlainLoginModule required username=${KAFKA_USER} password=${KAFKA_PASSWORD} user_${KAFKA_USER}=${KAFKA_PASSWORD};};\" > /home/appuser/kafka_server_jaas.conf; /etc/confluent/docker/run"
 
   MainServer:
-    image: bladway/maf-mainserver
+    image: bladway/maf-mainserver:1.5-test-8
     container_name: MeAndFlora-MainServer
     hostname: MainServer
     restart: always
@@ -96,8 +106,10 @@ services:
       KAFKA_HOST: kafka
       KAFKA_PORT: ${KAFKA_PORT_CONTAINER}
       MAINSERVER_PORT: ${MAINSERVER_PORT}
+      MAINSERVER_JWT_R_LIFETIME: 24h
     volumes:
-      - MeAndFlora-Images:/images
+      - MeAndFlora-GetImages:/images/get
+      - MeAndFlora-ProcImages:/images/proc
     depends_on:
       - kafka
       - postgres
@@ -132,10 +144,17 @@ volumes:
       type: none
       o: bind
       device: /server/MeAndFlora-Cachebase
-  MeAndFlora-Images:
-    name: MeAndFlora-Images
+  MeAndFlora-GetImages:
+    name: MeAndFlora-GetImages
     driver: local
     driver_opts: 
       type: none
       o: bind
-      device: /server/MeAndFlora-Images
+      device: /server/MeAndFlora-GetImages
+  MeAndFlora-ProcImages:
+    name: MeAndFlora-ProcImages
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: /server/MeAndFlora-ProcImages

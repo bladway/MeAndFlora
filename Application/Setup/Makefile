@@ -10,22 +10,24 @@ install:
 	sudo service docker restart
 
 hard-rm:
-	sudo rm -rf /server/ && \
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env stop && \
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env rm -f && \
 	docker volume rm MeAndFlora-Database && \
 	docker volume rm MeAndFlora-Mongo && \
 	docker volume rm MeAndFlora-Cachebase && \
-	docker volume rm MeAndFlora-Images
+	docker volume rm MeAndFlora-GetImages && \
+	docker volume rm MeAndFlora-ProcImages && \
+	sudo rm -rf /server/
 
 hard-up:
-	sudo mkdir /server
-	sudo mkdir  /server/MeAndFlora-Database && \
+	sudo mkdir /server && \
+	sudo mkdir /server/MeAndFlora-Database && \
 	sudo mkdir /server/MeAndFlora-Mongo && \
 	sudo mkdir /server/MeAndFlora-Cachebase && \
-	sudo mkdir /server/MeAndFlora-Images && \
-	docker pull bladway/maf-mainserver
-	docker pull dkotx/detector
+	sudo mkdir /server/MeAndFlora-GetImages && \
+	sudo mkdir /server/MeAndFlora-ProcImages && \
+	docker pull bladway/maf-mainserver && \
+	docker pull dkotx/detector && \
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env up -d
 
 hard-restart:
@@ -34,11 +36,14 @@ hard-restart:
 
 soft-rm:
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env stop && \
-	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env rm -f
+	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env rm -f && \
+	docker volume rm MeAndFlora-GetImages && \
+	sudo rm -rf /server/MeAndFlora-GetImages/
 
 soft-up:
-	docker pull bladway/maf-mainserver
-	docker pull dkotx/detector
+	sudo mkdir /server/MeAndFlora-GetImages && \
+	docker pull bladway/maf-mainserver && \
+	docker pull dkotx/detector && \
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env up -d
 
 soft-restart:
