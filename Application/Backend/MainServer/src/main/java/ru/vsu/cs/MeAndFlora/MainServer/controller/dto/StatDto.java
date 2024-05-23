@@ -6,18 +6,20 @@ import io.swagger.v3.core.util.Json;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 @Data
 @NoArgsConstructor
 public class StatDto {
 
     public StatDto(OffsetDateTime date, Long count) {
-        this.date = date;
+        this.date = date.withOffsetSameInstant(ZoneId.of("Europe/Moscow").getRules().getOffset(Instant.now()));
         this.count = count;
     }
 
-    @JsonProperty("timestamp")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX")
     private OffsetDateTime date;
     private Long count;

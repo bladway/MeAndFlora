@@ -60,8 +60,8 @@ public class RequestController {
             status = HttpStatus.OK;
 
             requestLogger.info(
-                    "Processing request {} defined flora as: {}",
-                    ((MultiValueMap<String, Object>)body).getFirst("requestId"),
+                    "Processing request {} got with flora: {}",
+                    requestId,
                     ((RequestDto)((MultiValueMap<String, Object>)body).getFirst("requestDto")).getFloraName()
             );
 
