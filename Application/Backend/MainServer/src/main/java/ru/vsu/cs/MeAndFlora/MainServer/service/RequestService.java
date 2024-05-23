@@ -2,10 +2,7 @@ package ru.vsu.cs.MeAndFlora.MainServer.service;
 
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LongDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LongsDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
 
 import java.time.OffsetDateTime;
 
@@ -19,7 +16,7 @@ public interface RequestService {
 
     LongDto deleteProcRequest(String jwt, Long requestId);
 
-    LongDto getCountOfRequestsInPeriod(String jwt, OffsetDateTime startTime, OffsetDateTime endTime);
+    StatDtosDto getRequestsPerDayInPeriod(String jwt, OffsetDateTime startTime, OffsetDateTime endTime, int page, int size);
 
     LongsDto getAllPublications(String jwt, int page, int size);
 

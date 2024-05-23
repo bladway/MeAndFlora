@@ -474,7 +474,8 @@ public class RequestServiceImpl implements RequestService {
         return new LongDto(request.getRequestId());
     }
 
-    public LongDto getCountOfRequestsInPeriod(String jwt, OffsetDateTime startTime, OffsetDateTime endTime) {
+    @Override
+    public StatDtosDto getRequestsPerDayInPeriod(String jwt, OffsetDateTime startTime, OffsetDateTime endTime, int page, int size) {
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -500,11 +501,15 @@ public class RequestServiceImpl implements RequestService {
             );
         }
 
-        List<ProcRequest> requests = procRequestRepository.findByCreatedTimeBetween(startTime, endTime);
-
-        return new LongDto((long) requests.size());
+        Page<StatDto> statDtoPage = procRequestRepository.getRequestsPerDayInPeriod(
+                startTime, endTime, PageRequest.of(page, size, Sort.by("day"))
+        );
+        List<StatDto> statDtoList = new ArrayList<>();
+        statDtoPage.forEach(statDto -> statDtoList.add(statDto));
+        return new StatDtosDto(statDtoList);
     }
 
+    @Override
     public LongsDto getAllPublications(String jwt, int page, int size) {
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 

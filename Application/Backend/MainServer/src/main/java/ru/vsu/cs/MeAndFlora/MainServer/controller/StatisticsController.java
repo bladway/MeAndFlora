@@ -15,6 +15,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LongDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StatDtosDto;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AdvertisementService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;
 
@@ -37,16 +38,18 @@ public class StatisticsController {
 
     private final ObjectMapper objectMapper;
 
-    @Operation(description = "Get. Get count of requests in given time duration (ONLY FOR ADMIN). "
-            + " Requires: jwt in header, start and end offsetdatetime in query params"
-            + " Provides: LongDto with count of requests.")
+    @Operation(description = "Get. Get count of requests per dat in given time duration (ONLY FOR ADMIN). "
+            + " Requires: jwt in header, start, end offsetdatetime, page and page size in query params"
+            + " Provides: StatDtosDto with StatDto list.")
     @GetMapping(
             value = "/requests"
     )
     private ResponseEntity<Object> getRequestsCount(
             @RequestHeader String jwt,
-            @RequestParam @Schema(example = "2024-05-21T15:59:58.623874+03:00") OffsetDateTime startTime,
-            @RequestParam @Schema(example = "2024-05-21T16:00:32.435041+03:00") OffsetDateTime endTime
+            @RequestParam @Schema(example = "2024-05-12T15:59:58.623874+00:00") OffsetDateTime startTime,
+            @RequestParam @Schema(example = "2024-05-24T02:00:32.435041+00:00") OffsetDateTime endTime,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
     ) {
 
         Object body;
@@ -55,19 +58,21 @@ public class StatisticsController {
 
         try {
 
-            LongDto longDto = requestService.getCountOfRequestsInPeriod(
+            StatDtosDto statDtosDto = requestService.getRequestsPerDayInPeriod(
                     jwt,
                     startTime,
-                    endTime
+                    endTime,
+                    page,
+                    size
             );
 
-            body = longDto;
+            body = statDtosDto;
 
             status = HttpStatus.OK;
 
             statisticsLogger.info(
-                    "Get count of request in time successfully: {}",
-                    longDto.getNumber()
+                    "Get count of request in time successfully, days: {}",
+                    statDtosDto.getStatDtoList().size()
             );
 
         } catch (CustomRuntimeException e) {
@@ -92,16 +97,18 @@ public class StatisticsController {
 
     }
 
-    @Operation(description = "Get. Get count of advertisement seen in given time duration (ONLY FOR ADMIN). "
+    @Operation(description = "Get. Get count of advertisement per day seen in given time duration (ONLY FOR ADMIN). "
             + " Requires: jwt in header, start and end OffsetDateTime in query params"
-            + " Provides: LongDto with count of advertisement.")
+            + " Provides: StatDtosDto with StatDtoList.")
     @GetMapping(
             value = "/adverts"
     )
     private ResponseEntity<Object> getAdvertisementCount(
             @RequestHeader String jwt,
             @RequestParam @Schema(example = "2024-05-21T13:00:00+00:00") OffsetDateTime startTime,
-            @RequestParam @Schema(example = "2024-05-21T14:00:00+00:00") OffsetDateTime endTime
+            @RequestParam @Schema(example = "2024-05-21T14:00:00+00:00") OffsetDateTime endTime,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
     ) {
 
         Object body;
@@ -110,19 +117,21 @@ public class StatisticsController {
 
         try {
 
-            LongDto longDto = advertisementService.getCountOfAdvertisementInPeriod(
+            StatDtosDto statDtosDto = advertisementService.getAdvertisementPerDayInPeriod(
                     jwt,
                     startTime,
-                    endTime
+                    endTime,
+                    page,
+                    size
             );
 
-            body = longDto;
+            body = statDtosDto;
 
             status = HttpStatus.OK;
 
             statisticsLogger.info(
                     "Get count of request in time successfully: {}",
-                    longDto.getNumber()
+                    statDtosDto.getStatDtoList().size()
             );
 
         } catch (CustomRuntimeException e) {

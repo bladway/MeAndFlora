@@ -1,6 +1,9 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
@@ -8,6 +11,8 @@ import ru.vsu.cs.MeAndFlora.MainServer.config.exception.RightsException;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.UserRole;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LongDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StatDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StatDtosDto;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.AdvertisementViewRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.AdvertisementView;
@@ -15,6 +20,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AdvertisementService;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,7 +69,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public LongDto getCountOfAdvertisementInPeriod(String jwt, OffsetDateTime startTime, OffsetDateTime endTime) {
+    public StatDtosDto getAdvertisementPerDayInPeriod(String jwt, OffsetDateTime startTime, OffsetDateTime endTime, int page, int size) {
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -89,9 +95,12 @@ public class AdvertisementServiceImpl implements AdvertisementService {
             );
         }
 
-        List<AdvertisementView> viewList = advertisementViewRepository.findByCreatedTimeBetween(startTime, endTime);
-
-        return new LongDto((long) viewList.size());
+        Page<StatDto> statDtoPage = advertisementViewRepository.getAdvertisementPerDayInPeriod(
+                startTime, endTime, PageRequest.of(page, size, Sort.by("day"))
+        );
+        List<StatDto> statDtoList = new ArrayList<>();
+        statDtoPage.forEach(statDto -> statDtoList.add(statDto));
+        return new StatDtosDto(statDtoList);
     }
 
 }

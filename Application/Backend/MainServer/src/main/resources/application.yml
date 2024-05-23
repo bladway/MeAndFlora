@@ -44,7 +44,6 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       auto-offset-reset: earliest
       group-id: ${MAINSERVER_KAFKA_LISTENER_GROUP_ID}
-
 application:
   limits:
     anonymous: 5

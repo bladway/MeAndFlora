@@ -1,5 +1,7 @@
 package ru.vsu.cs.MeAndFlora.MainServer.controller.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,6 +26,10 @@ public class RequestDto {
     private GeoJsonPointDto geoDto;
     private String status;
     private boolean isBotanistVerified;
+    @JsonProperty("timestamp")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX")
     private OffsetDateTime createdTime;
+    @JsonProperty("timestamp")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX")
     private OffsetDateTime postedTime;
 }
