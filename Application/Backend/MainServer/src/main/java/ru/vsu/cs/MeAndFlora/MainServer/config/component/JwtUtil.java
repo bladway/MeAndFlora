@@ -18,7 +18,7 @@ public class JwtUtil {
 
     private final JwtPropertiesConfig jwtPropertiesConfig;
 
-    public String generateToken(Long sessionId) {
+    /*public String generateToken(Long sessionId) {
         SecretKey key = Keys.hmacShaKeyFor(jwtPropertiesConfig.getPassword().getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
                 .claim("type", "access")
@@ -33,6 +33,24 @@ public class JwtUtil {
         return Jwts.builder()
                 .claim("type", "refresh")
                 .claim("sessionId", sessionId.toString())
+                .claim("createdTime", Date.from(OffsetDateTime.now().toInstant()))
+                .signWith(key)
+                .compact();
+    }*/
+
+    public String generateToken() {
+        SecretKey key = Keys.hmacShaKeyFor(jwtPropertiesConfig.getPassword().getBytes(StandardCharsets.UTF_8));
+        return Jwts.builder()
+                .claim("type", "access")
+                .claim("createdTime", Date.from(OffsetDateTime.now().toInstant()))
+                .signWith(key)
+                .compact();
+    }
+
+    public String generateRToken() {
+        SecretKey key = Keys.hmacShaKeyFor(jwtPropertiesConfig.getPasswordr().getBytes(StandardCharsets.UTF_8));
+        return Jwts.builder()
+                .claim("type", "refresh")
                 .claim("createdTime", Date.from(OffsetDateTime.now().toInstant()))
                 .signWith(key)
                 .compact();

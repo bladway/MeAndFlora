@@ -27,7 +27,7 @@ import java.io.IOException;
 @RequestMapping(path = "/flora")
 public class FloraController {
 
-    public static final Logger floraLogger =
+    private static final Logger floraLogger =
             LoggerFactory.getLogger(FloraController.class);
 
     private final ErrorPropertiesConfig errorPropertiesConfig;

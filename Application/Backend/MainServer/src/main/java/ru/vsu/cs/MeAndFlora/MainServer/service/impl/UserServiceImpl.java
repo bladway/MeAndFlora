@@ -87,12 +87,14 @@ public class UserServiceImpl implements UserService {
 
         MafUser user = mafUserRepository.save(new MafUser(login, password, UserRole.USER.getName()));
 
-        USession session = uSessionRepository.save(new USession("", "", ipAddress, user));
-
-        session.setJwt(jwtUtil.generateToken(session.getSessionId()));
-        session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
-
-        session = uSessionRepository.save(session);
+        USession session = uSessionRepository.save(
+                new USession(
+                        jwtUtil.generateToken(),
+                        jwtUtil.generateRToken(),
+                        ipAddress,
+                        user
+                )
+        );
 
         return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
@@ -114,12 +116,14 @@ public class UserServiceImpl implements UserService {
 
         MafUser user = ifuser.get();
 
-        USession session = uSessionRepository.save(new USession("", "", ipAddress, user));
-
-        session.setJwt(jwtUtil.generateToken(session.getSessionId()));
-        session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
-
-        session = uSessionRepository.save(session);
+        USession session = uSessionRepository.save(
+                new USession(
+                        jwtUtil.generateToken(),
+                        jwtUtil.generateRToken(),
+                        ipAddress,
+                        user
+                )
+        );
 
         return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
@@ -128,12 +132,14 @@ public class UserServiceImpl implements UserService {
     public DiJwtDto anonymousLogin(String ipAddress) {
         validateIpAddress(ipAddress);
 
-        USession session = uSessionRepository.save(new USession("", "", ipAddress, null));
-
-        session.setJwt(jwtUtil.generateToken(session.getSessionId()));
-        session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
-
-        session = uSessionRepository.save(session);
+        USession session = uSessionRepository.save(
+                new USession(
+                        jwtUtil.generateToken(),
+                        jwtUtil.generateRToken(),
+                        ipAddress,
+                        null
+                )
+        );
 
         return new DiJwtDto(session.getJwt(), session.getJwtR());
     }
@@ -159,8 +165,8 @@ public class UserServiceImpl implements UserService {
             );
         }
 
-        session.setJwt(jwtUtil.generateToken(session.getSessionId()));
-        session.setJwtR(jwtUtil.generateRToken(session.getSessionId()));
+        session.setJwt(jwtUtil.generateToken());
+        session.setJwtR(jwtUtil.generateRToken());
         session.setJwtCreatedTime(OffsetDateTime.now());
 
         session = uSessionRepository.save(session);

@@ -25,7 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class KafkaConsumer {
 
-    public static final Logger kafkaConsumerLogger =
+    private static final Logger kafkaConsumerLogger =
             LoggerFactory.getLogger(KafkaConsumer.class);
 
     private final USessionRepository uSessionRepository;
@@ -87,6 +87,7 @@ public class KafkaConsumer {
             kafkaConsumerLogger.warn("provided from broker floraName not good");
         } else {
             procReturnFloraNames.put(requestId, floraName);
+            kafkaConsumerLogger.info("accepted return message from broker with requestId {}", requestId);
         }
 
     }

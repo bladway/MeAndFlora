@@ -21,7 +21,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.service.UserService;
 @RequestMapping(path = "/auth")
 class AuthorizationController {
 
-    public static final Logger authorizationLogger =
+    private static final Logger authorizationLogger =
             LoggerFactory.getLogger(AuthorizationController.class);
 
     private final UserService authorizationService;

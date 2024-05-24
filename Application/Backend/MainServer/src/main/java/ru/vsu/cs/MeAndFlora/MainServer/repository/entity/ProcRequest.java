@@ -34,14 +34,14 @@ public class ProcRequest {
     @Column(name = "REQUEST_ID", nullable = false)
     private Long requestId;
 
-    @Column(name = "IMAGE_PATH", nullable = false)
-    private String imagePath;
-
     @Column(name = "CREATED_TIME", nullable = false)
     private OffsetDateTime createdTime;
 
     @Column(name = "POSTED_TIME")
     private OffsetDateTime postedTime;
+
+    @Column(name = "IMAGE_PATH", unique = true)
+    private String imagePath;
 
     @Column(name = "GEO_POS")
     private Point geoPos;

@@ -2,6 +2,8 @@ package ru.vsu.cs.MeAndFlora.MainServer.config.component;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,9 @@ public class KafkaProducer {
     @Value("${spring.kafka.producer.topic}")
     private String requestTopic;
 
+    private static final Logger kafkaProducerLogger =
+            LoggerFactory.getLogger(KafkaProducer.class);
+
     private final KafkaTemplate<Integer, byte[]> kafkaTemplate;
 
     public void sendProcRequestMessage(String jwt, MultipartFile image, ProcRequest procRequest) throws IOException {
@@ -30,6 +35,7 @@ public class KafkaProducer {
         record.headers().add("requestId", procRequest.getRequestId().toString().getBytes());
 
         kafkaTemplate.send(record);
+        kafkaProducerLogger.info("message with requestId {} sent to broker", procRequest.getRequestId());
     }
 
 }
