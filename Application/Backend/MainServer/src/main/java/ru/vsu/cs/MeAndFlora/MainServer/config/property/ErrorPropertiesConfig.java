@@ -33,5 +33,6 @@ public class ErrorPropertiesConfig {
     private String botanisttoanotherbad;
     private String limitsexceeded;
     private String badrequeststate;
+    private String overloaded;
 
 }

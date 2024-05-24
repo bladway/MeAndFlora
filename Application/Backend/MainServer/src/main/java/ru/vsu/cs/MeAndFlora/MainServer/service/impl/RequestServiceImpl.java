@@ -29,6 +29,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -157,6 +158,13 @@ public class RequestServiceImpl implements RequestService {
             throw new StateException(
                     errorPropertiesConfig.getLimitsexceeded(),
                     "too much requests made, watch the advertisement!"
+            );
+        }
+
+        if (ManagementFactory.getThreadMXBean().getThreadCount() > 10) {
+            throw new ObjectException(
+                    errorPropertiesConfig.getOverloaded(),
+                    "sorry server is overloaded, try again later."
             );
         }
 

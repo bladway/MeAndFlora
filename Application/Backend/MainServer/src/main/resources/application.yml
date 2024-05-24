@@ -1,4 +1,14 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info,health,metrics
 server:
+  tomcat:
+    threads:
+      max: 20
+    mbeanregistry:
+      enabled: true
   ssl:
     key-store: ${MAINSERVER_SSL_PATH}
     key-store-type: PKCS12
@@ -15,6 +25,8 @@ spring:
     url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
+    hikari:
+      connection-timeout: 120000
   jpa:
     hibernate:
       ddl-auto: none
@@ -82,4 +94,4 @@ application:
     botanisttoanotherbad: botanisttoanotherbad
     limitsexceeded: limitsexceeded
     badrequeststate: badrequeststate
-
+    overloaded: overloaded
