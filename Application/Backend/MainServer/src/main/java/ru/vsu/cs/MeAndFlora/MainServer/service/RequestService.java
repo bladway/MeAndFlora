@@ -3,12 +3,13 @@ package ru.vsu.cs.MeAndFlora.MainServer.service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
+import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 
 import java.time.OffsetDateTime;
 
 public interface RequestService {
 
-    MultiValueMap<String, Object> procFloraRequest(String jwt, MultipartFile image, GeoJsonPointDto geoDto);
+    ReqAnswerDto procFloraRequest(String jwt, MultipartFile image, GeoJsonPointDto geoDto);
 
     StringDto proceedRequest(String jwt, Long requestId, String answer);
 
@@ -26,6 +27,6 @@ public interface RequestService {
 
     LongsDto getHistory(String jwt, int page, int size);
 
-    MultiValueMap<String, Object> getProcessingRequest(String jwt, Long requestId);
+    RequestDto getProcessingRequest(String jwt, Long requestId);
 
 }

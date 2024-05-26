@@ -57,8 +57,6 @@ public class FloraController {
 
             body = floraService.requestFlora(jwt, floraName);
 
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
             status = HttpStatus.OK;
 
             floraLogger.info(
@@ -124,8 +122,6 @@ public class FloraController {
                     realFloraDto.getType(),
                     image
             );
-
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
             status = HttpStatus.OK;
 

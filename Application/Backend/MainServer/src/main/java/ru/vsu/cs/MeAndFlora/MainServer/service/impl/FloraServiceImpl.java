@@ -81,7 +81,7 @@ public class FloraServiceImpl implements FloraService {
     }
 
     @Override
-    public MultiValueMap<String, Object> requestFlora(String jwt, String floraName) {
+    public FloraDto requestFlora(String jwt, String floraName) {
         validateFloraName(floraName);
 
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
@@ -120,7 +120,7 @@ public class FloraServiceImpl implements FloraService {
 
         Flora flora = ifflora.get();
 
-        Resource resource;
+        /*Resource resource;
         try {
             resource = fileUtil.getImage(flora.getImagePath());
         } catch (MalformedURLException e) {
@@ -128,7 +128,7 @@ public class FloraServiceImpl implements FloraService {
                     errorPropertiesConfig.getImagenotfound(),
                     "requested image not found"
             );
-        }
+        }*/
 
         boolean isSubscribed = false;
         if (session.getUser() != null) {
@@ -140,16 +140,13 @@ public class FloraServiceImpl implements FloraService {
             }
         }
 
-        MultiValueMap<String, Object> multiValueMap = new LinkedMultiValueMap<>();
-        multiValueMap.add("floraDto", new FloraDto(
+        return new FloraDto(
                 flora.getName(),
                 flora.getDescription(),
                 flora.getType(),
-                isSubscribed
-        ));
-        multiValueMap.add("image", resource);
-
-        return multiValueMap;
+                isSubscribed,
+                flora.getImagePath()
+        );
 
     }
 

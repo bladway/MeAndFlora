@@ -65,7 +65,7 @@ public class RequestServiceImpl implements RequestService {
     private final KafkaProducer kafkaProducer;
 
     @Override
-    public MultiValueMap<String, Object> procFloraRequest(String jwt, MultipartFile image, GeoJsonPointDto geoDto) {
+    public ReqAnswerDto procFloraRequest(String jwt, MultipartFile image, GeoJsonPointDto geoDto) {
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -161,7 +161,7 @@ public class RequestServiceImpl implements RequestService {
             );
         }
 
-        if (ManagementFactory.getThreadMXBean().getThreadCount() > 10) {
+        if (ManagementFactory.getThreadMXBean().getThreadCount() > 50) {
             throw new ObjectException(
                     errorPropertiesConfig.getOverloaded(),
                     "sorry server is overloaded, try again later."
@@ -248,7 +248,7 @@ public class RequestServiceImpl implements RequestService {
             );
         }
 
-        Resource resource;
+        /*Resource resource;
         try {
             resource = fileUtil.getImage(procRequest.getFlora().getImagePath());
         } catch (MalformedURLException e) {
@@ -257,7 +257,7 @@ public class RequestServiceImpl implements RequestService {
                     errorPropertiesConfig.getImagenotfound(),
                     "requested image not found"
             );
-        }
+        } */
 
         boolean isSubscribed = false;
         if (procRequest.getSession().getUser() != null) {
@@ -269,17 +269,14 @@ public class RequestServiceImpl implements RequestService {
             }
         }
 
-        MultiValueMap<String, Object> multiValueMap = new LinkedMultiValueMap<>();
-        multiValueMap.add("requestId", procRequest.getRequestId());
-        multiValueMap.add("floraDto", new FloraDto(
+        return new ReqAnswerDto(procRequest.getRequestId(),
+                new FloraDto(
                 procRequest.getFlora().getName(),
                 procRequest.getFlora().getDescription(),
                 procRequest.getFlora().getType(),
-                isSubscribed
+                isSubscribed,
+                procRequest.getFlora().getImagePath()
         ));
-        multiValueMap.add("image", resource);
-
-        return multiValueMap;
     }
 
     @Override
@@ -664,7 +661,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public MultiValueMap<String, Object> getProcessingRequest(String jwt, Long requestId) {
+    public RequestDto getProcessingRequest(String jwt, Long requestId) {
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -727,28 +724,15 @@ public class RequestServiceImpl implements RequestService {
             );
         }
 
-        Resource resource;
-        try {
-            resource = fileUtil.getImage(request.getImagePath());
-        } catch (MalformedURLException e) {
-            throw new ObjectException(
-                    errorPropertiesConfig.getImagenotfound(),
-                    "image of this request not found"
-            );
-        }
-
-        MultiValueMap<String, Object> multiValueMap = new LinkedMultiValueMap<>();
-        multiValueMap.add("requestDto", new RequestDto(
+        return new RequestDto(
                 request.getFlora() != null ? request.getFlora().getName() : "",
                 request.getGeoPos() != null ? jsonUtil.pointToJson(request.getGeoPos()) : null,
                 request.getStatus(),
                 request.isBotanistVerified(),
                 request.getCreatedTime(),
-                request.getPostedTime()
-        ));
-        multiValueMap.add("image", resource);
-
-        return multiValueMap;
+                request.getPostedTime(),
+                request.getImagePath()
+        );
 
     }
 

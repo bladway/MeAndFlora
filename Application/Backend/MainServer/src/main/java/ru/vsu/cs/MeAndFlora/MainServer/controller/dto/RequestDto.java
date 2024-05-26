@@ -15,7 +15,8 @@ public class RequestDto {
 
     public RequestDto(String floraName, GeoJsonPointDto geoDto,
                       String status, boolean isBotanistVerified,
-                      OffsetDateTime createdTime, OffsetDateTime postedTime) {
+                      OffsetDateTime createdTime, OffsetDateTime postedTime,
+                      String path) {
         this.floraName = floraName;
         this.geoDto = geoDto;
         this.status = status;
@@ -34,6 +35,7 @@ public class RequestDto {
                                 .getRules()
                                 .getOffset(Instant.now())
                 );
+        this.path = path;
     }
 
     private String floraName;
@@ -44,4 +46,5 @@ public class RequestDto {
     private OffsetDateTime createdTime;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX")
     private OffsetDateTime postedTime;
+    private String path;
 }

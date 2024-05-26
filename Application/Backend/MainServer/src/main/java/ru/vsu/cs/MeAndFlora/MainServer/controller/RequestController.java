@@ -39,7 +39,7 @@ public class RequestController {
     @Operation(description = "Get. Get processing request information."
             + " Requires: jwt in header, requestId in query param."
             + " Provides: RequestDto in body, multipart image in body (jpg)")
-    @PostMapping(
+    @GetMapping(
             value = "/get"
     )
     private ResponseEntity<Object> getProcessingRequest(
@@ -53,16 +53,16 @@ public class RequestController {
 
         try {
 
-            body = requestService.getProcessingRequest(jwt, requestId);
+            RequestDto requestDto = requestService.getProcessingRequest(jwt, requestId);
 
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            body = requestDto;
 
             status = HttpStatus.OK;
 
             requestLogger.info(
                     "Processing request {} got with flora: {}",
                     requestId,
-                    ((RequestDto)((MultiValueMap<String, Object>)body).getFirst("requestDto")).getFloraName()
+                    requestDto.getFloraName()
             );
 
         } catch (CustomRuntimeException e) {
@@ -167,16 +167,16 @@ public class RequestController {
                 throw new InputException(errorPropertiesConfig.getInvalidinput(), e.getMessage());
             }
 
-            body = requestService.procFloraRequest(jwt, image, realGeoDto);
+            ReqAnswerDto reqAnswerDto = requestService.procFloraRequest(jwt, image, realGeoDto);
 
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            body = reqAnswerDto;
 
             status = HttpStatus.OK;
 
             requestLogger.info(
                     "Processing request {} defined flora as: {}",
-                    ((MultiValueMap<String, Object>)body).getFirst("requestId"),
-                    ((FloraDto)((MultiValueMap<String, Object>)body).getFirst("floraDto")).getName()
+                    reqAnswerDto.getRequestId(),
+                    reqAnswerDto.getFloraDto().getName()
             );
 
         } catch (CustomRuntimeException e) {
