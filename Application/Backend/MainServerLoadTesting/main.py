@@ -38,7 +38,7 @@ class ApiUserBehavior(TaskSet):
 class WebsiteUser(HttpUser):
     tasks = [ApiUserBehavior]
     wait_time = between(1,1)
-    host = 'https://4e00-5-187-70-1.ngrok-free.app'
+    host = 'https://1ed2-5-187-71-141.ngrok-free.app/'
 
 
 if __name__ == "__main__":

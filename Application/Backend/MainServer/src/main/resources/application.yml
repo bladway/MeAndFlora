@@ -9,6 +9,7 @@ server:
       max: 80
     mbeanregistry:
       enabled: true
+    max-swallow-size: -1
   ssl:
     key-store: ${MAINSERVER_SSL_PATH}
     key-store-type: PKCS12
@@ -51,12 +52,20 @@ spring:
       topic: ProcRequestTopic
       key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      properties:
+        max:
+          request:
+            size: 41943040
     consumer:
       topic: ProcReturnTopic
       key-deserializer: org.apache.kafka.common.serialization.IntegerDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       auto-offset-reset: earliest
       group-id: ${MAINSERVER_KAFKA_LISTENER_GROUP_ID}
+  servlet:
+    multipart:
+      max-file-size: 40MB
+      max-request-size: 50MB
 application:
   limits:
     anonymous: 5

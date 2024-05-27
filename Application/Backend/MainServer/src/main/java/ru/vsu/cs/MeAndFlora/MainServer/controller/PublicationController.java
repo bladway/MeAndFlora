@@ -134,7 +134,7 @@ public class PublicationController {
     @Operation(description = "Post. Delete publication by admin."
             + " Requires: jwt in header, LongDto with requestId in body."
             + " Provides: LongDto with requestId of deleted publication.")
-    @PostMapping(
+    @DeleteMapping(
             value = "/delete"
     )
     public ResponseEntity<Object> deleteUser(
