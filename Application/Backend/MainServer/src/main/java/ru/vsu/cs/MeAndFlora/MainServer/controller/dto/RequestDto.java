@@ -23,7 +23,7 @@ public class RequestDto {
         this.status = status;
         this.isBotanistVerified = isBotanistVerified;
         this.createdTime = createdTime.withOffsetSameInstant(ZoneOffset.ofHours(3));
-        this.postedTime = postedTime.withOffsetSameInstant(ZoneOffset.ofHours(3));
+        this.postedTime = postedTime != null ? postedTime.withOffsetSameInstant(ZoneOffset.ofHours(3)) : null;
         this.path = path;
     }
 
