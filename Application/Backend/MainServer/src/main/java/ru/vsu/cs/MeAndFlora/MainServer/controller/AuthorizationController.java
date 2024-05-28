@@ -77,7 +77,7 @@ class AuthorizationController {
     @Operation(description = "Post. User login. Requires: NamedAuthDto in body."
             + "Provides: DiJwtDto in body.")
     @PostMapping(
-            value = "/login",
+            value = "/userLogin",
             consumes = {MediaType.APPLICATION_JSON_VALUE}
     )
     public ResponseEntity<Object> login(
@@ -125,7 +125,7 @@ class AuthorizationController {
     @Operation(description = "Post. Anonymous login. Requires: UnnamedAuthDto in body."
             + "Provides: DiJwtDto in body.")
     @PostMapping(
-            value = "/anonymous",
+            value = "/anonymousLogin",
             consumes = {MediaType.APPLICATION_JSON_VALUE}
     )
     public ResponseEntity<Object> anonymousLogin(
@@ -168,10 +168,10 @@ class AuthorizationController {
 
     }
 
-    @Operation(description = "Get. Get fresh jwt and refresh jwt (jwtr). Requires: jwtr in header."
+    @Operation(description = "Put. Get fresh jwt and refresh jwt (jwtr) (put new tokens). Requires: jwtr in header."
             + "Provides: DiJwtDto in body.")
-    @GetMapping(
-            value = "/refresh"
+    @PutMapping(
+            value = "/refreshJwt"
     )
     public ResponseEntity<Object> refresh(
             @RequestHeader String jwtr
@@ -211,10 +211,10 @@ class AuthorizationController {
 
     }
 
-    @Operation(description = "Post. Change actual account data. Requires: jwt in header. AccountChangesDto in body"
+    @Operation(description = "Patch. Change actual account data. Requires: jwt in header. AccountChangesDto in body"
             + "Provides: StringDto with actual username in body.")
-    @PostMapping(
-            value = "/change"
+    @PatchMapping(
+            value = "/changeData"
     )
     public ResponseEntity<Object> change(
             @RequestHeader String jwt,

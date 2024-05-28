@@ -33,11 +33,61 @@ public class UserController {
 
     private final ObjectMapper objectMapper;
 
+    @Operation(description = "Get. Get user login and role by jwt."
+            + " Requires: jwt in header."
+            + " Provides: UserInfoDto in body.")
+    @GetMapping(
+            value = "/byJwt"
+    )
+    public ResponseEntity<Object> getUserInfo(
+            @RequestHeader String jwt
+    ) {
+
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            UserInfoDto infoDto = userService.getUserInfo(jwt);
+
+            body = infoDto;
+
+            status = HttpStatus.OK;
+
+            userLogger.info(
+                    "Get user info with login: {} with role: {} is successful",
+                    infoDto.getLogin(),
+                    infoDto.getRole()
+            );
+
+        } catch (CustomRuntimeException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            userLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
+
     @Operation(description = "Get. Get all users (except admins) by admin to select and delete."
             + " Requires: jwt in header, page and size in query params (optionally)."
             + " Provides: UserInfoDto in body.")
     @GetMapping(
-            value = "/getall"
+            value = "/allByAdmin"
     )
     public ResponseEntity<Object> getAllUsersInfo(
             @RequestHeader String jwt,
@@ -83,55 +133,7 @@ public class UserController {
 
     }
 
-    @Operation(description = "Get. Get user login and role by jwt."
-            + " Requires: jwt in header."
-            + " Provides: UserInfoDto in body.")
-    @GetMapping(
-            value = "/get"
-    )
-    public ResponseEntity<Object> getUserInfo(
-            @RequestHeader String jwt
-    ) {
 
-        Object body;
-        HttpHeaders headers = new HttpHeaders();
-        HttpStatus status;
-
-        try {
-
-            UserInfoDto infoDto = userService.getUserInfo(jwt);
-
-            body = infoDto;
-
-            status = HttpStatus.OK;
-
-            userLogger.info(
-                    "Get user info with login: {} with role: {} is successful",
-                    infoDto.getLogin(),
-                    infoDto.getRole()
-            );
-
-        } catch (CustomRuntimeException e) {
-
-            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-
-            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
-                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
-                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
-                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
-                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
-                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
-                    : HttpStatus.INTERNAL_SERVER_ERROR;
-
-            userLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
-
-        }
-
-        headers.add("jwt", jwt);
-
-        return new ResponseEntity<>(body, headers, status);
-
-    }
 
     /*@Operation(description = "Get. Get all users by admin."
             + " Requires: jwt in header."
@@ -181,7 +183,7 @@ public class UserController {
             + " Requires: jwt in header, UserDto in body."
             + " Provides: StringDto with username of created user.")
     @PostMapping(
-            value = "/new"
+            value = "/create"
     )
     public ResponseEntity<Object> createNewUser(
             @RequestHeader String jwt,
@@ -231,15 +233,14 @@ public class UserController {
 
     }
 
-    @Operation(description = "Post. Delete user (botanic or ordinal user) by admin."
-            + " Requires: jwt in header, StringDto with username in body."
-            + " Provides: StringDto with username of deleted user.")
+    @Operation(description = "Post. User has seen the advertisement."
+            + " Requires: jwt in header."
+            + " Provides: LongDto with sessionId.")
     @PostMapping(
-            value = "/delete"
+            value = "/seeAdvert"
     )
-    public ResponseEntity<Object> deleteUser(
-            @RequestHeader String jwt,
-            @RequestBody StringDto stringDto
+    public ResponseEntity<Object> seeAdvertisement(
+            @RequestHeader String jwt
     ) {
 
         Object body;
@@ -248,13 +249,15 @@ public class UserController {
 
         try {
 
-            body = userService.deleteUser(jwt, stringDto.getString());
+            LongDto sessionIdDto = advertisementService.addAdvertisement(jwt);
+
+            body = sessionIdDto;
 
             status = HttpStatus.OK;
 
             userLogger.info(
-                    "Delete user: {} is successful",
-                    stringDto.getString()
+                    "User in session: {} has seen the advertisement",
+                    sessionIdDto.getNumber()
             );
 
         } catch (CustomRuntimeException e) {
@@ -279,14 +282,15 @@ public class UserController {
 
     }
 
-    @Operation(description = "Post. User has seen the advertisement."
-            + " Requires: jwt in header."
-            + " Provides: LongDto with sessionId.")
-    @PostMapping(
-            value = "/seeadv"
+    @Operation(description = "Delete. Delete user (botanic or ordinal user) by admin."
+            + " Requires: jwt in header, StringDto with username in body."
+            + " Provides: StringDto with username of deleted user.")
+    @DeleteMapping(
+            value = "/delete"
     )
-    public ResponseEntity<Object> seeAdvertisement(
-            @RequestHeader String jwt
+    public ResponseEntity<Object> deleteUser(
+            @RequestHeader String jwt,
+            @RequestBody StringDto stringDto
     ) {
 
         Object body;
@@ -295,15 +299,13 @@ public class UserController {
 
         try {
 
-            LongDto sessionIdDto = advertisementService.addAdvertisement(jwt);
-
-            body = sessionIdDto;
+            body = userService.deleteUser(jwt, stringDto.getString());
 
             status = HttpStatus.OK;
 
             userLogger.info(
-                    "User in session: {} has seen the advertisement",
-                    sessionIdDto.getNumber()
+                    "Delete user: {} is successful",
+                    stringDto.getString()
             );
 
         } catch (CustomRuntimeException e) {

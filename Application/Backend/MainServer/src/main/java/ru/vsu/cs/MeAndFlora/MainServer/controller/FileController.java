@@ -42,7 +42,7 @@ public class FileController {
             + " Requires: jwt in header, image path in query param"
             + " Provides: multipart image in body (jpg)")
     @GetMapping(
-            value = "/download"
+            value = "/byPath"
     )
     private ResponseEntity<Object> getProcessingRequest(
             @RequestHeader String jwt,

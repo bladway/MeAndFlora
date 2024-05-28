@@ -38,7 +38,7 @@ public class StatisticsController {
 
     private final ObjectMapper objectMapper;
 
-    @Operation(description = "Get. Get count of requests per dat in given time duration (ONLY FOR ADMIN). "
+    @Operation(description = "Get. Get count of requests per date in given time duration (ONLY FOR ADMIN). "
             + " Requires: jwt in header, start, end offsetdatetime, page and page size in query params"
             + " Provides: StatDtosDto with StatDto list.")
     @GetMapping(

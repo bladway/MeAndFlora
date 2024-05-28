@@ -40,7 +40,7 @@ public class RequestController {
             + " Requires: jwt in header, requestId in query param."
             + " Provides: RequestDto in body, multipart image in body (jpg)")
     @GetMapping(
-            value = "/get"
+            value = "/byId"
     )
     private ResponseEntity<Object> getProcessingRequest(
             @RequestHeader String jwt,
@@ -91,7 +91,7 @@ public class RequestController {
             + " Requires: jwt in header, page and size in query params (optionally)."
             + " Provides: longsDto with sorted request ids in body (first is much latest).")
     @GetMapping(
-            value = "/botanreqs"
+            value = "/allByBotanist"
     )
     public ResponseEntity<Object> getWatchedPublications(
             @RequestHeader String jwt,
@@ -139,9 +139,9 @@ public class RequestController {
 
     @Operation(description = "Post. Post new processing request."
             + " Requires: jwt in header, GeoJsonPoint in body (optionally), multipart image in body."
-            + " Provides: FloraDto in body, multipart image in body (jpg)")
+            + " Provides: ReqAnswerDto in body.")
     @PostMapping(
-            value = "/request",
+            value = "/create",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     private ResponseEntity<Object> procFloraRequest(
@@ -201,11 +201,11 @@ public class RequestController {
 
     }
 
-    @Operation(description = "Post. Post for user answer on image (NOT USE FIRST). Requires: jwt in header,"
+    @Operation(description = "Put. Post for user answer on image (NOT USE FIRST) (put request into another state). Requires: jwt in header,"
             + " AnswerDto in body with requestId and user answer."
             + " Provides: StringDto with proc request state.")
-    @PostMapping(
-            value = "/answered"
+    @PutMapping(
+            value = "/userDecision"
     )
     private ResponseEntity<Object> proceedRequest(
             @RequestHeader String jwt,
@@ -256,12 +256,12 @@ public class RequestController {
 
     }
 
-    @Operation(description = "Post. Post for botanist on proc request image."
+    @Operation(description = "Put. Post for botanist on proc request image. (put request into another state)"
             + " Requires: jwt in header,"
             + " AnswerDto in body with requestId and \"bad\" if photo bad and \"<floraname>\" if good."
             + " Provides: StringDto with proc request state.")
-    @PostMapping(
-            value = "/decision"
+    @PutMapping(
+            value = "/botanistDecision"
     )
     private ResponseEntity<Object> botanistProcDecision(
             @RequestHeader String jwt,

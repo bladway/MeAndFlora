@@ -38,9 +38,9 @@ public class FloraController {
 
     @Operation(description = "Get. Get flora by name."
             + " Requires: jwt in header, name of plant in query param."
-            + " Provides: floraDto in body, multipart image in body (jpg)")
+            + " Provides: floraDto in body.")
     @GetMapping(
-            value = "/byname"
+            value = "/byName"
     )
     public ResponseEntity<Object> getPlantByName(
         @RequestHeader String jwt,
@@ -61,72 +61,6 @@ public class FloraController {
 
             floraLogger.info(
                     "Get plant with name: {} is successful", floraName
-            );
-
-        } catch (CustomRuntimeException e) {
-
-            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-
-            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
-                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
-                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
-                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
-                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
-                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
-                    : HttpStatus.INTERNAL_SERVER_ERROR;
-
-            floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
-
-        }
-
-        headers.add("jwt", jwt);
-
-        return new ResponseEntity<>(body, headers, status);
-
-    }
-
-    @Operation(description = "Post. Create new flora by botanist."
-            + " Requires: jwt in header, FloraDto in body, multipart image in body."
-            + " Provides: StringDto with name of created flora")
-    @PostMapping(
-            value = "/new",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
-    )
-    public ResponseEntity<Object> createNewFlora(
-            @RequestHeader String jwt,
-            @RequestPart @Schema(
-                    type = MediaType.APPLICATION_JSON_VALUE,
-                    example = "{\"name\":\"Фикус\", \"description\":\"Лучший друг\", \"type\":\"Цветок\"}"
-            ) byte[] floraDto,
-            @RequestPart MultipartFile image
-    ) {
-
-        Object body;
-        HttpHeaders headers = new HttpHeaders();
-        HttpStatus status;
-
-        try {
-
-            FloraDto realFloraDto;
-
-            try {
-                realFloraDto = objectMapper.readValue(floraDto, FloraDto.class);
-            } catch (IOException e) {
-                throw new InputException(errorPropertiesConfig.getInvalidinput(), e.getMessage());
-            }
-
-            body = floraService.createFlora(
-                    jwt,
-                    realFloraDto.getName(),
-                    realFloraDto.getDescription(),
-                    realFloraDto.getType(),
-                    image
-            );
-
-            status = HttpStatus.OK;
-
-            floraLogger.info(
-                    "Create plant with name: {} is successful", realFloraDto.getName()
             );
 
         } catch (CustomRuntimeException e) {
@@ -203,15 +137,15 @@ public class FloraController {
             + " Requires: jwt in header, page and size in query params (optionally)."
             + " Provides: StringsDto with list of flora names of the requested type in body")
     @GetMapping(
-            value = "/bytype"
+            value = "/allByType"
     )
     public ResponseEntity<Object> getFloraTypes(
-        @RequestHeader String jwt,
-        @RequestParam @Schema(
-                example = "Дерево"
-        ) String typeName,
-        @RequestParam(required = false, defaultValue = "0") int page,
-        @RequestParam(required = false, defaultValue = "10") int size
+            @RequestHeader String jwt,
+            @RequestParam @Schema(
+                    example = "Дерево"
+            ) String typeName,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
     ) {
 
         Object body;
@@ -250,10 +184,76 @@ public class FloraController {
 
     }
 
+    @Operation(description = "Post. Create new flora by botanist."
+            + " Requires: jwt in header, FloraDto in body, multipart image in body."
+            + " Provides: StringDto with name of created flora")
+    @PostMapping(
+            value = "/create",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+    )
+    public ResponseEntity<Object> createNewFlora(
+            @RequestHeader String jwt,
+            @RequestPart @Schema(
+                    type = MediaType.APPLICATION_JSON_VALUE,
+                    example = "{\"name\":\"Фикус\", \"description\":\"Лучший друг\", \"type\":\"Цветок\"}"
+            ) byte[] floraDto,
+            @RequestPart MultipartFile image
+    ) {
+
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            FloraDto realFloraDto;
+
+            try {
+                realFloraDto = objectMapper.readValue(floraDto, FloraDto.class);
+            } catch (IOException e) {
+                throw new InputException(errorPropertiesConfig.getInvalidinput(), e.getMessage());
+            }
+
+            body = floraService.createFlora(
+                    jwt,
+                    realFloraDto.getName(),
+                    realFloraDto.getDescription(),
+                    realFloraDto.getType(),
+                    image
+            );
+
+            status = HttpStatus.OK;
+
+            floraLogger.info(
+                    "Create plant with name: {} is successful", realFloraDto.getName()
+            );
+
+        } catch (CustomRuntimeException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            floraLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
+
     @Operation(description = "Post. Subscribe/unsubscribe to/from plant."
             + " Requires: jwt in header, name of plant in query param."
             + " Provides: StringDto with plant name in body.")
-    @PostMapping(
+    @PutMapping(
             value = "/subscribe"
     )
     public ResponseEntity<Object> unsubOrSub(

@@ -31,7 +31,7 @@ public class HistoryController {
             + " Requires: jwt in header, page and size in query params (optionally)."
             + " Provides: longsDto with sorted request ids in body (first is much latest).")
     @GetMapping(
-            value = "/get"
+            value = "/allByUser"
     )
     public ResponseEntity<Object> getWatchedPublications(
             @RequestHeader String jwt,
