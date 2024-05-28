@@ -34,6 +34,7 @@ import java.net.MalformedURLException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -100,12 +101,7 @@ public class RequestServiceImpl implements RequestService {
                                     .now()
                                     .toLocalDate()
                                     .atStartOfDay()
-                                    .atOffset(
-                                           ZoneId
-                                               .of("Europe/Moscow")
-                                               .getRules()
-                                               .getOffset(LocalDateTime.now())
-                                    ),
+                                    .atOffset(ZoneOffset.ofHours(3)),
                             session
                     ).size() + 5;
             currentDayRequestsMade =
@@ -114,12 +110,7 @@ public class RequestServiceImpl implements RequestService {
                                     .now()
                                     .toLocalDate()
                                     .atStartOfDay()
-                                    .atOffset(
-                                            ZoneId
-                                                    .of("Europe/Moscow")
-                                                    .getRules()
-                                                    .getOffset(LocalDateTime.now())
-                                    ),
+                                    .atOffset(ZoneOffset.ofHours(3)),
                             session
                     ).size();
         } else if (session.getUser().getRole().equals(UserRole.USER.getName())) {
@@ -129,12 +120,7 @@ public class RequestServiceImpl implements RequestService {
                                     .now()
                                     .toLocalDate()
                                     .atStartOfDay()
-                                    .atOffset(
-                                            ZoneId
-                                                    .of("Europe/Moscow")
-                                                    .getRules()
-                                                    .getOffset(LocalDateTime.now())
-                                    ),
+                                    .atOffset(ZoneOffset.ofHours(3)),
                             session.getUser().getSessionList()
                     ).size() + 10;
             currentDayRequestsMade =
@@ -143,12 +129,7 @@ public class RequestServiceImpl implements RequestService {
                                     .now()
                                     .toLocalDate()
                                     .atStartOfDay()
-                                    .atOffset(
-                                            ZoneId
-                                                    .of("Europe/Moscow")
-                                                    .getRules()
-                                                    .getOffset(LocalDateTime.now())
-                                    ),
+                                    .atOffset(ZoneOffset.ofHours(3)),
                             session.getUser().getSessionList()
                     ).size();
         }
@@ -541,7 +522,10 @@ public class RequestServiceImpl implements RequestService {
             );
         }
 
-        Page<ProcRequest> procRequestPage = procRequestRepository.findAll(PageRequest.of(page, size, Sort.by("postedTime").descending()));
+        Page<ProcRequest> procRequestPage = procRequestRepository.findByStatus(
+                ProcRequestStatus.PUBLISHED.getName(),
+                PageRequest.of(page, size, Sort.by("postedTime").descending())
+        );
         List<Long> requestIds = new ArrayList<>();
         procRequestPage.forEach(procRequest -> requestIds.add(procRequest.getRequestId()));
         return new LongsDto(requestIds);
@@ -709,10 +693,12 @@ public class RequestServiceImpl implements RequestService {
         }
 
         if (request.getStatus().equals(ProcRequestStatus.BOTANIST_PROC.getName())
-                && !user.getRole().equals(UserRole.BOTANIST.getName())) {
+                &&
+                (!user.getRole().equals(UserRole.BOTANIST.getName())
+                && (!user.getRole().equals(UserRole.USER.getName())))) {
             throw new RightsException(
                     errorPropertiesConfig.getNorights(),
-                    "only botanist can get this request"
+                    "only botanist or user can get this request"
             );
         }
 

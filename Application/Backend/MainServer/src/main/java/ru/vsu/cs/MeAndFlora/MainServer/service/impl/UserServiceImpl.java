@@ -116,6 +116,13 @@ public class UserServiceImpl implements UserService {
 
         MafUser user = ifuser.get();
 
+        if (!user.getPassword().equals(password)) {
+            throw new AuthException(
+                    errorPropertiesConfig.getBadpassword(),
+                    "provided password does not match user password"
+            );
+        }
+
         USession session = uSessionRepository.save(
                 new USession(
                         jwtUtil.generateToken(),

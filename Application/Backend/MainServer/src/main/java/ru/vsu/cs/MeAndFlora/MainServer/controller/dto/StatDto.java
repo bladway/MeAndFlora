@@ -16,7 +16,7 @@ import java.time.ZoneOffset;
 public class StatDto {
 
     public StatDto(OffsetDateTime date, Long count) {
-        this.date = date.withOffsetSameInstant(ZoneId.of("Europe/Moscow").getRules().getOffset(Instant.now()));
+        this.date = date.withOffsetSameInstant(ZoneOffset.ofHours(3));
         this.count = count;
     }
 

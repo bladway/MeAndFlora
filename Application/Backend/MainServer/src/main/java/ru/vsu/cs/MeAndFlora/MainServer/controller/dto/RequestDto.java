@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 @Data
 @NoArgsConstructor
@@ -21,20 +22,8 @@ public class RequestDto {
         this.geoDto = geoDto;
         this.status = status;
         this.isBotanistVerified = isBotanistVerified;
-        this.createdTime = createdTime
-                .withOffsetSameInstant(
-                        ZoneId
-                                .of("Europe/Moscow")
-                                .getRules()
-                                .getOffset(Instant.now())
-                );
-        this.postedTime = postedTime
-                .withOffsetSameInstant(
-                        ZoneId
-                                .of("Europe/Moscow")
-                                .getRules()
-                                .getOffset(Instant.now())
-                );
+        this.createdTime = createdTime.withOffsetSameInstant(ZoneOffset.ofHours(3));
+        this.postedTime = postedTime.withOffsetSameInstant(ZoneOffset.ofHours(3));
         this.path = path;
     }
 
