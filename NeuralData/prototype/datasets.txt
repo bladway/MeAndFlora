@@ -1,2 +1,0 @@
-train_mini: https://drive.google.com/file/d/1V6pKiNodcBIoNj1XJSPJXxN2vMK2itF_/view?usp=sharing
-val: https://drive.google.com/file/d/10EFAO7pYgRqIpezwCKoFik9jIfBvzJjm/view?usp=sharing
