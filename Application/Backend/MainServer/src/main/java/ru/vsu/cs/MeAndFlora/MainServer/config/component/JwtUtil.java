@@ -16,6 +16,10 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtUtil {
 
+    private static Long createdNumberJwt = 0L;
+
+    private static Long createdNumberJwtR = 0L;
+
     private final JwtPropertiesConfig jwtPropertiesConfig;
 
     /*public String generateToken(Long sessionId) {
@@ -43,6 +47,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .claim("type", "access")
                 .claim("createdTime", Date.from(OffsetDateTime.now().toInstant()))
+                .claim("createdNumberJwt", createdNumberJwt++)
                 .signWith(key)
                 .compact();
     }
@@ -52,6 +57,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .claim("type", "refresh")
                 .claim("createdTime", Date.from(OffsetDateTime.now().toInstant()))
+                .claim("createdNumberJwtR", createdNumberJwtR++)
                 .signWith(key)
                 .compact();
     }
