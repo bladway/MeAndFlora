@@ -1,6 +1,5 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service;
 
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;

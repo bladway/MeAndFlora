@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.LongDto;
 import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StatDtosDto;
 import ru.vsu.cs.MeAndFlora.MainServer.service.AdvertisementService;
 import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;

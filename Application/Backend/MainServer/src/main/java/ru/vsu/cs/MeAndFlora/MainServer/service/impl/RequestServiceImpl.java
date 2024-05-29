@@ -3,13 +3,10 @@ package ru.vsu.cs.MeAndFlora.MainServer.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import ru.vsu.cs.MeAndFlora.MainServer.config.component.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
@@ -30,10 +27,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.net.MalformedURLException;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
@@ -280,22 +274,21 @@ public class RequestServiceImpl implements RequestService {
             );
         }
 
-        ProcRequest request = null;
-
-        boolean exists = false;
-        for (ProcRequest curRequest : session.getProcRequestList()) {
-            if (curRequest.getRequestId().equals(requestId)) {
-                exists = true;
-                request = curRequest;
-                break;
-            }
+        Optional<ProcRequest> ifrequest;
+        if (session.getUser() != null) {
+            List<USession> sessionList = session.getUser().getSessionList();
+            ifrequest = procRequestRepository.findBySessionInAndRequestId(sessionList, requestId);
+        } else {
+            ifrequest = procRequestRepository.findBySessionAndRequestId(session, requestId);
         }
-        if (!exists) {
+        if (ifrequest.isEmpty()) {
             throw new InputException(
                     errorPropertiesConfig.getInvalidinput(),
                     "invalid request id provided"
             );
         }
+
+        ProcRequest request = ifrequest.get();
 
         if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
             throw new RightsException(
@@ -560,8 +553,9 @@ public class RequestServiceImpl implements RequestService {
         MafUser user = session.getUser();
         List<Flora> tracked = user.getTrackedPlants();
 
-        Page<ProcRequest> procRequestPage = procRequestRepository.findByFloraIn(
+        Page<ProcRequest> procRequestPage = procRequestRepository.findByFloraInAndStatus(
                 tracked,
+                ProcRequestStatus.PUBLISHED.getName(),
                 PageRequest.of(page, size, Sort.by("postedTime").descending())
         );
         List<Long> requestIds = new ArrayList<>();

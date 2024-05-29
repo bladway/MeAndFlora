@@ -12,6 +12,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProcRequestRepository extends JpaRepository<ProcRequest, Long> {
@@ -19,6 +20,10 @@ public interface ProcRequestRepository extends JpaRepository<ProcRequest, Long> 
     List<ProcRequest> findByCreatedTimeAfterAndSession(OffsetDateTime createdTime, USession session);
 
     List<ProcRequest> findByCreatedTimeAfterAndSessionIn(OffsetDateTime createdTime, List<USession> sessionList);
+
+    Optional<ProcRequest> findBySessionInAndRequestId(List<USession> sessionList, Long requestId);
+
+    Optional<ProcRequest> findBySessionAndRequestId(USession session, Long requestId);
 
     @Query(value =
             "SELECT new ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StatDto"
@@ -28,7 +33,7 @@ public interface ProcRequestRepository extends JpaRepository<ProcRequest, Long> 
     )
     Page<StatDto> getRequestsPerDayInPeriod(OffsetDateTime startTime, OffsetDateTime endTime, Pageable pageable);
 
-    Page<ProcRequest> findByFloraIn(List<Flora> floraList, Pageable pageable);
+    Page<ProcRequest> findByFloraInAndStatus(List<Flora> floraList, String status, Pageable pageable);
 
     Page<ProcRequest> findByStatus(String status, Pageable pageable);
 
