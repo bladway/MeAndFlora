@@ -18,7 +18,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
 
 @RequiredArgsConstructor
 @RestController
-@Tag(name = "Controller for working with file")
+@Tag(name = "Controller for working with files")
 @RequestMapping(path = "/file")
 public class FileController {
 
@@ -38,7 +38,7 @@ public class FileController {
             value = "/byPath"
     )
     private ResponseEntity<Object> getProcessingRequest(
-            @RequestHeader String jwt,
+            /*@RequestHeader String jwt,*/
             @RequestParam String imagePath
     ) {
 
@@ -48,7 +48,7 @@ public class FileController {
 
         try {
 
-            body = fileService.downloadFile(jwt, imagePath);
+            body = fileService.downloadFile(imagePath);
 
             headers.setContentType(MediaType.IMAGE_JPEG);
 
@@ -75,7 +75,7 @@ public class FileController {
 
         }
 
-        headers.add("jwt", jwt);
+        //headers.add("jwt", jwt);
 
         return new ResponseEntity<>(body, headers, status);
 

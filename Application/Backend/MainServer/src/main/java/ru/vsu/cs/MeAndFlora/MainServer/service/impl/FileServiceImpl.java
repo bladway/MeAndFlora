@@ -15,6 +15,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
 
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.util.Optional;
 
@@ -37,7 +38,7 @@ public class FileServiceImpl implements FileService {
     private final ImageUtil fileUtil;
 
     @Override
-    public Resource downloadFile(String jwt, String filePath) {
+    public Resource downloadFileWithAuth(String jwt, String filePath) {
         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
         if (ifsession.isEmpty()) {
@@ -62,12 +63,35 @@ public class FileServiceImpl implements FileService {
         } catch (MalformedURLException e) {
             throw new ObjectException(
                     errorPropertiesConfig.getImagenotfound(),
-                    "image of this request not found"
+                    "invalid url"
             );
         }
 
         return resource;
 
+    }
+
+    @Override
+    public Resource downloadFile(String filePath) {
+        Resource resource;
+
+        try {
+            resource = fileUtil.getImage(filePath);
+        } catch (MalformedURLException e) {
+            throw new ObjectException(
+                    errorPropertiesConfig.getImagenotfound(),
+                    "invalid url"
+            );
+        }
+
+        if (!resource.exists()) {
+            throw new ObjectException(
+                    errorPropertiesConfig.getImagenotfound(),
+                    "image of this request not found"
+            );
+        }
+
+        return resource;
     }
 
 }

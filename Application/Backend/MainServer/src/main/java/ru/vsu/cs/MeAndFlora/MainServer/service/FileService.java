@@ -4,6 +4,8 @@ import org.springframework.core.io.Resource;
 
 public interface FileService {
 
-    Resource downloadFile(String jwt, String filePath);
+    Resource downloadFileWithAuth(String jwt, String filePath);
+
+    Resource downloadFile(String filePath);
 
 }
