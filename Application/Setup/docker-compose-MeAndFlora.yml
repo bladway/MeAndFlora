@@ -10,6 +10,7 @@ services:
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     environment:
+      TZ: ${SERVER_TIMEZONE}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -24,6 +25,7 @@ services:
     ports:
       - "${POSTGRES_TEST_PORT}:${POSTGRES_PORT}"
     environment:
+      TZ: ${SERVER_TIMEZONE}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -36,6 +38,7 @@ services:
     ports:
       - '${MONGO_PORT}:${MONGO_PORT}'
     environment:
+      TZ: ${SERVER_TIMEZONE}
       MONGO_INITDB_DATABASE: ${MONGO_DB}
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
@@ -50,6 +53,7 @@ services:
     ports:
       - "${REDIS_PORT}:${REDIS_PORT}"
     environment:
+      TZ: ${SERVER_TIMEZONE}
       REDIS_PORT_NUMBER: ${REDIS_PORT}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       ALLOW_EMPTY_PASSWORD: no
@@ -62,6 +66,7 @@ services:
     hostname: zookeeper
     restart: always
     environment:
+      TZ: ${SERVER_TIMEZONE}
       ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_PORT_INTERNAL}
       ZOOKEEPER_TICK_TIME: 2000
 
@@ -74,6 +79,7 @@ services:
       - "9092:9092"
       - "9093:9093"
     environment:
+      TZ: ${SERVER_TIMEZONE}
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       ZOOKEEPER_SASL_ENABLED: false
@@ -91,13 +97,14 @@ services:
     command: /bin/bash -c "echo -e \"KafkaServer {org.apache.kafka.common.security.plain.PlainLoginModule required username=${KAFKA_USER} password=${KAFKA_PASSWORD} user_${KAFKA_USER}=${KAFKA_PASSWORD};};\" > /home/appuser/kafka_server_jaas.conf; /etc/confluent/docker/run"
       
   MainServer:
-    image: bladway/maf-mainserver:1.5-test-20
+    image: bladway/maf-mainserver
     container_name: MeAndFlora-MainServer
     hostname: MainServer
     restart: always
     ports:
       - "${MAINSERVER_PORT}:${MAINSERVER_PORT}"
     environment:
+      TZ: ${SERVER_TIMEZONE}
       POSTGRES_HOST: ${POSTGRES_HOST}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -121,8 +128,11 @@ services:
     container_name: MeAndFlora-NeuralMicroservice
     hostname: NeuralMicroservice
     restart: always
+    environment:
+      TZ: ${SERVER_TIMEZONE}
     depends_on:
       - kafka
+      - MainServer
 
 volumes:
   MeAndFlora-Database:
