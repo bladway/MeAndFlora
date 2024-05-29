@@ -635,8 +635,15 @@ public class RequestServiceImpl implements RequestService {
 
         MafUser user = session.getUser();
 
-        Page<ProcRequest> procRequestPage = procRequestRepository.findBySessionIn(
+        List<String> statusList = new ArrayList<>();
+        statusList.add(ProcRequestStatus.BOTANIST_PROC.getName());
+        statusList.add(ProcRequestStatus.SAVED.getName());
+        statusList.add(ProcRequestStatus.PUBLISHED.getName());
+        statusList.add(ProcRequestStatus.BAD.getName());
+
+        Page<ProcRequest> procRequestPage = procRequestRepository.findBySessionInAndStatusIn(
                 user.getSessionList(),
+                statusList,
                 PageRequest.of(page, size, Sort.by("createdTime").descending())
         );
         List<Long> requestIds = new ArrayList<>();

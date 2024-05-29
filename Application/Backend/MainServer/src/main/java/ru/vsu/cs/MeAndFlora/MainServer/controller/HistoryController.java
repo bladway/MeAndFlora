@@ -33,7 +33,7 @@ public class HistoryController {
     @GetMapping(
             value = "/allByUser"
     )
-    public ResponseEntity<Object> getWatchedPublications(
+    public ResponseEntity<Object> getHistory(
             @RequestHeader String jwt,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size

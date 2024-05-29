@@ -32,6 +32,6 @@ public interface ProcRequestRepository extends JpaRepository<ProcRequest, Long> 
 
     Page<ProcRequest> findByStatus(String status, Pageable pageable);
 
-    Page<ProcRequest> findBySessionIn(List<USession> sessionList, Pageable pageable);
+    Page<ProcRequest> findBySessionInAndStatusIn(List<USession> sessionList, List<String> statusList, Pageable pageable);
 
 }
