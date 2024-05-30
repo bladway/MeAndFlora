@@ -14,16 +14,19 @@ import java.time.OffsetDateTime;
 public class ProcRequest {
 
     public ProcRequest(
-            String imagePath, OffsetDateTime postedTime,
+            OffsetDateTime postedTime, String imagePath,
             Point geoPos, String status,
-            USession session, Flora flora
+            USession session, Flora flora,
+            boolean isBotanistVerified
     ) {
-        this.imagePath = imagePath;
         this.createdTime = OffsetDateTime.now();
+        this.postedTime = postedTime;
+        this.imagePath = imagePath;
         this.geoPos = geoPos;
         this.status = status;
         this.session = session;
         this.flora = flora;
+        this.isBotanistVerified = isBotanistVerified;
     }
 
     @Id
@@ -31,14 +34,14 @@ public class ProcRequest {
     @Column(name = "REQUEST_ID", nullable = false)
     private Long requestId;
 
-    @Column(name = "IMAGE_PATH", nullable = false, unique = true)
-    private String imagePath;
-
     @Column(name = "CREATED_TIME", nullable = false)
     private OffsetDateTime createdTime;
 
     @Column(name = "POSTED_TIME")
     private OffsetDateTime postedTime;
+
+    @Column(name = "IMAGE_PATH", unique = true)
+    private String imagePath;
 
     @Column(name = "GEO_POS")
     private Point geoPos;
@@ -46,8 +49,11 @@ public class ProcRequest {
     @Column(name = "STATUS", nullable = false)
     private String status;
 
+    @Column(name = "IS_BOTANIST_VERIFIED", nullable = false)
+    private boolean isBotanistVerified;
+
     @ManyToOne
-    @JoinColumn(name = "SESSION_ID", foreignKey = @ForeignKey, nullable = false)
+    @JoinColumn(name = "SESSION_ID", foreignKey = @ForeignKey)
     private USession session;
 
     @ManyToOne

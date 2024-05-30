@@ -8,16 +8,12 @@ import java.time.Duration;
 
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "jwt")
+@ConfigurationProperties(prefix = "application.jwt")
 public class JwtPropertiesConfig {
 
     private String password;
     private String passwordr;
     private Duration lifetime;
     private Duration lifetimer;
-    private String expired;
-    private String expiredr;
-    private String badjwt;
-    private String badjwtr;
 
 }

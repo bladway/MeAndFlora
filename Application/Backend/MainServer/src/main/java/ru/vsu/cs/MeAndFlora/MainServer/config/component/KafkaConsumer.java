@@ -1,5 +1,6 @@
 package ru.vsu.cs.MeAndFlora.MainServer.config.component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
@@ -7,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.vsu.cs.MeAndFlora.MainServer.MainServerApplication;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.ProcRequestStatus;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.FloraRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.ProcRequestRepository;
@@ -16,6 +16,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -24,7 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class KafkaConsumer {
 
-    public static final Logger kafkaConsumerLogger =
+    private static final Logger kafkaConsumerLogger =
             LoggerFactory.getLogger(KafkaConsumer.class);
 
     private final USessionRepository uSessionRepository;
@@ -33,10 +34,12 @@ public class KafkaConsumer {
 
     private final FloraRepository floraRepository;
 
+    private final ObjectMapper objectMapper;
+
     public static final Map<Long, String> procReturnFloraNames = new HashMap<>();
 
     @KafkaListener(topics = "${spring.kafka.consumer.topic}", groupId = "${spring.kafka.consumer.group-id}")
-    public void getProcReturnMessage(ConsumerRecord<Long, String> record) {
+    public void getProcReturnMessage(ConsumerRecord<Integer, String> record) {
 
         boolean jwtGood = false;
         boolean requestIdGood = false;
@@ -48,18 +51,19 @@ public class KafkaConsumer {
                 case "jwt":
                     try {
 
-                        jwt = MainServerApplication.objectMapper.readValue(header.value(), String.class);
+                        jwt = new String(header.value(), StandardCharsets.UTF_8);
 
                         Optional<USession> ifsession = uSessionRepository.findByJwt(jwt);
 
                         jwtGood = ifsession.isPresent();
 
                     } catch (Exception ignored) {}
+                    break;
 
                 case "requestId":
                     try {
 
-                        requestId = MainServerApplication.objectMapper.readValue(header.value(), Long.class);
+                        requestId = objectMapper.readValue(header.value(), Long.class);
 
                         Optional<ProcRequest> ifprocRequest = procRequestRepository.findById(requestId);
 
@@ -67,6 +71,7 @@ public class KafkaConsumer {
                                 ifprocRequest.get().getStatus().equals(ProcRequestStatus.NEURAL_PROC.getName());
 
                     } catch (Exception ignored) {}
+                    break;
             }
         }
 
@@ -82,6 +87,7 @@ public class KafkaConsumer {
             kafkaConsumerLogger.warn("provided from broker floraName not good");
         } else {
             procReturnFloraNames.put(requestId, floraName);
+            kafkaConsumerLogger.info("accepted return message from broker with requestId {}", requestId);
         }
 
     }

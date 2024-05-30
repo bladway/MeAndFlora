@@ -1,14 +1,20 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service;
 
 import org.springframework.web.multipart.MultipartFile;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraProcRequestDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.GeoJsonPointDto;
-import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.Flora;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.FloraDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringDto;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.StringsDto;
 
 public interface FloraService {
 
-    Flora requestFlora(String jwt, String floraName);
+    FloraDto requestFlora(String jwt, String floraName);
 
-    FloraProcRequestDto procFloraRequest(String jwt, byte[] image, GeoJsonPointDto geoDto);
+    StringDto createFlora(String jwt, String floraName, String description, String type, MultipartFile image);
+
+    StringsDto getTypes(String jwt, int page, int size);
+
+    StringsDto getFloraByType(String jwt, String typeName, int page, int size);
+
+    StringDto unsubOrSub(String jwt, String floraName);
 
 } 
