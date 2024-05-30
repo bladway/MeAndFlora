@@ -98,12 +98,12 @@ public class FloraServiceImpl implements FloraService {
             );
         }
 
-        if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
+        /*if (session.getUser() != null && session.getUser().getRole().equals(UserRole.ADMIN.getName())) {
             throw new RightsException(
                     errorPropertiesConfig.getNorights(),
                     "admin has no rights to request flora"
             );
-        }
+        }*/
 
         Optional<Flora> ifflora = floraRepository.findByName(floraName);
 
