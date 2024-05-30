@@ -4,11 +4,19 @@ import '../../../domain/models/models.dart';
 
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
+
+  @override
+  List<Object> get props => [];
 }
 
 class UnauthRequested extends AuthEvent {
-  @override
-  List<Object?> get props => [];
+
+  const UnauthRequested();
+}
+
+class CheckIsLogInRequested extends AuthEvent {
+
+  const CheckIsLogInRequested();
 }
 
 class SignInRequested extends AuthEvent {
@@ -16,9 +24,6 @@ class SignInRequested extends AuthEvent {
   final String password;
 
   const SignInRequested(this.login, this.password);
-
-  @override
-  List<Object?> get props => [];
 }
 
 class SignUpRequested extends AuthEvent {
@@ -26,21 +31,12 @@ class SignUpRequested extends AuthEvent {
   final String password;
 
   const SignUpRequested(this.login, this.password);
-
-  @override
-  List<Object?> get props => [login, password];
 }
 
-class LogOutRequested extends AuthEvent {
-  @override
-  List<Object?> get props => [];
-}
+class LogOutRequested extends AuthEvent {}
 
 class UpdateRequest extends AuthEvent {
   final Account account;
 
   const UpdateRequest({required this.account});
-
-  @override
-  List<Object?> get props => [account];
 }

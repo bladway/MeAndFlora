@@ -64,7 +64,7 @@ class PlantPublicElement extends StatelessWidget {
                       child: TextButton(
                         onPressed: () {
                           BlocProvider.of<PlantBloc>(context)
-                              .add(PlantRemoveRequested(plant: plant));
+                              .add(PlantRemoveRequested(publicId: 0));
                         },
                         child: Text(
                           'Удалить',

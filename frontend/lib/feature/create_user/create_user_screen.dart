@@ -1,7 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:me_and_flora/core/app_router/app_router.dart';
+import 'package:me_and_flora/core/domain/models/access_level.dart';
 import 'package:me_and_flora/core/presentation/bloc/account/account.dart';
+import 'package:me_and_flora/feature/account_list/presentation/bloc/account_list.dart';
+import 'package:me_and_flora/feature/account_list/presentation/bloc/account_list_bloc.dart';
 
 import '../../core/domain/models/models.dart';
 import '../../core/presentation/widgets/notifications/app_notification.dart';
@@ -10,17 +14,33 @@ import '../../core/theme/strings.dart';
 import '../../core/theme/theme.dart';
 
 @RoutePage()
-class BotanicRegisterScreen extends StatefulWidget {
-  const BotanicRegisterScreen({super.key});
+class CreateUserScreen extends StatefulWidget {
+  const CreateUserScreen({super.key});
 
   @override
-  State<BotanicRegisterScreen> createState() => _BotanicRegisterScreenState();
+  State<CreateUserScreen> createState() => _CreateUserScreenState();
 }
 
-class _BotanicRegisterScreenState extends State<BotanicRegisterScreen> {
+class _CreateUserScreenState extends State<CreateUserScreen> {
   final _formKey = GlobalKey<FormState>();
   final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  AccessLevel selectedValue = AccessLevel.unauth_user;
+
+  List<DropdownMenuItem<AccessLevel>> get dropdownItems {
+    List<DropdownMenuItem<AccessLevel>> menuItems = [
+      DropdownMenuItem(
+          value: AccessLevel.unauth_user,
+          child: Text(AccessLevel.unauth_user.displayTitle)),
+      DropdownMenuItem(
+          value: AccessLevel.user, child: Text(AccessLevel.user.displayTitle)),
+      DropdownMenuItem(
+          value: AccessLevel.botanist,
+          child: Text(AccessLevel.botanist.displayTitle)),
+    ];
+    return menuItems;
+  }
 
   @override
   void dispose() {
@@ -59,6 +79,7 @@ class _BotanicRegisterScreenState extends State<BotanicRegisterScreen> {
                 iconSize: 24,
                 onPressed: () {
                   AutoRouter.of(context).pop();
+                  AutoRouter.of(context).replace(const AccountListRoute());
                 },
               ),
             ),
@@ -137,6 +158,36 @@ class _BotanicRegisterScreenState extends State<BotanicRegisterScreen> {
                           },
                         ),
                         const SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          chooseRole,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        DropdownButtonFormField(
+                            decoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    width: 1.5, color: colors.grayGreen),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              //filled: true,
+                              fillColor: Colors.transparent,
+                            ),
+                            dropdownColor: Colors.black,
+                            style: Theme.of(context).textTheme.titleSmall,
+                            value: selectedValue,
+                            onChanged: (AccessLevel? value) {
+                              setState(() {
+                                selectedValue =
+                                    value ?? AccessLevel.unauth_user;
+                              });
+                            },
+                            items: dropdownItems),
+                        const SizedBox(
                           height: 20,
                         ),
                         ClipRRect(
@@ -152,27 +203,32 @@ class _BotanicRegisterScreenState extends State<BotanicRegisterScreen> {
                                   colors.blueGreen
                                 ])),
                             child: BlocBuilder<AccountBloc, AccountState>(
-                              builder: (context, state) {
-                                return TextButton(
-                                  onPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      BlocProvider.of<AccountBloc>(context)
-                                          .add(AccountAddRequested(
-                                              account: Account(
-                                        login: _loginController.value.text,
-                                        password: _passwordController.value.text,
-                                        accessLevel: AccessLevel.botanic,
-                                      )));
-                                      _formKey.currentState!.reset();
-                                    }
-                                  },
-                                  child: Text(
-                                    registerBotanic,
-                                    style: Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                );
-                              }
-                            ),
+                                builder: (context, state) {
+                              return TextButton(
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate() &&
+                                      selectedValue !=
+                                          AccessLevel.unauth_user) {
+                                    BlocProvider.of<AccountBloc>(context)
+                                        .add(AccountAddRequested(
+                                            account: Account(
+                                      login: _loginController.value.text,
+                                      password: _passwordController.value.text,
+                                      role: selectedValue,
+                                    )));
+                                    //BlocProvider.of<AccountListBloc>(context).add(const AccountListRequested());
+                                    _formKey.currentState!.reset();
+                                  } else {
+                                    _showChangeNotification(
+                                        context, checkValidate);
+                                  }
+                                },
+                                child: Text(
+                                  registerUser,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              );
+                            }),
                           ),
                         ),
                       ],

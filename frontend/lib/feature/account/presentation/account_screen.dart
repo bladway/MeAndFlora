@@ -64,9 +64,9 @@ class AccountScreen extends StatelessWidget {
                       ),
                       onTap: () async {
                         if (state is AuthenticatedState &&
-                            (state.account.accessLevel == AccessLevel.user ||
-                                state.account.accessLevel ==
-                                    AccessLevel.botanic)) {
+                            (state.account.role == AccessLevel.user ||
+                                state.account.role ==
+                                    AccessLevel.botanist)) {
                           final result = await _showEditDialog(context);
                           BlocProvider.of<AccountBloc>(context).add(
                               ChangeRequested(
@@ -106,7 +106,7 @@ class AccountScreen extends StatelessWidget {
                               builder: (context, state) {
                             return Text(
                               state is AuthenticatedState &&
-                                      state.account.accessLevel ==
+                                      state.account.role ==
                                           AccessLevel.unauth_user
                                   ? register
                                   : logOut,

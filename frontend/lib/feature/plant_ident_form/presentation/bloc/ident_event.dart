@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 
 import '../../../../core/domain/models/models.dart';
@@ -9,14 +11,23 @@ abstract class IdentEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class IdentRequested extends IdentEvent {
+class PlantCreateRequested extends IdentEvent {
   final Plant plant;
+  final int requestId;
 
-  const IdentRequested({required this.plant});
+  const PlantCreateRequested(
+      {required this.plant, required this.requestId});
+}
+
+class IdentRequested extends IdentEvent {
+  final String name;
+  final int requestId;
+
+  const IdentRequested({required this.name, required this.requestId});
 }
 
 class ImpossibleIdentRequested extends IdentEvent {
-  final Plant plant;
+  final int requestId;
 
-  const ImpossibleIdentRequested({required this.plant});
+  const ImpossibleIdentRequested({required this.requestId});
 }

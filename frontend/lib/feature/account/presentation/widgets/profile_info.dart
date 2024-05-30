@@ -19,7 +19,7 @@ class ProfileInfo extends StatelessWidget {
       ),
       title: Text(account.login,
         style: Theme.of(context).textTheme.bodyLarge,),
-      subtitle: Text(account.accessLevel.displayTitle,
+      subtitle: Text(account.role.displayTitle,
         style: Theme.of(context).textTheme.labelSmall,),
     );
   }

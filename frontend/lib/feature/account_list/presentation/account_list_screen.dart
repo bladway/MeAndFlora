@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:me_and_flora/core/app_router/app_router.dart';
 import 'package:me_and_flora/core/presentation/widgets/app_bar.dart';
 import 'package:me_and_flora/core/theme/theme.dart';
-import 'package:me_and_flora/feature/account_list/presentation/widgets/account_tile.dart';
+import 'package:me_and_flora/feature/account_list/presentation/widgets/account_scroll_list.dart';
 
 import '../../../core/presentation/bloc/account/account.dart';
 import 'bloc/account_list.dart';
@@ -18,57 +18,33 @@ class AccountListScreen extends StatelessWidget {
     double height = MediaQuery.sizeOf(context).height;
 
     return MultiBlocProvider(
-        providers: [
-          BlocProvider<AccountListBloc>(
-            lazy: false,
-            create: (context) => AccountListBloc()..add(AccountListRequested()),
+      providers: [
+        BlocProvider<AccountListBloc>(
+          lazy: false,
+          create: (context) =>
+              AccountListBloc()..add(const AccountListRequested()),
+        ),
+        BlocProvider<AccountBloc>(
+            lazy: false, create: (context) => AccountBloc()),
+      ],
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBarWidget(
+          text: 'Пользователи',
+          height: height * 0.06,
+        ),
+        body: const AccountScrollList(),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: colors.lightGreen,
+          onPressed: () {
+            AutoRouter.of(context).push(const CreateUserRoute());
+          },
+          child: Icon(
+            Icons.add,
+            color: colors.white,
           ),
-          BlocProvider<AccountBloc>(
-              lazy: false, create: (context) => AccountBloc()),
-        ],
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBarWidget(
-            text: 'Пользователи',
-            height: height * 0.06,
-          ),
-          body: BlocBuilder<AccountListBloc, AccountListState>(
-              builder: (context, state) {
-            if (state is AccountListLoadSuccess) {
-              if (state.accounts.isEmpty) {
-                return const Center();
-              } else {
-                return ListView.separated(
-                  scrollDirection: Axis.vertical,
-                  itemCount: state.accounts.length,
-                  separatorBuilder: (BuildContext context, _) => SizedBox(
-                    height: height * 0.03,
-                  ),
-                  itemBuilder: (context, i) {
-                    return AccountTile(
-                      account: state.accounts[i],
-                    );
-                  },
-                );
-              }
-            }
-            if (state is AccountListLoadFailure) {
-              return const Center();
-            }
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }),
-          floatingActionButton: FloatingActionButton(
-            backgroundColor: colors.lightGreen,
-            onPressed: () {
-              AutoRouter.of(context).push(const BotanicRegisterRoute());
-            },
-            child: Icon(
-              Icons.add,
-              color: colors.white,
-            ),
-          ),
-        ));
+        ),
+      ),
+    );
   }
 }

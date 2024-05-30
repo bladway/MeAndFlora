@@ -19,15 +19,12 @@ class _MeAndFloraAppState extends State<MeAndFloraApp> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AuthBloc>(
-      create: (_) => AuthBloc(),
-      child: WillPopScope(
-        onWillPop: () async => false,
-        child: MaterialApp.router(
-          title: 'MeAndFlora',
-          theme: mainTheme,
-          debugShowCheckedModeBanner: false,
-          routerConfig: _appRouter.config(),
-        )
+      create: (_) => AuthBloc()..add(const CheckIsLogInRequested()),
+      child: MaterialApp.router(
+        title: 'MeAndFlora',
+        theme: mainTheme,
+        debugShowCheckedModeBanner: false,
+        routerConfig: _appRouter.config(),
       ),
     );
   }

@@ -8,3 +8,4 @@ export 'search_delegate.dart';
 export 'notifications/unauth_notification.dart';
 export 'buttons/button.dart';
 export 'app_bar.dart';
+export 'empty_widget.dart';

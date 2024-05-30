@@ -37,10 +37,10 @@ class AccountAddRequested extends AccountEvent {
 }
 
 class AccountRemoveRequested extends AccountEvent {
-  final Account account;
+  final String login;
 
-  const AccountRemoveRequested({required this.account});
+  const AccountRemoveRequested({required this.login});
 
   @override
-  List<Object?> get props => [account];
+  List<Object?> get props => [login];
 }

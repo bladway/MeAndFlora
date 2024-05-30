@@ -17,21 +17,17 @@ class PlantIdentLoadInProgress extends PlantIdentState {}
 
 class PlantIdentLoadSuccess extends PlantIdentState {
   final Plant plant;
+  final String imagePath;
+  final int requestId;
 
-  const PlantIdentLoadSuccess({required this.plant});
-
-  @override
-  List<Object> get props => [plant];
-}
-
-class PlantSecondIdentSend extends PlantIdentState {
-  final Plant plant;
-
-  const PlantSecondIdentSend(this.plant);
+  const PlantIdentLoadSuccess(
+      {required this.plant, required this.imagePath, required this.requestId});
 
   @override
   List<Object> get props => [plant];
 }
+
+//class PlantSecondIdentSend extends PlantIdentState {}
 
 class PlantIdentLimitReached extends PlantIdentState {}
 

@@ -1,7 +1,7 @@
 const String registration = 'Регистрация';
 const String authorization = 'Авторизация';
 const String register = "Зарегистрироваться";
-const String registerBotanic = "Зарегистрировать ботаника";
+const String registerUser = "Зарегистрировать";
 const String authorize = 'Авторизоваться';
 const String logOut = 'Выйти';
 const String or = "или";
@@ -14,6 +14,7 @@ const String enterPassword = 'Введите пароль';
 const String enterConfirmPassword = 'Повторите пароль';
 const String enterMin6 = 'Введите минимум 6 символов';
 const String passwordsDontMatch = "Пароли не совпадают";
+const String chooseRole = 'Выберите роль';
 
 const String notification = 'Уведомление';
 const String support = 'Поддержка';
@@ -80,6 +81,7 @@ const String rulesText = 'Для повышения точности резул�
     'распознавания или отправить фотографию на дополнительную проверку ботаникам.\n';
 const String changesSuccess = 'Данные успешно изменены.';
 const String changesFail = 'Не удалось изменить данные.';
+const String checkValidate = "Проверьте корректность данных";
 
 const String cancel = "Отмена";
 const String ok = "Ок";

@@ -8,32 +8,25 @@ part of 'plant.dart';
 
 Plant _$PlantFromJson(Map<String, dynamic> json) => Plant(
       name: json['name'] as String? ?? "Неизвестно",
-      type: $enumDecodeNullable(_$PlantTypeEnumMap, json['type']) ??
-          PlantType.unknown,
+      type: json['type'] == null
+          ? PlantType.unknown
+          : Plant._plantTypeFromJson(json['type'] as String),
       description: json['description'] as String? ?? "Описание отсутствует",
       lon: (json['lon'] as num?)?.toDouble(),
       lat: (json['lat'] as num?)?.toDouble(),
       date:
           json['date'] == null ? null : DateTime.parse(json['date'] as String),
-      isTracked: json['isTracked'] as bool? ?? false,
-      imageUrl: json['imageUrl'] as String,
+      subscribed: json['subscribed'] as bool? ?? false,
+      path: json['path'] as String? ?? "",
     );
 
 Map<String, dynamic> _$PlantToJson(Plant instance) => <String, dynamic>{
       'name': instance.name,
-      'type': _$PlantTypeEnumMap[instance.type]!,
+      'type': Plant._plantTypeToJson(instance.type),
       'description': instance.description,
       'lon': instance.lon,
       'lat': instance.lat,
       'date': instance.date?.toIso8601String(),
-      'isTracked': instance.isTracked,
-      'imageUrl': instance.imageUrl,
+      'subscribed': instance.subscribed,
+      'path': instance.path,
     };
-
-const _$PlantTypeEnumMap = {
-  PlantType.flower: 'flower',
-  PlantType.tree: 'tree',
-  PlantType.grass: 'grass',
-  PlantType.moss: 'moss',
-  PlantType.unknown: 'unknown',
-};

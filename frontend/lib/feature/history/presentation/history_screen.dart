@@ -29,18 +29,19 @@ class HistoryScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
-            body: BlocBuilder<PlantHistoryBloc, PlantHistoryState>(
-                builder: (context, state) {
-              if (state is PlantHistoryLoadSuccess) {
-                if (state.plantList.isEmpty) {
-                  return const Center();
-                }
-                return const PlantGrid();
-              }
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }),
+            body: const PlantGrid()
+            // BlocBuilder<PlantHistoryBloc, PlantHistoryState>(
+            //     builder: (context, state) {
+            //   if (state is PlantHistoryLoadSuccess) {
+            //     if (state.plantList.isEmpty) {
+            //       return const Center();
+            //     }
+            //     return const PlantGrid();
+            //   }
+            //   return const Center(
+            //     child: CircularProgressIndicator(),
+            //   );
+            // }),
           ),
         )
       ]

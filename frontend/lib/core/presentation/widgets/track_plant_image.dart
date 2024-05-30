@@ -24,7 +24,7 @@ class TrackPlantImage extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            PlantImage(image: plant.imageUrl, size: iconSize),
+            PlantImage(image: plant.path, size: iconSize),
             Align(
               alignment: Alignment.topRight,
               child: BlocBuilder<PlantTrackBloc, PlantTrackState>(

@@ -1,7 +1,7 @@
 enum AccessLevel {
   unauth_user,
   user,
-  botanic,
+  botanist,
   admin
 }
 
@@ -12,7 +12,7 @@ extension AccessLevelExtension on AccessLevel {
         return 'Анонимный пользователь';
       case AccessLevel.user:
         return 'Пользователь';
-      case AccessLevel.botanic:
+      case AccessLevel.botanist:
         return 'Ботаник';
       case AccessLevel.admin:
         return 'Админ';

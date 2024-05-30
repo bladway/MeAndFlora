@@ -28,7 +28,7 @@ class PlantPhotoInfo extends StatelessWidget {
           Expanded(
             child: PlantTile(
               titleText: plant.lon != null && plant.lat != null
-                  ? "${plant.lon}°, ${plant.lat}°"
+                  ? "${plant.lat}°, ${plant.lon}°"
                   : "Местоположение неизвестно",
               icon: Iconsax.location,
             ),
@@ -36,7 +36,7 @@ class PlantPhotoInfo extends StatelessWidget {
           Expanded(
             child: PlantTile(
               titleText: plant.date != null
-                  ? plant.date!.day.toString()
+                  ? plant.date!.toString().substring(0, 10)
                   : "Дата неизвестна",
               icon: Icons.timer_rounded,
             ),

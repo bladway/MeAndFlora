@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:me_and_flora/core/app_router/history_routes.dart';
@@ -6,11 +8,11 @@ import 'package:me_and_flora/core/app_router/camera_routes.dart';
 import 'package:me_and_flora/core/app_router/plant_ident_list_routes.dart';
 import 'package:me_and_flora/core/app_router/plant_public_routes.dart';
 import 'package:me_and_flora/core/app_router/track_routes.dart';
+import 'package:me_and_flora/feature/create_user/create_user_screen.dart';
 
 import '../../feature/account/presentation/account_screen.dart';
 import '../../feature/account_list/presentation/account_list_screen.dart';
 import '../../feature/advertisement/presentation/advertisement_screen.dart';
-import '../../feature/botanic_register/botanic_register_screen.dart';
 import '../../feature/camera/presentation/camera_screen.dart';
 import '../../feature/camera/presentation/camera_wrapper_screen.dart';
 import '../../feature/history/presentation/history_screen.dart';
@@ -65,7 +67,7 @@ class AppRouter extends _$AppRouter {
       PlantIdentListRoutes.routes,
       AutoRoute(page: AccountRoute.page),
     ]),
-    AutoRoute(page: BotanicRegisterRoute.page),
+    AutoRoute(page: CreateUserRoute.page),
     AutoRoute(page: NavBarAdminRoute.page, children: [
       AutoRoute(page: AccountListRoute.page),
       PlantPublicRoutes.routes,

@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:me_and_flora/core/domain/service/locator.dart';
 import 'package:me_and_flora/core/domain/service/plant_service.dart';
 
 import '../../../domain/models/models.dart';
@@ -25,7 +26,9 @@ class PlantBloc extends Bloc<PlantEvent, PlantState> {
         if (event is MossRequested) {
           await _requestMossList(event, emit);
         }
-        if (event is PlantRemoveRequested) {}
+        if (event is PlantRemoveRequested) {
+          _removePlant(event, emit);
+        }
       },
     );
   }
@@ -34,7 +37,8 @@ class PlantBloc extends Bloc<PlantEvent, PlantState> {
       PlantRemoveRequested event, Emitter<PlantState> emit) async {
     emit(PlantLoadInProgress());
     try {
-      await PlantService().removePlant(event.plant);
+      //await PlantService().removePlant(event.plant);
+      await locator<PlantService>().removePublication(event.publicId);
       emit(PlantRemoveSuccess());
     } catch (e) {
       emit(PlantLoadFailure(errorMsg: e.toString()));
@@ -43,94 +47,37 @@ class PlantBloc extends Bloc<PlantEvent, PlantState> {
 
   Future<void> _requestHomePage(
       HomePageRequested event, Emitter<PlantState> emit) async {
-    add(FlowersRequested());
-    add(TreesRequested());
-    add(GrassRequested());
-    add(MossRequested());
+    add(const FlowersRequested());
+    add(const TreesRequested());
+    add(const GrassRequested());
+    add(const MossRequested());
   }
 
   Future<void> _requestFlowerList(
       FlowersRequested event, Emitter<PlantState> emit) async {
     emit(PlantLoadInProgress());
-    final List<Plant> plantList = await PlantService().getFlowers();
+    final List<Plant> plantList = await locator<PlantService>().getFlowers(event.page, event.size);
     emit(PlantsLoadSuccess(plantList: plantList));
   }
 
   Future<void> _requestTreeList(
       TreesRequested event, Emitter<PlantState> emit) async {
     emit(PlantLoadInProgress());
-    final List<Plant> plantList = await PlantService().getTrees();
+    final List<Plant> plantList = await locator<PlantService>().getTrees(event.page, event.size);
     emit(PlantsLoadSuccess(plantList: plantList));
   }
 
   Future<void> _requestGrassList(
       GrassRequested event, Emitter<PlantState> emit) async {
     emit(PlantLoadInProgress());
-    final List<Plant> plantList = await PlantService().getGrass();
+    final List<Plant> plantList = await locator<PlantService>().getGrass(event.page, event.size);
     emit(PlantsLoadSuccess(plantList: plantList));
   }
 
   Future<void> _requestMossList(
       MossRequested event, Emitter<PlantState> emit) async {
     emit(PlantLoadInProgress());
-    final List<Plant> plantList = await PlantService().getMoss();
+    final List<Plant> plantList = await locator<PlantService>().getMoss(event.page, event.size);
     emit(PlantsLoadSuccess(plantList: plantList));
   }
-
-/*
-  Future<void> _requestHistoryPlantList(
-      PlantHistoryListRequested event, Emitter<PlantState> emit) async {
-    emit(PlantLoadInProgress());
-    try {
-      final List<Plant> plantList = await HistoryService().getHistoryPlants("");
-      emit(PlantsLoadSuccess(plantList: plantList));
-    } on Exception catch (_, e) {
-      emit(PlantLoadFailure(errorMsg: e.toString()));
-    }
-  }
-
-  Future<void> _requestTrackPlantList(
-      PlantTrackListRequested event, Emitter<PlantState> emit) async {
-    emit(PlantLoadInProgress());
-    try {
-      final List<Plant> plantList = await TrackService().getTrackPlants("accountId");
-      emit(PlantsLoadSuccess(plantList: plantList));
-    } on Exception catch (_, e) {
-      emit(PlantLoadFailure(errorMsg: e.toString()));
-    }
-  }
-
-  Future<void> _requestPlantHistory(
-      PlantHistoryRequested event, Emitter<PlantState> emit) async {
-    emit(PlantLoadInProgress());
-    try {
-      await HistoryService().addPlantToHistory("accountId", event.plant);
-      final Plant plant = await HistoryService().getHistoryPlants("");
-      emit(PlantLoadSuccess(plant: plant));
-    } on Exception catch (_, e) {
-      emit(PlantLoadFailure(errorMsg: e.toString()));
-    }
-  }
-
-  Future<void> _requestPlantTrack(
-      PlantTrackRequested event, Emitter<PlantState> emit) async {
-    emit(PlantLoadInProgress());
-    try {
-      final List<Plant> plantList = await TrackService().getTrackPlants("accountId");
-      emit(PlantsLoadSuccess(plantList: plantList));
-    } on Exception catch (_, e) {
-      emit(PlantLoadFailure(errorMsg: e.toString()));
-    }
-  }
-
-  Future<void> _requestPlantSearch(
-      PlantSearchRequested event, Emitter<PlantState> emit) async {
-    emit(PlantLoadInProgress());
-    try {
-      final Plant plant = await PlantService().findPlantByName(event.plantName);
-      emit(PlantLoadSuccess(plant: plant));
-    } on Exception catch (_, e) {
-      emit(PlantLoadFailure(errorMsg: e.toString()));
-    }
-  }*/
 }

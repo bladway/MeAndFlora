@@ -18,19 +18,19 @@ class TrackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
       if (state is AuthenticatedState &&
-          state.account.accessLevel != AccessLevel.botanic &&
-          state.account.accessLevel != AccessLevel.admin) {
+          state.account.role != AccessLevel.botanist &&
+          state.account.role != AccessLevel.admin) {
         return IconButton(
           icon: Icon(
-            plant.isTracked ? Iconsax.location : Iconsax.location_copy,
+            plant.subscribed ? Iconsax.location : Iconsax.location_copy,
             size: size,
             color: Colors.white,
           ),
           onPressed: () {
-            if (state.account.accessLevel != AccessLevel.unauth_user) {
-              plant.isTracked = !plant.isTracked;
+            if (state.account.role != AccessLevel.unauth_user) {
+              plant.subscribed = !plant.subscribed;
               BlocProvider.of<PlantTrackBloc>(context)
-                  .add(PlantTrackRequested(plant));
+                  .add(PlantTrackRequested(plant.name));
             } else {
               _showTrackNotification(context);
             }

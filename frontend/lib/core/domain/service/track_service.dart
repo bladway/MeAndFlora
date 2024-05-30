@@ -1,45 +1,45 @@
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:me_and_flora/core/domain/service/auth_service.dart';
+import 'package:me_and_flora/core/domain/service/locator.dart';
+import 'package:me_and_flora/core/domain/service/plant_service.dart';
+import 'package:me_and_flora/core/domain/service/rest_clients/rest_flora_client.dart';
+import 'package:me_and_flora/core/domain/service/rest_clients/rest_publication_client.dart';
+import 'package:me_and_flora/core/domain/service/rest_clients/rest_request_client.dart';
 
+import '../api/api_key.dart';
 import '../models/models.dart';
-import '../models/plant_type.dart';
-
-List<Plant> plantList = [];
 
 class TrackService {
-  Future<void> trackPlant(String accountId, Plant plant) async {
-    final response = await Dio().put("path", data: plant);
+  static final Dio dio = AuthService.api;
+  final publicationClient = RestPublicationClient(dio);
+  final floraClient = RestFloraClient(dio);
+  final requestClient = RestRequestClient(dio);
+
+  Future<void> trackPlant(String plantName) async {
+    await floraClient.subscribe(floraName: plantName);
   }
 
-  Future<List<Plant>> getTrackPlants(String accountId) async {
-    /*
-    final response = await Dio().get("path");
-    final data = response.data as Map<String, dynamic>;
+  Future<List<Plant>> getTrackPlantsByAdmin(int page, int size) async {
+    final publicationIds =
+        await publicationClient.getPublicIdsByAdmin(page, size);
 
-    final dataList = data.entries
-        .map((e) => Plant(
-            name: e.value['name'],
-            type: e.value['type'],
-            description: e.value['description'],
-            isLiked: e.value['isLiked'],
-            imageUrl: e.value['imageUrl']))
-        .toList();
-    return dataList;
-    */
-    for (int i = 0; i < 30; i++) {
-      plantList.add(Plant(
-          name: "Plant${i + 1}",
-          type: PlantType.values.elementAt(Random().nextInt(4)),
-          description:
-          "Цвето́к (множ. цветки́, лат. flos, -oris, др.-греч. ἄνθος, -ου) — "
-              "система органов семенного размножения цветковых (покрытосеменных)"
-              " растений.",
-          isTracked: i % 2 == 0,
-          imageUrl: "something",
-          lat: Random().nextInt(50).toDouble(),
-          lon: Random().nextInt(50).toDouble()),
-      );
+    List<Plant> plantList = [];
+    for (var id in publicationIds.longs) {
+      plantList.add(await locator<PlantService>().getPlantByRequestIdByAdmin(id));
+    }
+
+    return plantList;
+  }
+
+  Future<List<Plant>> getTrackPlantsByUser(int page, int size) async {
+    final publicationIds =
+        await publicationClient.getPublicIdsByUser(page, size);
+
+    List<Plant> plantList = [];
+    for (var id in publicationIds.longs) {
+      plantList.add(await locator<PlantService>().getPlantByRequestId(id));
     }
     return plantList;
   }

@@ -48,7 +48,7 @@ class _PlantElementState extends State<PlantElement> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        PlantImage(image: widget.plant.imageUrl, size: 35),
+                        PlantImage(image: widget.plant.path, size: 35),
                         Align(
                           alignment: Alignment.topRight,
                           child: BlocBuilder<PlantTrackBloc, PlantTrackState>(

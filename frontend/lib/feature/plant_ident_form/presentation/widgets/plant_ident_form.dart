@@ -1,15 +1,20 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:me_and_flora/core/domain/models/plant_type.dart';
 import 'package:me_and_flora/feature/plant_ident_form/presentation/bloc/ident.dart';
+import 'package:me_and_flora/feature/plant_ident_form/presentation/widgets/image_picker_widget.dart';
 
 import '../../../../core/domain/models/models.dart';
 import '../../../../core/theme/theme.dart';
 
 class PlantIdentForm extends StatefulWidget {
-  const PlantIdentForm({super.key, required this.plant});
+  const PlantIdentForm(
+      {super.key, required this.requestId, required this.plant});
 
+  final int requestId;
   final Plant plant;
 
   @override
@@ -19,9 +24,11 @@ class PlantIdentForm extends StatefulWidget {
 class _PlantIdentFormState extends State<PlantIdentForm> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _typeController = TextEditingController();
+
+  //final _typeController = TextEditingController();
   final _descriptionController = TextEditingController();
   PlantType selectedValue = PlantType.unknown;
+  File? imageFile;
 
   List<DropdownMenuItem<PlantType>> get dropdownItems {
     List<DropdownMenuItem<PlantType>> menuItems = [
@@ -43,7 +50,7 @@ class _PlantIdentFormState extends State<PlantIdentForm> {
   @override
   void dispose() {
     _nameController.dispose();
-    _typeController.dispose();
+    //_typeController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -57,6 +64,15 @@ class _PlantIdentFormState extends State<PlantIdentForm> {
       key: _formKey,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+            "*если растение уже есть в системе, введите только название и отправьте",
+            style: Theme.of(context)
+                .textTheme
+                .labelSmall!
+                .copyWith(color: colors.grayGreen, fontSize: 12)),
+        const SizedBox(
+          height: 5,
+        ),
         Text(
           'Введите название растения',
           style: Theme.of(context).textTheme.titleSmall,
@@ -143,6 +159,10 @@ class _PlantIdentFormState extends State<PlantIdentForm> {
           },
         ),
         const SizedBox(
+          height: 10,
+        ),
+        ImagePickerWidget(func: pickImage),
+        const SizedBox(
           height: 25,
         ),
         ClipRRect(
@@ -157,10 +177,21 @@ class _PlantIdentFormState extends State<PlantIdentForm> {
             child: TextButton(
               onPressed: () {
                 if (_formKey.currentState != null &&
-                    _formKey.currentState!.validate()) {
-                  BlocProvider.of<IdentBloc>(context)
-                      .add(IdentRequested(plant: widget.plant));
+                    _formKey.currentState!.validate() &&
+                    imageFile != null) {
+                  final Plant plant = Plant(
+                      name: _nameController.text,
+                      type: selectedValue,
+                      description: _descriptionController.text,
+                    path: imageFile!.path
+                  );
+                  BlocProvider.of<IdentBloc>(context).add(PlantCreateRequested(
+                      plant: plant,
+                      requestId: widget.requestId));
                   context.popRoute();
+                } else if (_nameController.text != "") {
+                  BlocProvider.of<IdentBloc>(context).add(IdentRequested(
+                      name: _nameController.text, requestId: widget.requestId));
                 }
               },
               child: Text(
@@ -204,7 +235,7 @@ class _PlantIdentFormState extends State<PlantIdentForm> {
           child: GestureDetector(
             onTap: () {
               BlocProvider.of<IdentBloc>(context)
-                  .add(ImpossibleIdentRequested(plant: widget.plant));
+                  .add(ImpossibleIdentRequested(requestId: widget.requestId));
               context.popRoute();
             },
             child: Text(
@@ -215,5 +246,11 @@ class _PlantIdentFormState extends State<PlantIdentForm> {
         ),
       ],
     );
+  }
+
+  pickImage(File image) {
+    setState(() {
+      imageFile = image;
+    });
   }
 }

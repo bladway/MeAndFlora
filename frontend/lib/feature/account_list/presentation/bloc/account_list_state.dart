@@ -15,8 +15,9 @@ class AccountListLoadInProcess extends AccountListState {}
 
 class AccountListLoadSuccess extends AccountListState {
   final List<Account> accounts;
+  final int page;
 
-  const AccountListLoadSuccess({required this.accounts});
+  const AccountListLoadSuccess({required this.page, required this.accounts});
 }
 
 class AccountListLoadFailure extends AccountListState {

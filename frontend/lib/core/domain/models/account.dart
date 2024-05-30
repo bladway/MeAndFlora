@@ -8,12 +8,12 @@ part 'account.g.dart';
 class Account {
   String login;
   String password;
-  AccessLevel accessLevel;
+  AccessLevel role;
 
   Account({
     this.login = "Незарегистрированный пользователь",
     this.password = "Пароль",
-    this.accessLevel = AccessLevel.unauth_user,
+    this.role = AccessLevel.unauth_user,
   });
 
   factory Account.fromJson(Map<String, dynamic> json) =>
@@ -29,7 +29,7 @@ class Account {
   }) {
     return Account(login: login ?? this.login,
         password: password ?? this.password,
-        accessLevel: accessLevel ?? this.accessLevel);
+        role: accessLevel ?? this.role);
   }
 }
 
