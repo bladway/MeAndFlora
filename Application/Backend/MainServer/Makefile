@@ -2,18 +2,18 @@
 # before using application you need to receive or define develop.env
 # file in resources folder
 # for running tests it needs to be spring profile "test" yml file
+#-Djib.from.auth.username=${DOCKER_USER}
+#-Djib.from.auth.password=${DOCKER_PASSWORD}
 
 include develop.env
 
 # usage: mingw32-make.exe jib-build
 jib-build:
 	mvn compile jib:build \
-		-Djib.from.image=openjdk:22-ea-19-slim-bullseye \
-		-Djib.from.auth.username=${DOCKER_USER} \
-    	-Djib.from.auth.password=${DOCKER_PASSWORD} \
-		-Djib.to.image=${MAINSERVER_REPOSITORY}:${MAINSERVER_VERSION} \
-    	-Djib.to.auth.username=${DOCKER_USER} \
-    	-Djib.to.auth.password=${DOCKER_PASSWORD} \
+		-Djib.from.image=mirror.gcr.io/openjdk:22-ea-19-slim-bullseye \
+		-Djib.to.image=${MAINSERVER_GITHUB_REPOSITORY}:${MAINSERVER_VERSION} \
+    	-Djib.to.auth.username=${GITHUB_USER} \
+    	-Djib.to.auth.password=${GITHUB_PASSWORD} \
 		-Djib.container.environment=\
 POSTGRES_HOST="",\
 POSTGRES_DB="",\
