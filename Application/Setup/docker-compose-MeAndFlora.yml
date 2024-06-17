@@ -30,35 +30,35 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
-  mongo:
-    image: mongo:7.0.8
-    container_name: MeAndFlora-Mongo
-    hostname: mongo
-    restart: always
-    ports:
-      - '${MONGO_PORT}:${MONGO_PORT}'
-    environment:
-      TZ: ${SERVER_TIMEZONE}
-      MONGO_INITDB_DATABASE: ${MONGO_DB}
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-    volumes:
-      - MeAndFlora-Mongo:/data/db
+  #mongo:
+  #  image: mongo:7.0.8
+  #  container_name: MeAndFlora-Mongo
+  #  hostname: mongo
+  #  restart: always
+  #  ports:
+  #    - '${MONGO_PORT}:${MONGO_PORT}'
+  #  environment:
+  #    TZ: ${SERVER_TIMEZONE}
+  #    MONGO_INITDB_DATABASE: ${MONGO_DB}
+  #    MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+  #    MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+  #  volumes:
+  #    - MeAndFlora-Mongo:/data/db
       
-  redis:
-    image: bitnami/redis:7.2.4
-    container_name: MeAndFlora-Cachebase
-    hostname: redis
-    restart: always
-    ports:
-      - "${REDIS_PORT}:${REDIS_PORT}"
-    environment:
-      TZ: ${SERVER_TIMEZONE}
-      REDIS_PORT_NUMBER: ${REDIS_PORT}
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      ALLOW_EMPTY_PASSWORD: no
-    volumes:
-      - MeAndFlora-Cachebase:/bitnami/redis/data
+  #redis:
+  #  image: bitnami/redis:7.2.4
+  #  container_name: MeAndFlora-Cachebase
+  #  hostname: redis
+  #  restart: always
+  #  ports:
+  #    - "${REDIS_PORT}:${REDIS_PORT}"
+  #  environment:
+  #    TZ: ${SERVER_TIMEZONE}
+  #    REDIS_PORT_NUMBER: ${REDIS_PORT}
+  #    REDIS_PASSWORD: ${REDIS_PASSWORD}
+  #    ALLOW_EMPTY_PASSWORD: no
+  #  volumes:
+  #    - MeAndFlora-Cachebase:/bitnami/redis/data
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
@@ -84,7 +84,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       ZOOKEEPER_SASL_ENABLED: false
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://${SERVER_IP}:${KAFKA_PORT_EXTERNAL},INTERNAL://localhost:${KAFKA_PORT_INTERNAL},CONTAINER://kafka:${KAFKA_PORT_CONTAINER}
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://${SERVER_IP}:9092,INTERNAL://localhost:9093,CONTAINER://kafka:9094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:SASL_PLAINTEXT,INTERNAL:SASL_PLAINTEXT,CONTAINER:SASL_PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: CONTAINER
       KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
@@ -95,7 +95,7 @@ services:
     depends_on:
       - zookeeper
     command: /bin/bash -c "echo -e \"KafkaServer {org.apache.kafka.common.security.plain.PlainLoginModule required username=${KAFKA_USER} password=${KAFKA_PASSWORD} user_${KAFKA_USER}=${KAFKA_PASSWORD};};\" > /home/appuser/kafka_server_jaas.conf; /etc/confluent/docker/run"
-      
+       
   MainServer:
     image: bladway/maf-mainserver
     container_name: MeAndFlora-MainServer
@@ -113,9 +113,9 @@ services:
       KAFKA_USER: ${KAFKA_USER}
       KAFKA_PASSWORD: ${KAFKA_PASSWORD}
       KAFKA_HOST: kafka
-      KAFKA_PORT: ${KAFKA_PORT_CONTAINER}
+      KAFKA_PORT: 9094
       MAINSERVER_PORT: ${MAINSERVER_PORT}
-      MAINSERVER_JWT_LIFETIME: 24h
+      MAINSERVER_JWT_LIFETIME: 1m
     volumes:
       - MeAndFlora-GetImages:/images/get
       - MeAndFlora-ProcImages:/images/proc
@@ -142,20 +142,20 @@ volumes:
       type: none
       o: bind
       device: /server/MeAndFlora-Database
-  MeAndFlora-Mongo:
-    name: MeAndFlora-Mongo
-    driver: local
-    driver_opts: 
-      type: none
-      o: bind
-      device: /server/MeAndFlora-Mongo
-  MeAndFlora-Cachebase:
-    name: MeAndFlora-Cachebase
-    driver: local
-    driver_opts: 
-      type: none
-      o: bind
-      device: /server/MeAndFlora-Cachebase
+  #MeAndFlora-Mongo:
+  #  name: MeAndFlora-Mongo
+  #  driver: local
+  #  driver_opts: 
+  #    type: none
+  #    o: bind
+  #    device: /server/MeAndFlora-Mongo
+  #MeAndFlora-Cachebase:
+  #  name: MeAndFlora-Cachebase
+  #  driver: local
+  #  driver_opts: 
+  #    type: none
+  #    o: bind
+  #    device: /server/MeAndFlora-Cachebase
   MeAndFlora-GetImages:
     name: MeAndFlora-GetImages
     driver: local
