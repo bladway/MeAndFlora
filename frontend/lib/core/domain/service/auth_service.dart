@@ -112,6 +112,7 @@ class AuthService {
   static Future<bool> refreshToken({String keyStore = 'jwtR'}) async {
     final refreshToken = await _storage.read(key: keyStore);
     await _storage.delete(key: 'jwt');
+    await _storage.delete(key: 'jwtR');
 
     final response = await api.put(
       '$baseUrl/auth/refreshJwt',
@@ -120,18 +121,21 @@ class AuthService {
       ),
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200) {
       await saveUserJwt(response.data['jwt']);
       await saveUserJwtR(response.data['jwtR']);
       if (keyStore.startsWith('AnonymousRefreshJwt')) {
         await saveAnonymousRefreshJwt(response.data['jwtR']);
       }
       return true;
-    } else {
-      await _storage.delete(key: 'jwt');
-      await _storage.delete(key: 'jwtR');
-      return false;
     }
+    // } else {
+    //   // await _storage.delete(key: 'jwt');
+    //   // await _storage.delete(key: 'jwtR');
+    //   return false;
+    // }
+
+    return false;
   }
 
   Future<String> getIpAddress() async {

@@ -17,6 +17,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthenticatedState(account: account));
       } on UserNotFoundException catch (e) {
         emit(AuthErrorState(e.toString()));
+      } on Exception catch (_) {
+        emit(AuthInitialState());
       }
     });
 
@@ -26,8 +28,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         Account account = await locator<AuthService>().signInAnonymous();
         emit(AuthSuccessState(account: account));
         emit(AuthenticatedState(account: account));
-      } on Exception catch (e) {
+      } on UserNotFoundException catch (e) {
         emit(AuthErrorState(e.toString()));
+      } on Exception catch (_) {
+        emit(AuthInitialState());
       }
     });
 
@@ -42,8 +46,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         Account account = await locator<AuthService>().signIn(event.login, event.password);
         emit(AuthSuccessState(account: account));
         emit(AuthenticatedState(account: account));
-      } on Exception catch (e) {
+      } on UserNotFoundException catch (e) {
         emit(AuthErrorState(e.toString()));
+      } on Exception catch (_) {
+        emit(AuthInitialState());
       }
     });
 
