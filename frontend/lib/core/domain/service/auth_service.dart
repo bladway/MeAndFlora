@@ -5,13 +5,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart' as storage;
 import 'package:get_ip_address/get_ip_address.dart';
 import 'package:dio_interceptor_plus/dio_interceptor_plus.dart';
 import 'package:me_and_flora/core/domain/service/locator.dart';
+import 'package:me_and_flora/core/exception/auth_exception.dart';
 
 import '../../exception/account_exception.dart';
 import '../api/api_key.dart';
 import '../models/models.dart';
 
 class AuthService {
-
   static final Dio api = locator.get(instanceName: 'dio');
 
   static const _storage = storage.FlutterSecureStorage();
@@ -30,39 +30,28 @@ class AuthService {
     api.interceptors.remove(LoggingInterceptor());
   }
 
-  // AuthService() {
-  //   api.interceptors
-  //       .add(InterceptorsWrapper(onRequest: (options, handler) async {
-  //     if (!options.path.contains('https')) {
-  //       //options.baseUrl = baseUrl;
-  //       options.path = '$baseUrl${options.path}';
-  //     }
-  //     final jwt = await _storage.read(key: 'jwt');
-  //     //options.headers['Authorization'] = 'Bearer $jwt';
-  //     options.headers['jwt'] = '$jwt';
-  //     return handler.next(options);
-  //   }, onError: (DioException exception, handler) async {
-  //     if (exception.response?.statusCode == 403) {
-  //       if (await _storage.containsKey(key: 'jwtR')) {
-  //         if (await refreshToken()) {
-  //           final jwt = await _storage.read(key: 'jwt');
-  //           //exception.requestOptions.headers['Authorization'] = 'Bearer $jwt';
-  //           exception.requestOptions.headers['jwt'] = '$jwt';
-  //           return handler.resolve(await _retry(exception.requestOptions));
-  //         }
-  //       }
-  //     }
-  //     return handler.next(exception);
-  //   }));
-  //   api.interceptors.add(LoggingInterceptor());
-  // }
-
   static Future<String?> readUserJwt() async {
     return _storage.read(key: 'jwt');
   }
 
-  static Future<bool> hasUserJwt() async {
+  static Future<String?> readRefreshJwt() async {
+    return _storage.read(key: 'jwtR');
+  }
+
+  static Future<String?> readAnonymousRefreshJwt() async {
+    return _storage.read(key: 'AnonymousRefreshJwt');
+  }
+
+  static Future<bool> hasJwt() async {
+    return await _storage.containsKey(key: 'jwt');
+  }
+
+  static Future<bool> hasRefreshJwt() async {
     return await _storage.containsKey(key: 'jwtR');
+  }
+
+  static Future<bool> hasAnonymousRefreshJwt() async {
+    return await _storage.containsKey(key: 'AnonymousRefreshJwt');
   }
 
   static Future<void> saveUserJwt(String token) async {
@@ -73,8 +62,8 @@ class AuthService {
     await _storage.write(key: 'jwtR', value: token);
   }
 
-  static Future<void> saveAnonymousJwt(String token) async {
-    await _storage.write(key: 'AnonymousJwt', value: token);
+  static Future<void> saveAnonymousRefreshJwt(String token) async {
+    await _storage.write(key: 'AnonymousRefreshJwt', value: token);
   }
 
   static Future<Response<dynamic>> retry(RequestOptions requestOptions) async {
@@ -88,65 +77,59 @@ class AuthService {
         options: options);
   }
 
-  static Account checkResponse(Response<dynamic> response) {
+  static Future<Account> checkResponse(Response<dynamic> response) async {
     switch (response.statusCode) {
       case 200:
         final data = response.data as Map<String, dynamic>;
         return Account.fromJson(data);
-      case 401:
+      case 404:
         final json = jsonDecode(response.data);
         throw Exception(json);
-      case 404:
       default:
         throw Exception('Error contacting the server!');
     }
   }
 
   Future<Account> loadUser() async {
-    final jwt = await _storage.read(key: 'jwt');
-    api.options.headers.addAll({'jwt': jwt});
-    final response = await api.get('$baseUrl/user/byJwt');
-
-    /*
-     wrapper: InterceptorsWrapper(onRequest: (options, handler) async {
-      if (!options.path.contains('https')) {
-        options.baseUrl = baseUrl;
-        options.path = options.path;
+    try {
+      if (await hasJwt()) {
+        final response = await api.get('$baseUrl/user/byJwt');
+        final data = response.data as Map<String, dynamic>;
+        return Account.fromJson(data);
+      } else {
+        throw Exception('Unauth exception');
       }
-      final jwt = await _storage.read(key: 'jwt');
-      options.headers['jwt'] = '$jwt';
-      return handler.next(options);
-    }, onError: (DioException exception, handler) async {
-      if (exception.response?.statusCode == 403) {
-        if (await _storage.containsKey(key: 'jwtR')) {
-          if (await refreshToken()) {
-            final jwt = await _storage.read(key: 'jwt');
-            exception.requestOptions.headers['jwt'] = '$jwt';
-            return handler.resolve(await retry(exception.requestOptions));
-          }
-        }
-      }
-      return handler.next(exception);
-    })
-     */
-    return checkResponse(response);
+    } catch (_) {
+      throw Exception('Error contacting the server!');
+    }
   }
 
   Future<void> logout() async {
-    await _storage.deleteAll();
+    await _storage.delete(key: 'jwt');
+    await _storage.delete(key: 'jwtR');
   }
 
-  static Future<bool> refreshToken() async {
-    final refreshToken = await _storage.read(key: 'jwtR');
-    final response =
-        await api.put('$baseUrl/auth/refreshJwt', data: {'jwtr': refreshToken});
+  static Future<bool> refreshToken({String keyStore = 'jwtR'}) async {
+    final refreshToken = await _storage.read(key: keyStore);
+    await _storage.delete(key: 'jwt');
+
+    final response = await api.put(
+      '$baseUrl/auth/refreshJwt',
+      options: Options(
+        headers: {'jwtR': refreshToken},
+      ),
+    );
 
     if (response.statusCode == 201) {
       await saveUserJwt(response.data['jwt']);
       await saveUserJwtR(response.data['jwtR']);
+      if (keyStore.startsWith('AnonymousRefreshJwt')) {
+        await saveAnonymousRefreshJwt(response.data['jwtR']);
+      }
       return true;
     } else {
-      await _storage.deleteAll();
+      await _storage.delete(key: 'jwt');
+      await _storage.delete(key: 'jwtR');
       return false;
     }
   }
@@ -162,7 +145,6 @@ class AuthService {
   }
 
   Future<Account> signUp(String login, String password) async {
-    await logout();
     final String ipAddress = await getIpAddress();
     final response = await api.post('$baseUrl/auth/register',
         data: jsonEncode(
@@ -173,9 +155,6 @@ class AuthService {
         final data = response.data as Map<String, dynamic>;
         await saveUserJwt(data['jwt']);
         await saveUserJwtR(data['jwtR']);
-        if (data.containsKey('AnonymousJwt')) {
-          await saveAnonymousJwt(data['AnonymousJwt']);
-        }
         return loadUser();
       default:
         final json = jsonDecode(response.data);
@@ -184,7 +163,6 @@ class AuthService {
   }
 
   Future<Account> signIn(String login, String password) async {
-    await logout();
     final String ipAddress = await getIpAddress();
     final response = await api.post('$baseUrl/auth/userLogin',
         data: jsonEncode(
@@ -195,18 +173,17 @@ class AuthService {
         await saveUserJwt(data['jwt']);
         await saveUserJwtR(data['jwtR']);
         return loadUser();
-      case 400:
-        final json = jsonDecode(response.data);
-        throw Exception(json);
-      case 300:
-      case 500:
+      case 401:
+        throw UserNotFoundException();
       default:
         throw Exception('Error contacting the server!');
     }
   }
 
   Future<Account> signInAnonymous() async {
-    await logout();
+    if (await hasAnonymousRefreshJwt()) {
+      await refreshToken(keyStore: 'AnonymousRefreshJwt');
+    }
     final String ipAddress = await getIpAddress();
     final response = await api.post('$baseUrl/auth/anonymousLogin',
         data: jsonEncode({"ipAddress": ipAddress}));
@@ -215,15 +192,11 @@ class AuthService {
         final data = response.data as Map<String, dynamic>;
         await saveUserJwt(data['jwt']);
         await saveUserJwtR(data['jwtR']);
-        if (data.containsKey('AnonymousJwt')) {
-          await saveAnonymousJwt(data['AnonymousJwt']);
-        }
+        await saveAnonymousRefreshJwt(data['jwtR']);
         return Account(login: 'Пользователь', role: AccessLevel.unauth_user);
       case 400:
         final json = jsonDecode(response.data);
         throw Exception(json);
-      case 300:
-      case 500:
       default:
         throw Exception('Error contacting the server!');
     }
@@ -234,14 +207,11 @@ class AuthService {
     if (login == "" && password == "") {
       throw AccountEditException();
     }
-    //final dio = AuthService.api;
     final Map<String, dynamic> data = {
       "newLogin": login,
       "newPassword": password,
       "oldPassword": passwordConfirm
     };
-    //final jwt = await _storage.read(key: 'jwt');
-    //dio.options.headers.addAll({'jwt': jwt});
     final response =
         await api.patch("$baseUrl/auth/changeData", data: jsonEncode(data));
     switch (response.statusCode) {

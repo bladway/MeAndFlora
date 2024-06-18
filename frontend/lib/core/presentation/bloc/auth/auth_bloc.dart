@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:me_and_flora/core/domain/models/account.dart';
 import 'package:me_and_flora/core/domain/service/locator.dart';
+import 'package:me_and_flora/core/exception/auth_exception.dart';
 
 import '../../../domain/service/auth_service.dart';
 import 'auth.dart';
@@ -14,7 +15,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         Account account = await locator<AuthService>().loadUser();
         emit(AuthSuccessState(account: account));
         emit(AuthenticatedState(account: account));
-      } on Exception catch (e) {
+      } on UserNotFoundException catch (e) {
         emit(AuthErrorState(e.toString()));
       }
     });

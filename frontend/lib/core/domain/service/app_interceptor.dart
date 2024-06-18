@@ -13,15 +13,17 @@ class AppInterceptors extends InterceptorsWrapper {
       options.path = options.path;
     }
     final jwt = await AuthService.readUserJwt();
-    options.headers['jwt'] = '$jwt';
+    if (jwt != null && jwt.isNotEmpty) {
+      options.headers['jwt'] = jwt;
+    }
     return handler.next(options);
   }
 
   @override
   Future<dynamic> onError(
       DioException err, ErrorInterceptorHandler handler) async {
-    if (err.response?.statusCode == 403) {
-      if (await AuthService.hasUserJwt()) {
+    if (err.response?.statusCode == 401) {
+      if (await AuthService.hasRefreshJwt()) {
         if (await AuthService.refreshToken()) {
           final jwt = await AuthService.readUserJwt();
           err.requestOptions.headers['jwt'] = '$jwt';
@@ -30,10 +32,6 @@ class AppInterceptors extends InterceptorsWrapper {
           return;
         }
       }
-    } else if (err.response?.statusCode == 401 &&
-            await AuthService.hasUserJwt() ||
-        !(await AuthService.hasUserJwt())) {
-      return;
     }
     return handler.next(err);
   }
