@@ -32,7 +32,9 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +60,8 @@ public class RequestServiceImpl implements RequestService {
     private final ImageUtil fileUtil;
 
     private final KafkaProducer kafkaProducer;
+
+    private final KafkaExchange kafkaExchange;
 
     @Override
     public ReqAnswerDto procFloraRequest(String jwt, MultipartFile image, GeoJsonPointDto geoDto) {
@@ -157,36 +161,22 @@ public class RequestServiceImpl implements RequestService {
 
         procRequest.setImagePath(procpath + procRequest.getRequestId() + ".jpg");
 
+        String floraName;
         try {
-            kafkaProducer.sendProcRequestMessage(jwt, image, procRequest);
+            floraName = kafkaExchange.processMessage(jwt, image, procRequest);
         } catch (IOException e) {
             procRequestRepository.delete(procRequest);
             throw new ObjectException(
                     errorPropertiesConfig.getImagenotuploaded(),
                     "server can't process provided image"
             );
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
+            procRequestRepository.delete(procRequest);
+            throw new ObjectException(
+                    errorPropertiesConfig.getTimeout(),
+                    "timeout for waiting neural network answer"
+            );
         }
-
-        int waitIntervals = 50;
-        while (!KafkaConsumer.procReturnFloraNames.containsKey(procRequest.getRequestId())) {
-            if (waitIntervals == 0) {
-                procRequestRepository.delete(procRequest);
-                throw new ObjectException(
-                        errorPropertiesConfig.getNeuraltimeout(),
-                        "neural network result hasn't got in expected period"
-                );
-            }
-
-            try {
-                TimeUnit.SECONDS.sleep(2);
-            } catch (InterruptedException e) {
-                continue;
-            }
-
-            waitIntervals--;
-        }
-
-        String floraName = KafkaConsumer.procReturnFloraNames.remove(procRequest.getRequestId());
 
         Optional<Flora> ifflora = floraRepository.findByName(floraName);
 
@@ -222,17 +212,6 @@ public class RequestServiceImpl implements RequestService {
                     "server can't process provided image"
             );
         }
-
-        /*Resource resource;
-        try {
-            resource = fileUtil.getImage(procRequest.getFlora().getImagePath());
-        } catch (MalformedURLException e) {
-            procRequestRepository.delete(procRequest);
-            throw new ObjectException(
-                    errorPropertiesConfig.getImagenotfound(),
-                    "requested image not found"
-            );
-        } */
 
         boolean isSubscribed = false;
         if (procRequest.getSession().getUser() != null) {

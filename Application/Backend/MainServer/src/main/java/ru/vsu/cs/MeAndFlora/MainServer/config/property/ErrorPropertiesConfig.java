@@ -34,5 +34,6 @@ public class ErrorPropertiesConfig {
     private String limitsexceeded;
     private String badrequeststate;
     private String overloaded;
+    private String timeout;
 
 }
