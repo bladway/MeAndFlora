@@ -8,19 +8,10 @@ version: 1.0.0+1
 environment:
   sdk: '>=3.4.0 <4.0.0'
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
 
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   freezed_annotation: ^2.4.1
   json_annotation: ^4.9.0
@@ -45,16 +36,12 @@ dependencies:
   dio_interceptor_plus: ^0.0.2
   retrofit: ^4.1.0
   logger: any  #for logging purpose
+  flutter_native_splash: ^2.4.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^2.0.0
   build_runner: ^2.4.9
   freezed: ^2.4.7
@@ -62,17 +49,19 @@ dev_dependencies:
   retrofit_generator: '>=7.0.0 <8.0.0'
   analyzer: ^6.2.0
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
+flutter_native_splash:
+  color: "#090E05"
+  image: assets/images/logo.png
+  android: true
+  ios: false
+  web: false
 
-# The following section is specific to Flutter packages.
 flutter:
 
   uses-material-design: true
 
   assets:
-    - assets/images/unsplash.png
-    - assets/images/homeBackground.png
+    - assets/images/
 
   fonts:
     - family: Reem_Kufi
