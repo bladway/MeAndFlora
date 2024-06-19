@@ -366,10 +366,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (session.getUser() == null) {
-            throw new RightsException(
-                    errorPropertiesConfig.getNorights(),
-                    "anonymous don't have user info"
-            );
+            return new UserInfoDto("Анонимный пользователь", "Анонимный пользователь");
         }
 
         MafUser user = session.getUser();
