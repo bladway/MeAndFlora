@@ -59,8 +59,6 @@ public class RequestServiceImpl implements RequestService {
 
     private final ImageUtil fileUtil;
 
-    private final KafkaProducer kafkaProducer;
-
     private final KafkaExchange kafkaExchange;
 
     @Override

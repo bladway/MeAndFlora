@@ -1,6 +1,7 @@
 package ru.vsu.cs.MeAndFlora.MainServer.config.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,9 +9,11 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.requestreply.CorrelationKey;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 
 import java.time.Duration;
+import java.util.function.Function;
 
 @Configuration
 public class KafkaConfig {
@@ -46,6 +49,7 @@ public class KafkaConfig {
         ReplyingKafkaTemplate<Integer, byte[], String> replyingKafkaTemplate =
                 new ReplyingKafkaTemplate<>(producerFactory, concurrentMessageListenerContainer);
         replyingKafkaTemplate.setDefaultTopic(requestTopic);
+        replyingKafkaTemplate.setCorrelationHeaderName("requestId");
         replyingKafkaTemplate.setDefaultReplyTimeout(Duration.ofSeconds(15));
         return replyingKafkaTemplate;
     }

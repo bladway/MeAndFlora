@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.requestreply.CorrelationKey;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
@@ -59,7 +61,13 @@ public class KafkaExchange {
 
         ProducerRecord<Integer, byte[]> requestRecord = new ProducerRecord<>(requestTopic, partition, partition, image.getBytes());
         requestRecord.headers().add("jwt", requestJwt.getBytes());
-        requestRecord.headers().add("requestId", procRequest.getRequestId().toString().getBytes());
+
+        replyingKafkaTemplate.setCorrelationIdStrategy(new Function<ProducerRecord<Integer, byte[]>, CorrelationKey>() {
+            @Override
+            public CorrelationKey apply(ProducerRecord<Integer, byte[]> integerProducerRecord) {
+                return new CorrelationKey(procRequest.getRequestId().toString().getBytes());
+            }
+        });
 
         RequestReplyFuture<Integer, byte[], String> replyFuture = replyingKafkaTemplate.sendAndReceive(requestRecord);
         kafkaExchangeLogger.info("message with requestId {} sent to broker", procRequest.getRequestId());
