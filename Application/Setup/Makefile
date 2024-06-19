@@ -16,8 +16,6 @@ hard-rm:
 	docker volume rm MeAndFlora-GetImages && \
 	docker volume rm MeAndFlora-ProcImages && \
 	echo ${SERVER_PASSWORD} | sudo -S rm -rf /server/
-#	docker volume rm MeAndFlora-Mongo && \
-	docker volume rm MeAndFlora-Cachebase && 
 
 hard-up:
 	echo ${SERVER_PASSWORD} | sudo -S mkdir /server && \
@@ -27,8 +25,6 @@ hard-up:
 	docker pull bladway/maf-mainserver && \
 	docker pull dkotx/detector && \
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env up -d
-#	echo ${SERVER_PASSWORD} | sudo -S mkdir /server/MeAndFlora-Mongo && \
-	echo ${SERVER_PASSWORD} | sudo -S mkdir /server/MeAndFlora-Cachebase &&
 
 hard-restart:
 	make hard-rm && \
