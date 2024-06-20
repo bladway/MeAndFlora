@@ -15,7 +15,7 @@ class PlantPublicList extends StatefulWidget {
 class _PlantPublicListState extends State<PlantPublicList> {
   bool _isLastPage = false;
   int _pageNumber = 0;
-  final int _size = 5;
+  final int _size = 100;
   final int _nextPageTrigger = 1;
 
   @override
@@ -50,10 +50,10 @@ class _PlantPublicListState extends State<PlantPublicList> {
             final data = snapshot.data;
             if (_isLastPage && plants.isNotEmpty) {
               int reloadCount = plants.length % _size;
-              requestIds.removeRange(requestIds.length - reloadCount - 1,
+              requestIds.removeRange(requestIds.length - reloadCount,
                   requestIds.length);
               requestIds.addAll(data?.keys ?? []);
-              plants.removeRange(plants.length - reloadCount - 1,
+              plants.removeRange(plants.length - reloadCount,
                   plants.length);
               plants.addAll(data?.values ?? []);
             } else if (plants.isEmpty) {

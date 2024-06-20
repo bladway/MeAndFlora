@@ -15,7 +15,7 @@ class TrackPlantList extends StatefulWidget {
 class _TrackPlantListState extends State<TrackPlantList> {
   bool _isLastPage = false;
   int _pageNumber = 0;
-  final int _size = 5;
+  final int _size = 100;
   final int _nextPageTrigger = 1;
 
   @override
@@ -51,10 +51,10 @@ class _TrackPlantListState extends State<TrackPlantList> {
             if (_isLastPage && plants.isNotEmpty) {
               int reloadCount = plants.length % _size;
               requestIds.removeRange(
-                  requestIds.length - reloadCount - 1, requestIds.length);
+                  requestIds.length - reloadCount, requestIds.length);
               requestIds.addAll(data?.keys ?? []);
               plants.removeRange(
-                  plants.length - reloadCount - 1, plants.length);
+                  plants.length - reloadCount, plants.length);
               plants.addAll(data?.values ?? []);
             } else if (plants.isEmpty) {
               requestIds.addAll(data?.keys ?? []);
