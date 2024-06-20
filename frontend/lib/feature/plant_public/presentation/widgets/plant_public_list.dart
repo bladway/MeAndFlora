@@ -25,55 +25,66 @@ class _PlantPublicListState extends State<PlantPublicList> {
     double height = MediaQuery.sizeOf(context).height;
     List<Plant> plants = [];
 
-    return BlocBuilder<PlantTrackListBloc, PlantTrackListState>(
-        builder: (context, state) {
-      if (state is PlantTrackListLoadInProgress) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      }
-      if (state is PlantTrackListLoadSuccess) {
-        if (state.plantList.isNotEmpty) {
-          _pageNumber++;
-          plants.addAll(state.plantList);
-        } else if (plants.isEmpty) {
-          return const EmptyWidget();
+    return BlocListener<PlantTrackBloc, PlantTrackState>(
+      listener: (BuildContext context, PlantTrackState state) {
+        if (state is PlantTrackLoadSuccess) {
+          plants = [];
+          BlocProvider.of<PlantTrackListBloc>(context)
+              .add(const PlantTrackListRequested());
         }
-      }
-      return BlocListener<PlantBloc, PlantState>(
-        listener: (BuildContext context, PlantState state) {
-          if (state is PlantRemoveSuccess) {
-            plants = [];
-            BlocProvider.of<PlantTrackListBloc>(context)
-                .add(const PlantTrackListRequestedByAdmin());
+      },
+      child: BlocBuilder<PlantTrackListBloc, PlantTrackListState>(
+          builder: (context, state) {
+        if (state is PlantTrackListLoadInProgress) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        if (state is PlantTrackListLoadSuccess) {
+          if (state.plantList.isNotEmpty) {
+            _pageNumber++;
+            plants.addAll(state.plantList);
+          } else if (plants.isEmpty) {
+            return const EmptyWidget();
           }
-        },
-        child: ListView.separated(
-          scrollDirection: Axis.vertical,
-          itemCount: plants.length + (_isLastPage ? 0 : 1),
-          separatorBuilder: (BuildContext context, _) => SizedBox(
-            height: height * 0.03,
-          ),
-          itemBuilder: (context, index) {
-            if (index == plants.length - _nextPageTrigger && !_isLastPage) {
+        }
+        return BlocListener<PlantBloc, PlantState>(
+          listener: (BuildContext context, PlantState state) {
+            if (state is PlantRemoveSuccess) {
+              plants = [];
               BlocProvider.of<PlantTrackListBloc>(context)
-                  .add(PlantTrackListRequestedByAdmin(page: _pageNumber));
+                  .add(const PlantTrackListRequestedByAdmin());
             }
-            if (index == plants.length) {
-              _isLastPage = true;
-              if (state is PlantTrackLoadInProgress) {
-                return const CircularProgressIndicator();
-              } else {
-                return const Center();
-              }
-            }
-            return PlantPublicElement(
-              plant: plants[index],
-              iconSize: height * 0.3 * 0.3,
-            );
           },
-        ),
-      );
-    });
+          child: ListView.separated(
+            scrollDirection: Axis.vertical,
+            itemCount: plants.length + (_isLastPage ? 0 : 1),
+            separatorBuilder: (BuildContext context, _) => SizedBox(
+              height: height * 0.03,
+            ),
+            itemBuilder: (context, index) {
+              if (plants.length == 100 &&
+                  index == plants.length - _nextPageTrigger &&
+                  !_isLastPage) {
+                BlocProvider.of<PlantTrackListBloc>(context)
+                    .add(PlantTrackListRequestedByAdmin(page: _pageNumber));
+              }
+              if (index == plants.length) {
+                _isLastPage = true;
+                if (state is PlantTrackLoadInProgress) {
+                  return const CircularProgressIndicator();
+                } else {
+                  return const Center();
+                }
+              }
+              return PlantPublicElement(
+                plant: plants[index],
+                iconSize: height * 0.3 * 0.3,
+              );
+            },
+          ),
+        );
+      }),
+    );
   }
 }
