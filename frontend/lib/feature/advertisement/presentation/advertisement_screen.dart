@@ -26,14 +26,11 @@ class AdvertisementScreen extends StatelessWidget {
           actions: [
             Padding(
                 padding: const EdgeInsets.only(right: 16),
-                child: Expanded(
-                  flex: 1,
-                  child: GestureDetector(
-                    onTap: () {
-                      AutoRouter.of(context).pop();
-                    },
-                    child: const CircleButton(icon: Icons.close),
-                  ),
+                child: GestureDetector(
+                  onTap: () {
+                    AutoRouter.of(context).pop();
+                  },
+                  child: const CircleButton(icon: Icons.close),
                 )),
           ],
         ),
