@@ -30,11 +30,19 @@
 - [Miro](https://miro.com/app/board/uXjVNlotI-0=/?share_link_id=423741448147)
 
 ### AppMetrica
+
 - [AppMetrica](https://appmetrica.yandex.ru/overview?appId=4568380&period=week&group=day&currency=rub&accuracy=medium&sampling=1)
 
   Для получения доступа к AppMetrica необходимо использовать следующий аккаунт:
   - Логин: meandflora
   - Пароль: d22-Ha7-mNq-9n4
+
+### MeAndFlora Swagger
+
+- [Server](https://rare-national-snapper.ngrok-free.app/swagger-ui/index.html)
+- [Replica](https://mint-classic-dog.ngrok-free.app/swagger-ui/index.html)
+
+  При переходе на сайт подтвердите переход через сервис ngrok и пропустите проверку подлинности SSL сертификата
 
 ### Документация
 
@@ -54,8 +62,16 @@
 
 ### Медиафайлы
 
-- [Видео-презентация](https://youtu.be/t8LKt0Jxcg4)
-- [Демонстрация работы экранов](https://youtu.be/RO37f8xuS8c)
+- [Видео-презентация](https://www.youtube.com/watch?v=8FzUBrN-DMc)
+- [Обзор приложения](https://www.youtube.com/watch?v=WkVfqxSYBmg)
+- [Развертывание приложения](https://youtu.be/7fZBU0EG98U)
+- [Обзор микросервиса обработки изображений](https://www.youtube.com/watch?v=0YQlkOPAnRs)
+- [Обзор основного сервера приложения](https://youtu.be/04m3G0NgrO0)
+- [Обзор frontend приложения](https://www.youtube.com/watch?v=TVzHa_HHfDA)
+
+### APK файл мобильного приложения
+
+- [APK](https://drive.google.com/file/d/1ZElXIO6VemzyS2pOfyO6y3pvgBgZI384/view?usp=drive_link)
 
 ### Тестовые данные для работы в приложении по ролям
 
@@ -70,3 +86,8 @@
 - Администратор
   - Логин: adminuser
   - Пароль: adminuser
+
+### Развертывания сервера
+
+Для развертывания приложения на сервере достаточно использовать Makefile в соответствующей папке, предоставив ему
+.env файл с необходимыми переменными окружения. Развертывание предполагается на Linux-подобной операционной системе
