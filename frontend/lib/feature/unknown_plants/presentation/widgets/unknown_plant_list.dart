@@ -15,8 +15,8 @@ class UnknownPlantList extends StatefulWidget {
 class _UnknownPlantListState extends State<UnknownPlantList> {
   bool _isLastPage = false;
   int _pageNumber = 0;
-  final int _size = 100;
-  final int _nextPageTrigger = 2;
+  final int _size = 5;
+  final int _nextPageTrigger = 1;
 
   @override
   Widget build(BuildContext context) {

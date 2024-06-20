@@ -15,8 +15,8 @@ class PlantPublicList extends StatefulWidget {
 class _PlantPublicListState extends State<PlantPublicList> {
   bool _isLastPage = false;
   int _pageNumber = 0;
-  final int _size = 100;
-  final int _nextPageTrigger = 2;
+  final int _size = 5;
+  final int _nextPageTrigger = 1;
 
   @override
   Widget build(BuildContext context) {
