@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
+import 'package:me_and_flora/core/domain/exception/account_exception.dart';
 import 'package:me_and_flora/core/domain/service/locator.dart';
-import 'package:me_and_flora/core/exception/account_exception.dart';
 
 import '../../../domain/models/models.dart';
 import '../../../domain/service/account_service.dart';

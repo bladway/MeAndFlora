@@ -10,9 +10,10 @@ import '../../../../core/theme/theme.dart';
 
 class PlantPublicElement extends StatelessWidget {
   const PlantPublicElement(
-      {super.key, required this.plant, required this.iconSize});
+      {super.key, required this.plant, required this.iconSize, required this.requestId});
 
   final Plant plant;
+  final int requestId;
   final double iconSize;
 
   @override
@@ -64,7 +65,7 @@ class PlantPublicElement extends StatelessWidget {
                       child: TextButton(
                         onPressed: () {
                           BlocProvider.of<PlantBloc>(context)
-                              .add(PlantRemoveRequested(publicId: 0));
+                              .add(PlantRemoveRequested(publicId: requestId));
                         },
                         child: Text(
                           'Удалить',

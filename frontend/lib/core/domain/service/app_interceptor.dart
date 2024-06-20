@@ -38,11 +38,14 @@ class AppInterceptors extends InterceptorsWrapper {
             return handler.resolve(await AuthService.retry(err.requestOptions));
           }
         } else {
-          return;
+          return handler.next(err);
         }
       }
     } else if (err.response?.statusCode == 404 && err.response?.data is String) {
-      err.requestOptions.baseUrl = baseUrl2;
+      if (!err.requestOptions.path.contains('https')) {
+        err.requestOptions.baseUrl = baseUrl2;
+        err.requestOptions.path = err.requestOptions.path;
+      }
       return handler.resolve(await AuthService.retry(err.requestOptions));
     }
     return handler.next(err);

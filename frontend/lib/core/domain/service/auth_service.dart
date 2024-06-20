@@ -4,10 +4,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as storage;
 import 'package:get_ip_address/get_ip_address.dart';
 import 'package:dio_interceptor_plus/dio_interceptor_plus.dart';
+import 'package:me_and_flora/core/domain/exception/account_exception.dart';
+import 'package:me_and_flora/core/domain/exception/auth_exception.dart';
 import 'package:me_and_flora/core/domain/service/locator.dart';
-import 'package:me_and_flora/core/exception/auth_exception.dart';
 
-import '../../exception/account_exception.dart';
 import '../api/api_key.dart';
 import '../models/models.dart';
 
