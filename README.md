@@ -56,6 +56,7 @@
 
 - [Видео-презентация](https://youtu.be/t8LKt0Jxcg4)
 - [Демонстрация работы экранов](https://youtu.be/RO37f8xuS8c)
+- [Frontend обзор](https://www.youtube.com/watch?v=TVzHa_HHfDA)
 
 ### Тестовые данные для работы в приложении по ролям
 
