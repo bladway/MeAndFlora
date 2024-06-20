@@ -50,10 +50,12 @@ class _UnknownPlantListState extends State<UnknownPlantList> {
             final data = snapshot.data;
             if (_isLastPage && plants.isNotEmpty) {
               int reloadCount = plants.length % _size;
-              requestIds.replaceRange(requestIds.length - reloadCount - 1,
-                  requestIds.length, data?.keys ?? []);
-              plants.replaceRange(plants.length - reloadCount - 1,
-                  plants.length, data?.values ?? []);
+              requestIds.removeRange(
+                  requestIds.length - reloadCount - 1, requestIds.length);
+              requestIds.addAll(data?.keys ?? []);
+              plants.removeRange(
+                  plants.length - reloadCount - 1, plants.length);
+              plants.addAll(data?.values ?? []);
             } else if (plants.isEmpty) {
               requestIds.addAll(data?.keys ?? []);
               plants.addAll(data?.values ?? []);
