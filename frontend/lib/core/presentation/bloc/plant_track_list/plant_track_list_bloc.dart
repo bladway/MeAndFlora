@@ -24,9 +24,9 @@ class PlantTrackListBloc extends Bloc<PlantTrackListEvent, PlantTrackListState> 
       Emitter<PlantTrackListState> emit) async {
     emit(PlantTrackListLoadInProgress());
     try {
-      final List<Plant> plantList = await locator<TrackService>()
+      final Map<int, Plant> plantList = await locator<TrackService>()
           .getTrackPlantsByAdmin(event.page, event.size);
-      emit(PlantTrackListLoadSuccess(plantList: plantList));
+      emit(PlantTrackListLoadSuccess(plantList: plantList.values.toList()));
     } on Exception catch (_, e) {
       emit(PlantTrackLoadFailure(errorMsg: e.toString()));
     }
@@ -36,9 +36,9 @@ class PlantTrackListBloc extends Bloc<PlantTrackListEvent, PlantTrackListState> 
       PlantTrackListRequested event, Emitter<PlantTrackListState> emit) async {
     emit(PlantTrackListLoadInProgress());
     try {
-      final List<Plant> plantList = await locator<TrackService>()
+      final Map<int, Plant> plantList = await locator<TrackService>()
           .getTrackPlantsByUser(event.page, event.size);
-      emit(PlantTrackListLoadSuccess(plantList: plantList));
+      emit(PlantTrackListLoadSuccess(plantList: plantList.values.toList()));
     } on Exception catch (_, e) {
       emit(PlantTrackLoadFailure(errorMsg: e.toString()));
     }

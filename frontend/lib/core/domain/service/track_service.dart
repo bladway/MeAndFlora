@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:dio/dio.dart';
 import 'package:me_and_flora/core/domain/service/auth_service.dart';
 import 'package:me_and_flora/core/domain/service/locator.dart';
@@ -8,7 +6,6 @@ import 'package:me_and_flora/core/domain/service/rest_clients/rest_flora_client.
 import 'package:me_and_flora/core/domain/service/rest_clients/rest_publication_client.dart';
 import 'package:me_and_flora/core/domain/service/rest_clients/rest_request_client.dart';
 
-import '../api/api_key.dart';
 import '../models/models.dart';
 
 class TrackService {
@@ -21,26 +18,42 @@ class TrackService {
     await floraClient.subscribe(floraName: plantName);
   }
 
-  Future<List<Plant>> getTrackPlantsByAdmin(int page, int size) async {
+  Future<Map<int, Plant>> getTrackPlantsByAdmin(int page, int size) async {
     final publicationIds =
         await publicationClient.getPublicIdsByAdmin(page, size);
 
-    List<Plant> plantList = [];
+    Map<int, Plant> plantList = {};
     for (var id in publicationIds.longs) {
-      plantList.add(await locator<PlantService>().getPlantByRequestIdByAdmin(id));
+      plantList[id] = await locator<PlantService>().getPlantByRequestIdByAdmin(id);
     }
 
     return plantList;
   }
 
-  Future<List<Plant>> getTrackPlantsByUser(int page, int size) async {
+  Stream<Map<int, Plant>> getStreamTrackPlantsByAdmin(
+      int page, int size, Duration refreshTime) async* {
+    while (true) {
+      await Future.delayed(refreshTime);
+      yield await getTrackPlantsByAdmin(page, size);
+    }
+  }
+
+  Future<Map<int, Plant>> getTrackPlantsByUser(int page, int size) async {
     final publicationIds =
         await publicationClient.getPublicIdsByUser(page, size);
 
-    List<Plant> plantList = [];
+    Map<int, Plant> plantList = {};
     for (var id in publicationIds.longs) {
-      plantList.add(await locator<PlantService>().getPlantByRequestId(id));
+      plantList[id] = await locator<PlantService>().getPlantByRequestId(id);
     }
     return plantList;
+  }
+
+  Stream<Map<int, Plant>> getStreamTrackPlantsByUser(
+      int page, int size, Duration refreshTime) async* {
+    while (true) {
+      await Future.delayed(refreshTime);
+      yield await getTrackPlantsByUser(page, size);
+    }
   }
 }

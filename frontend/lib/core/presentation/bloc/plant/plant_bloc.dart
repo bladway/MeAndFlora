@@ -27,7 +27,7 @@ class PlantBloc extends Bloc<PlantEvent, PlantState> {
           await _requestMossList(event, emit);
         }
         if (event is PlantRemoveRequested) {
-          _removePlant(event, emit);
+          await _removePlant(event, emit);
         }
       },
     );
@@ -37,9 +37,8 @@ class PlantBloc extends Bloc<PlantEvent, PlantState> {
       PlantRemoveRequested event, Emitter<PlantState> emit) async {
     emit(PlantLoadInProgress());
     try {
-      //await PlantService().removePlant(event.plant);
       await locator<PlantService>().removePublication(event.publicId);
-      emit(PlantRemoveSuccess());
+      emit(PlantRemoveSuccess(id: event.publicId));
     } catch (e) {
       emit(PlantLoadFailure(errorMsg: e.toString()));
     }
