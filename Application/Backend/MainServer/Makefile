@@ -2,6 +2,8 @@
 # before using application you need to receive or define develop.env
 # file in resources folder
 # for running tests it needs to be spring profile "test" yml file
+#-Djib.from.auth.username=${DOCKER_USER}
+#-Djib.from.auth.password=${DOCKER_PASSWORD}
 
 include develop.env
 
@@ -11,7 +13,7 @@ jib-build:
 		-Djib.from.image=openjdk:22-ea-19-slim-bullseye \
 		-Djib.from.auth.username=${DOCKER_USER} \
     	-Djib.from.auth.password=${DOCKER_PASSWORD} \
-		-Djib.to.image=${MAINSERVER_REPOSITORY}:${MAINSERVER_VERSION} \
+		-Djib.to.image=${MAINSERVER_HUB_REPOSITORY}:${MAINSERVER_VERSION} \
     	-Djib.to.auth.username=${DOCKER_USER} \
     	-Djib.to.auth.password=${DOCKER_PASSWORD} \
 		-Djib.container.environment=\

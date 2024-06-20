@@ -105,3 +105,4 @@ application:
     limitsexceeded: limitsexceeded
     badrequeststate: badrequeststate
     overloaded: overloaded
+    timeout: timeout
