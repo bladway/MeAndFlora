@@ -4,7 +4,6 @@ import 'colors.dart';
 
 const colors = AppColors();
 
-//.merge(TextStyle(color: Colors.red)
 final mainTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(seedColor: colors.black),
   useMaterial3: true,
