@@ -3,7 +3,7 @@ import 'package:me_and_flora/core/domain/models/models.dart';
 import 'package:me_and_flora/core/domain/service/locator.dart';
 import 'package:me_and_flora/core/domain/service/track_service.dart';
 import 'package:me_and_flora/core/presentation/widgets/empty_widget.dart';
-import 'package:me_and_flora/feature/plant_public/presentation/widgets/plant_public_elemet.dart';
+import 'package:me_and_flora/feature/track/presentation/widgets/track_plant_element.dart';
 
 class TrackPlantList extends StatefulWidget {
   const TrackPlantList({super.key});
@@ -50,10 +50,12 @@ class _TrackPlantListState extends State<TrackPlantList> {
             final data = snapshot.data;
             if (_isLastPage && plants.isNotEmpty) {
               int reloadCount = plants.length % _size;
-              requestIds.replaceRange(
-                  requestIds.length - reloadCount - 1, requestIds.length, data?.keys ?? []);
-              plants.replaceRange(
-                  plants.length - reloadCount - 1, plants.length, data?.values ?? []);
+              requestIds.removeRange(
+                  requestIds.length - reloadCount - 1, requestIds.length);
+              requestIds.addAll(data?.keys ?? []);
+              plants.removeRange(
+                  plants.length - reloadCount - 1, plants.length);
+              plants.addAll(data?.values ?? []);
             } else if (plants.isEmpty) {
               requestIds.addAll(data?.keys ?? []);
               plants.addAll(data?.values ?? []);
@@ -73,13 +75,13 @@ class _TrackPlantListState extends State<TrackPlantList> {
                 }
                 return index == plants.length
                     ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-                    : PlantPublicElement(
-                  requestId: requestIds[index],
-                  plant: plants[index],
-                  iconSize: height * 0.3 * 0.3,
-                );
+                        child: CircularProgressIndicator(),
+                      )
+                    : TrackPlantElement(
+                        requestId: requestIds[index],
+                        plant: plants[index],
+                        iconSize: height * 0.3 * 0.3,
+                      );
               },
             );
           }

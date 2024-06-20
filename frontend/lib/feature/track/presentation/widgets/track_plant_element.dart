@@ -7,14 +7,18 @@ import '../../../../core/domain/models/models.dart';
 import '../../../../core/theme/theme.dart';
 
 class TrackPlantElement extends StatelessWidget {
-  const TrackPlantElement({super.key, required this.plant, required this.iconSize});
+  const TrackPlantElement(
+      {super.key,
+      required this.plant,
+      required this.iconSize,
+      required this.requestId});
 
   final Plant plant;
+  final int requestId;
   final double iconSize;
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.sizeOf(context).width;
     double height = MediaQuery.sizeOf(context).height;
 
     return Container(
@@ -26,7 +30,10 @@ class TrackPlantElement extends StatelessWidget {
         onTap: () {
           AutoRouter.of(context).push(PlantDetailsRoute(plant: plant));
         },
-        child: TrackPlantInfo(plant: plant, iconSize: iconSize,),
+        child: TrackPlantInfo(
+          plant: plant,
+          iconSize: iconSize,
+        ),
       ),
     );
   }
