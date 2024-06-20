@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:appmetrica_plugin/appmetrica_plugin.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:me_and_flora/core/domain/api/api_key.dart';
 import 'package:me_and_flora/core/presentation/widgets/buttons/track_button.dart';
 import 'package:me_and_flora/core/presentation/widgets/plant_image.dart';
 import 'package:me_and_flora/core/theme/theme.dart';
@@ -15,7 +18,8 @@ import '../../../core/presentation/widgets/widgets.dart';
 
 @RoutePage()
 class PlantIdentDetailsScreen extends StatelessWidget {
-  const PlantIdentDetailsScreen({super.key, required this.plant, required this.imageUrl});
+  const PlantIdentDetailsScreen(
+      {super.key, required this.plant, required this.imageUrl});
 
   final Plant plant;
   final String imageUrl;
@@ -78,7 +82,7 @@ class PlantIdentDetailsScreen extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20), // Image border
                         child: PlantImage(
-                          image: plant.imageUrl,
+                          image: plant.path,
                           size: height * 0.1,
                         ),
                       ),
@@ -96,9 +100,23 @@ class PlantIdentDetailsScreen extends StatelessWidget {
                           child: SizedBox(
                             height: height * 0.175,
                             width: width * 0.5,
-                            child: PlantImage(
-                              image: imageUrl,
-                              size: height * 0.0175,
+                            child: Image.network(
+                              '$baseUrl/file/byPath?imagePath=${imageUrl.replaceAll("/", "%2F")}',
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.file(File(imageUrl),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: colors.lightGray,
+                                    alignment: Alignment.center,
+                                    child: Icon(
+                                      Icons.photo_camera,
+                                      size: height * 0.0175,
+                                    ),
+                                  );
+                                });
+                              },
                             ),
                           ),
                         ),

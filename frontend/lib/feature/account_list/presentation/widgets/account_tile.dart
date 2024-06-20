@@ -24,7 +24,7 @@ class AccountTile extends StatelessWidget {
         account.login,
         style: Theme.of(context).textTheme.bodySmall,
       ),
-      subtitle: Text(account.accessLevel.displayTitle,
+      subtitle: Text(account.role.displayTitle,
           style: Theme.of(context).textTheme.titleSmall),
       trailing: SizedBox(
         width: MediaQuery.sizeOf(context).width * 0.3,
@@ -40,9 +40,9 @@ class AccountTile extends StatelessWidget {
             child: TextButton(
               onPressed: () {
                 BlocProvider.of<AccountBloc>(context)
-                    .add(AccountRemoveRequested(account: account));
-                BlocProvider.of<AccountListBloc>(context)
-                    .add(AccountListRequested());
+                    .add(AccountRemoveRequested(login: account.login));
+                // BlocProvider.of<AccountListBloc>(context)
+                //     .add(const AccountListRequested());
               },
               child: Text(
                 'Удалить',

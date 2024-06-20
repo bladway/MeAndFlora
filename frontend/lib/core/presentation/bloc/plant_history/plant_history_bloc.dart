@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:me_and_flora/core/domain/service/locator.dart';
 
 import '../../../domain/models/models.dart';
 import '../../../domain/service/history_service.dart';
@@ -11,9 +12,6 @@ class PlantHistoryBloc extends Bloc<PlantHistoryEvent, PlantHistoryState> {
         if (event is PlantHistoryListRequested) {
           await _requestHistoryPlantList(event, emit);
         }
-        if (event is PlantHistoryRequested) {
-          await _requestPlantHistory(event, emit);
-        }
       },
     );
   }
@@ -22,20 +20,10 @@ class PlantHistoryBloc extends Bloc<PlantHistoryEvent, PlantHistoryState> {
       PlantHistoryListRequested event, Emitter<PlantHistoryState> emit) async {
     emit(PlantLoadInProgress());
     try {
-      final List<Plant> plantList =
-          await HistoryService().getHistoryPlants("", event.pageNumber);
-      emit(PlantHistoryLoadSuccess(plantList: plantList));
-    } on Exception catch (_, e) {
-      emit(PlantLoadFailure(errorMsg: e.toString()));
-    }
-  }
-
-  Future<void> _requestPlantHistory(
-      PlantHistoryRequested event, Emitter<PlantHistoryState> emit) async {
-    emit(PlantLoadInProgress());
-    try {
-      await HistoryService().addPlantToHistory("accountId", event.plant);
-      emit(PlantLoadSuccess());
+      final Map<int, Plant> plantList = await locator<HistoryService>()
+          .getHistoryPlants(event.page, event.size);
+      emit(PlantHistoryLoadSuccess(
+          plantList: plantList.values.toList(), page: event.page));
     } on Exception catch (_, e) {
       emit(PlantLoadFailure(errorMsg: e.toString()));
     }

@@ -7,22 +7,21 @@ part of 'account.dart';
 // **************************************************************************
 
 Account _$AccountFromJson(Map<String, dynamic> json) => Account(
-      login: json['login'] as String? ?? "Пользователь",
+      login: json['login'] as String? ?? "Незарегистрированный пользователь",
       password: json['password'] as String? ?? "Пароль",
-      accessLevel:
-          $enumDecodeNullable(_$AccessLevelEnumMap, json['accessLevel']) ??
-              AccessLevel.unauth_user,
+      role: $enumDecodeNullable(_$AccessLevelEnumMap, json['role']) ??
+          AccessLevel.unauth_user,
     );
 
 Map<String, dynamic> _$AccountToJson(Account instance) => <String, dynamic>{
       'login': instance.login,
       'password': instance.password,
-      'accessLevel': _$AccessLevelEnumMap[instance.accessLevel]!,
+      'role': _$AccessLevelEnumMap[instance.role]!,
     };
 
 const _$AccessLevelEnumMap = {
   AccessLevel.unauth_user: 'unauth_user',
   AccessLevel.user: 'user',
-  AccessLevel.botanic: 'botanic',
+  AccessLevel.botanist: 'botanist',
   AccessLevel.admin: 'admin',
 };

@@ -1,41 +1,43 @@
 import 'package:bloc/bloc.dart';
-import 'package:me_and_flora/core/exception/account_exception.dart';
+import 'package:me_and_flora/core/domain/exception/account_exception.dart';
+import 'package:me_and_flora/core/domain/service/locator.dart';
 
 import '../../../domain/models/models.dart';
 import '../../../domain/service/account_service.dart';
+import '../../../domain/service/auth_service.dart';
 import 'account.dart';
 
 class AccountBloc extends Bloc<AccountEvent, AccountState> {
   AccountBloc() : super(ChangeInitialState()) {
     on<ChangeRequested>((event, emit) async {
-      _changeAccount(event, emit);
+      await _changeAccount(event, emit);
     });
 
     on<AccountAddRequested>((event, emit) async {
-      _addAccount(event, emit);
+      await _addAccount(event, emit);
     });
 
     on<AccountRemoveRequested>((event, emit) async {
-      _removeAccount(event, emit);
+      await _removeAccount(event, emit);
     });
   }
 
   _changeAccount(ChangeRequested event, Emitter<AccountState> emit) async {
     emit(ChangeLoadingState());
     try {
-      Account account = await AccountService().editAccount(event.prevLogin,
-          event.login, event.password, event.passwordConfirm);
+      Account account = await locator<AuthService>().editAccount(
+          event.prevLogin, event.login, event.password, event.passwordConfirm);
+      //Account account = await AuthService().editAccount(event.prevLogin, event.login, event.password, event.passwordConfirm);
       emit(ChangeSavedState(account: account));
     } on AccountEditException catch (_) {
       emit(ChangeErrorState());
     }
   }
 
-  _addAccount(
-      AccountAddRequested event, Emitter<AccountState> emit) async {
+  _addAccount(AccountAddRequested event, Emitter<AccountState> emit) async {
     emit(AccountLoadInProcess());
     try {
-      await AccountService().addAccount(event.account);
+      await locator<AccountService>().addAccount(event.account);
       emit(AccountAddSuccess());
     } catch (e) {
       emit(ChangeErrorState());
@@ -46,7 +48,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
       AccountRemoveRequested event, Emitter<AccountState> emit) async {
     emit(AccountLoadInProcess());
     try {
-      await AccountService().removeAccount(event.account);
+      await locator<AccountService>().removeAccount(event.login);
       emit(AccountRemoveSuccess());
     } catch (e) {
       emit(ChangeErrorState());

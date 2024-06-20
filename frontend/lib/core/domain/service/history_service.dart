@@ -1,27 +1,27 @@
+import 'package:me_and_flora/core/domain/service/auth_service.dart';
+import 'package:me_and_flora/core/domain/service/locator.dart';
+import 'package:me_and_flora/core/domain/service/plant_service.dart';
+import 'package:me_and_flora/core/domain/service/rest_clients/rest_history_client.dart';
+
 import '../models/models.dart';
 
-List<Plant> historyList = [];
-
 class HistoryService {
-  Future<void> addPlantToHistory(String accountId, Plant plant) async {
-    //final response = await Dio().post("path", data: plant);
-    historyList.insert(0, plant);
+  final historyClient = RestHistoryClient(AuthService.api);
+
+  Future<Map<int, Plant>> getHistoryPlants(int page, int size) async {
+    final publicationIds = await historyClient.getHistory(page, size);
+    Map<int, Plant> plantList = {};
+    for (var id in publicationIds.longs) {
+      plantList[id] = await locator<PlantService>().getPlantByRequestId(id);
+    }
+    return plantList;
   }
 
-  Future<List<Plant>> getHistoryPlants(String accountId, int pageNumber) async {
-    /*
-    final response = await Dio().get("path");
-    final data = response.data as Map<String, dynamic>;
-
-    final dataList = data.entries
-        .map((e) => Plant(
-            name: e.value['name'],
-            type: e.value['type'],
-            description: e.value['description'],
-            isLiked: e.value['isLiked'],
-            imageUrl: e.value['imageUrl']))
-        .toList();
-    return dataList;*/
-    return historyList;
+  Stream<Map<int, Plant>> getStreamHistoryPlants(
+      int page, int size, Duration refreshTime) async* {
+    while (true) {
+      await Future.delayed(refreshTime);
+      yield await getHistoryPlants(page, size);
+    }
   }
 }

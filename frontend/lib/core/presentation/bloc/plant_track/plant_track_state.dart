@@ -15,14 +15,7 @@ class PlantTrackLoadInProgress extends PlantTrackState {}
 
 class PlantTrackLoadSuccess extends PlantTrackState {}
 
-class PlantTrackListLoadSuccess extends PlantTrackState {
-  final List<Plant> plantList;
-
-  const PlantTrackListLoadSuccess({required this.plantList});
-
-  @override
-  List<Object> get props => [plantList];
-}
+class PlantUnTrackLoadSuccess extends PlantTrackState {}
 
 class PlantTrackLoadFailure extends PlantTrackState {
   final String errorMsg;

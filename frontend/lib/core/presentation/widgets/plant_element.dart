@@ -48,7 +48,7 @@ class _PlantElementState extends State<PlantElement> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        PlantImage(image: widget.plant.imageUrl, size: 35),
+                        PlantImage(image: widget.plant.path, size: 35),
                         Align(
                           alignment: Alignment.topRight,
                           child: BlocBuilder<PlantTrackBloc, PlantTrackState>(
@@ -71,20 +71,27 @@ class _PlantElementState extends State<PlantElement> {
                   alignment: Alignment.topLeft,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Text(
-                        widget.plant.name,
-                        style: Theme.of(context).textTheme.bodySmall,
+                      Expanded(
+                        flex: 10,
+                        child: Text(
+                          widget.plant.name,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                       ),
-                      Text(
-                        widget.plant.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400, //Regular
-                          color: colors.white,
+                      Spacer(),
+                      Expanded(
+                        flex: 8,
+                        child: Text(
+                          widget.plant.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400, //Regular
+                            color: colors.white,
+                          ),
                         ),
                       ),
                     ],

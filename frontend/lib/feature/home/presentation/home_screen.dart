@@ -2,7 +2,6 @@ import 'package:appmetrica_plugin/appmetrica_plugin.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:me_and_flora/core/domain/models/plant_type.dart';
 import 'package:me_and_flora/core/presentation/widgets/background.dart';
 import 'package:me_and_flora/core/presentation/widgets/notifications/app_notification.dart';
 import 'package:me_and_flora/core/theme/strings.dart';
@@ -10,7 +9,6 @@ import 'package:me_and_flora/core/theme/theme.dart';
 
 import '../../../core/app_router/app_router.dart';
 import '../../../core/domain/models/models.dart';
-import '../../../core/presentation/bloc/plant/plant.dart';
 import '../../../core/presentation/bloc/plant_search/plant_search.dart';
 import '../../../core/presentation/widgets/plant_list.dart';
 import '../../../core/presentation/widgets/search_delegate.dart';
@@ -31,8 +29,8 @@ class HomeScreen extends StatelessWidget {
                   name: state.plant.name,
                   type: state.plant.type,
                   description: state.plant.description,
-                  isTracked: state.plant.isTracked,
-                  imageUrl: state.plant.imageUrl)));
+                  subscribed: state.plant.subscribed,
+                  path: state.plant.path)));
         } else if (state is PlantSearchLoadFailure) {
           _showNotification(context);
         }

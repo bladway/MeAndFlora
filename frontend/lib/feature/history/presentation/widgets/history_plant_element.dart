@@ -61,8 +61,8 @@ class HistoryPlantElement extends StatelessWidget {
                       Expanded(
                         child: PlantTile(
                           titleText: plant.lon != null && plant.lat != null
-                              ? "${plant.lon!.toStringAsPrecision(4)}°, "
-                                  "${plant.lat!.toStringAsPrecision(4)}°"
+                              ? "${plant.lat!.toStringAsPrecision(4)}°, "
+                                  "${plant.lon!.toStringAsPrecision(4)}°"
                               : "Неизвестно",
                           icon: Iconsax.location_copy,
                         ),
@@ -71,8 +71,7 @@ class HistoryPlantElement extends StatelessWidget {
                         child: PlantTile(
                           titleText: plant.date != null
                               ? plant.date!
-                                  .toString()
-                                  .replaceAll('00:00:00.000', '')
+                                  .toString().substring(0, 10)
                               : "Неизвестно",
                           icon: Icons.timer_outlined,
                         ),

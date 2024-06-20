@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:me_and_flora/core/domain/service/locator.dart';
 import 'package:me_and_flora/feature/unknown_plants/presentation/bloc/unknown_plants.dart';
 
 import '../../../../core/domain/models/models.dart';
@@ -17,10 +18,13 @@ class UnknownPlantsBloc extends Bloc<UnknownPlantsEvent, UnknownPlantsState> {
 
   _getUnknownPlants(
       UnknownPlantsRequested event, Emitter<UnknownPlantsState> emit) async {
-    emit(UnkonwPlantsLoadInProgress());
+    emit(UnknownPlantsLoadInProgress());
     try {
-      final List<Plant> plantList = await PlantService().getUnknownPlants();
-      emit(UnknownPlantListSuccess(plants: plantList));
+      final Map<int, Plant> requestPlants = await locator<PlantService>()
+          .getUnknownPlantsByBotanic(event.page, event.size);
+      emit(UnknownPlantListSuccess(
+          plantIdList: requestPlants.keys.toList(),
+          plants: requestPlants.values.toList()));
     } catch (e) {
       emit(UnknownPlantListFailture());
     }

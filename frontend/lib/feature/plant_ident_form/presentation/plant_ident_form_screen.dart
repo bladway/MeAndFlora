@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:me_and_flora/core/presentation/widgets/plant_image.dart';
 
 import '../../../core/domain/models/models.dart';
 import '../../../core/presentation/widgets/plant_tile.dart';
@@ -12,8 +13,9 @@ import 'widgets/plant_ident_form.dart';
 
 @RoutePage()
 class PlantIdentFormScreen extends StatelessWidget {
-  const PlantIdentFormScreen({super.key, required this.plant});
+  const PlantIdentFormScreen({super.key, required this.plant, required this.requestId});
 
+  final int requestId;
   final Plant plant;
 
   @override
@@ -39,16 +41,7 @@ class PlantIdentFormScreen extends StatelessWidget {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        Image.file(File(plant.imageUrl),
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey,
-                              alignment: Alignment.center,
-                              child: Icon(Icons.camera_alt, size: height * 0.1,),
-                            );
-                          },
-                        ),
+                        PlantImage(image: plant.path, size: height * 0.1),
                         OverflowBar(
                           alignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -78,20 +71,22 @@ class PlantIdentFormScreen extends StatelessWidget {
                     SizedBox(height: height * 0.02,),
                     PlantTile(
                       titleText: plant.lon != null && plant.lat != null
-                          ? "lon: ${plant.lon} lat: ${plant.lat}"
+                          ? "${plant.lat!.toStringAsPrecision(4)}°, "
+                          "${plant.lon!.toStringAsPrecision(4)}°"
                           : "Местоположение неизвестно",
                       icon: Iconsax.location,
                     ),
                     PlantTile(
                       titleText: plant.date != null
-                          ? plant.date!.day.toString()
+                          ? plant.date!
+                          .toString().substring(0, 10)
                           : "Дата неизвестна",
                       icon: Icons.timer_rounded,
                     ),
                     SizedBox(height: height * 0.03,),
                   ],
                 ),
-                PlantIdentForm(plant: plant,),
+                PlantIdentForm(plant: plant, requestId: requestId,),
               ],
             ),
           ),

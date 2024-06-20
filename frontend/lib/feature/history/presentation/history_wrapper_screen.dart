@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:me_and_flora/core/presentation/bloc/plant_ident_history/plant_ident_history.dart';
 
 import '../../../core/presentation/bloc/plant_history/plant_history.dart';
 
@@ -17,12 +18,12 @@ class HistoryWrapperScreen extends StatelessWidget implements AutoRouteWrapper {
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider(
         create: (context) => PlantHistoryBloc()
-          ..add(const PlantHistoryListRequested(pageNumber: 0)),
-        child: BlocListener<PlantHistoryBloc, PlantHistoryState>(
-            listener: (BuildContext context, PlantHistoryState state) {
-              if (state is PlantLoadSuccess) {
+          ..add(const PlantHistoryListRequested(page: 0)),
+        child: BlocListener<PlantIdentHistoryBloc, PlantIdentHistoryState>(
+            listener: (BuildContext context, PlantIdentHistoryState state) {
+              if (state is PlantAddToHistorySuccess) {
                 BlocProvider.of<PlantHistoryBloc>(context)
-                    .add(const PlantHistoryListRequested(pageNumber: 0));
+                    .add(const PlantHistoryListRequested(page: 0));
               }
             },
             child: this));

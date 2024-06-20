@@ -13,7 +13,11 @@ class PlantInitial extends PlantState {}
 
 class PlantLoadInProgress extends PlantState {}
 
-class PlantRemoveSuccess extends PlantState {}
+class PlantRemoveSuccess extends PlantState {
+  final int id;
+
+  const PlantRemoveSuccess({required this.id});
+}
 
 class PlantLoadSuccess extends PlantState {
   final Plant plant;

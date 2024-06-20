@@ -7,8 +7,13 @@ import '../../../../core/theme/theme.dart';
 import '../../../track/presentation/widgets/track_plant_info.dart';
 
 class UnknownPlantElement extends StatelessWidget {
-  const UnknownPlantElement({super.key, required this.plant, required this.iconSize});
+  const UnknownPlantElement(
+      {super.key,
+      required this.requestId,
+      required this.plant,
+      required this.iconSize});
 
+  final int requestId;
   final Plant plant;
   final double iconSize;
 
@@ -24,9 +29,12 @@ class UnknownPlantElement extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(8))),
       child: InkWell(
         onTap: () {
-          context.pushRoute(PlantIdentFormRoute(plant: plant));
+          context.pushRoute(PlantIdentFormRoute(requestId: requestId, plant: plant));
         },
-        child: TrackPlantInfo(plant: plant, iconSize: iconSize,),
+        child: TrackPlantInfo(
+          plant: plant,
+          iconSize: iconSize,
+        ),
       ),
     );
   }

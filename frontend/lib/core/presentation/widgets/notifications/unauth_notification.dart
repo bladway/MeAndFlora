@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:me_and_flora/core/theme/strings.dart';
 
-import '../../../app_router/app_router.dart';
 import '../../../theme/theme.dart';
 import '../../bloc/auth/auth.dart';
 
@@ -44,7 +43,7 @@ class UnauthNotification extends StatelessWidget {
             )),
         TextButton(
             onPressed: () {
-              BlocProvider.of<AuthBloc>(context).add(UnauthRequested());
+              BlocProvider.of<AuthBloc>(context).add(const UnauthRequested());
               AutoRouter.of(context).pop();
               //AutoRouter.of(context).push(const HomeRoute());
             },
