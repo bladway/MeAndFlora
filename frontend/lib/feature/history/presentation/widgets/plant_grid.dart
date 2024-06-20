@@ -14,14 +14,14 @@ class PlantGrid extends StatefulWidget {
 }
 
 class _PlantGridState extends State<PlantGrid> {
-  late bool _isLastPage = false;
-  late int _pageNumber = 0;
+  bool _isLastPage = false;
+  int _pageNumber = 0;
   final int _nextPageTrigger = 3;
-  List<Plant> plantList = [];
 
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.sizeOf(context).height;
+    List<Plant> plantList = [];
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -29,9 +29,13 @@ class _PlantGridState extends State<PlantGrid> {
           builder: (context, state) {
         if (state is PlantHistoryLoadSuccess) {
           if (state.plantList.isNotEmpty) {
-            _pageNumber++;
-            plantList.addAll(state.plantList);
-          } else {
+            if (plantList.isNotEmpty && plantList.length % 100 == 0) {
+              _pageNumber++;
+              plantList.addAll(state.plantList);
+            } else {
+              plantList = state.plantList;
+            }
+          } else if (plantList.isEmpty) {
             return const EmptyWidget();
           }
         }
@@ -46,8 +50,11 @@ class _PlantGridState extends State<PlantGrid> {
             crossAxisSpacing: 10,
           ),
           itemBuilder: (context, index) {
-            if (index == plantList.length - _nextPageTrigger && !_isLastPage) {
-              //BlocProvider.of<PlantHistoryBloc>(context).add(PlantHistoryListRequested(page: _pageNumber));
+            if (plantList.length == 100 &&
+                index == plantList.length - _nextPageTrigger &&
+                !_isLastPage) {
+              BlocProvider.of<PlantHistoryBloc>(context)
+                  .add(PlantHistoryListRequested(page: _pageNumber));
             }
             if (index == plantList.length) {
               _isLastPage = true;

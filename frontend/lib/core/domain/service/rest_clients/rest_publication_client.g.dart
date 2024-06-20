@@ -13,7 +13,7 @@ class _RestPublicationClient implements RestPublicationClient {
     this._dio, {
     this.baseUrl,
   }) {
-    baseUrl ??= 'https://74f3-5-187-71-141.ngrok-free.app';
+    baseUrl ??= 'https://d93e-5-187-71-221.ngrok-free.app';
   }
 
   final Dio _dio;

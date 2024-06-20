@@ -27,7 +27,7 @@ class PlantIdentLoadSuccess extends PlantIdentState {
   List<Object> get props => [plant];
 }
 
-//class PlantSecondIdentSend extends PlantIdentState {}
+class PlantUserIdentSuccess extends PlantIdentState {}
 
 class PlantIdentLimitReached extends PlantIdentState {}
 

@@ -13,7 +13,7 @@ class _RestRequestClient implements RestRequestClient {
     this._dio, {
     this.baseUrl,
   }) {
-    baseUrl ??= 'https://74f3-5-187-71-141.ngrok-free.app';
+    baseUrl ??= 'https://d93e-5-187-71-221.ngrok-free.app';
   }
 
   final Dio _dio;
@@ -82,7 +82,7 @@ class _RestRequestClient implements RestRequestClient {
 
   @override
   Future<IdentResponseDto> requestIdent({
-    GeoDto? point,
+    GeoDto? geoDto,
     required File image,
   }) async {
     const _extra = <String, dynamic>{};
@@ -91,8 +91,8 @@ class _RestRequestClient implements RestRequestClient {
     final _headers = <String, dynamic>{};
     final _data = FormData();
     _data.fields.add(MapEntry(
-      'point',
-      jsonEncode(point ?? <String, dynamic>{}),
+      'geoDto',
+      jsonEncode(geoDto ?? <String, dynamic>{}),
     ));
     _data.files.add(MapEntry(
       'image',

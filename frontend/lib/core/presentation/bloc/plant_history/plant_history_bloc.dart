@@ -12,8 +12,8 @@ class PlantHistoryBloc extends Bloc<PlantHistoryEvent, PlantHistoryState> {
         if (event is PlantHistoryListRequested) {
           await _requestHistoryPlantList(event, emit);
         }
-        // if (event is PlantHistoryRequested) {
-        //   await _requestPlantHistory(event, emit);
+        // if (event is AddPlantHistoryRequested) {
+        //   await _requestAddPlantHistory(event, emit);
         // }
       },
     );
@@ -25,20 +25,19 @@ class PlantHistoryBloc extends Bloc<PlantHistoryEvent, PlantHistoryState> {
     try {
       final List<Plant> plantList = await locator<HistoryService>()
           .getHistoryPlants(event.page, event.size);
-      emit(PlantHistoryLoadSuccess(plantList: plantList));
+      emit(PlantHistoryLoadSuccess(plantList: plantList, page: event.page));
     } on Exception catch (_, e) {
       emit(PlantLoadFailure(errorMsg: e.toString()));
     }
   }
 
-// Future<void> _requestPlantHistory(
-//     PlantHistoryRequested event, Emitter<PlantHistoryState> emit) async {
-//   emit(PlantLoadInProgress());
-//   try {
-//     await HistoryService().addPlantToHistory("accountId", event.plant);
-//     emit(PlantLoadSuccess());
-//   } on Exception catch (_, e) {
-//     emit(PlantLoadFailure(errorMsg: e.toString()));
-//   }
-// }
+  // Future<void> _requestAddPlantHistory(
+  //     AddPlantHistoryRequested event, Emitter<PlantHistoryState> emit) async {
+  //   emit(PlantLoadInProgress());
+  //   try {
+  //     emit(PlantAddToHistorySuccess());
+  //   } on Exception catch (_, e) {
+  //     emit(PlantLoadFailure(errorMsg: e.toString()));
+  //   }
+  // }
 }
