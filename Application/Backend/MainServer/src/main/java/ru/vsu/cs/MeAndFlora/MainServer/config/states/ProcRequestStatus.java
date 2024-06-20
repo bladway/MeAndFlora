@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public enum ProcRequestStatus {
 
+    NEURAL_PROC("neuralProc"),
     USER_PROC("userProc"),
     BOTANIST_PROC("botanistProc"),
-    NEURAL_PROC("neuralProc"),
     SAVED("saved"),
     PUBLISHED("published"),
     BAD("bad");

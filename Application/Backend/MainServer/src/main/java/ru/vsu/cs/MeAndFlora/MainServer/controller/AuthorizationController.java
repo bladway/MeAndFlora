@@ -11,14 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.AuthException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.InputException;
-import ru.vsu.cs.MeAndFlora.MainServer.config.exception.JwtException;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.DiJwtDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.ExceptionDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.NamedAuthDto;
-import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.UnnamedAuthDto;
-import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
+import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
+import ru.vsu.cs.MeAndFlora.MainServer.controller.dto.*;
+import ru.vsu.cs.MeAndFlora.MainServer.service.UserService;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,17 +21,16 @@ import ru.vsu.cs.MeAndFlora.MainServer.service.AuthorizationService;
 @RequestMapping(path = "/auth")
 class AuthorizationController {
 
-    public static final Logger authorizationLogger =
+    private static final Logger authorizationLogger =
             LoggerFactory.getLogger(AuthorizationController.class);
 
-    private final AuthorizationService authorizationService;
+    private final UserService authorizationService;
 
     @Operation(description = "Post. User registration and automatic login. Requires: NamedAuthDto in body."
             + "Provides: DiJwtDto in body.")
     @PostMapping(
             value = "/register",
-            consumes = {MediaType.APPLICATION_JSON_VALUE},
-            produces = {MediaType.APPLICATION_JSON_VALUE}
+            consumes = {MediaType.APPLICATION_JSON_VALUE}
     )
     public ResponseEntity<Object> register(
         @RequestBody @Schema(
@@ -50,31 +44,29 @@ class AuthorizationController {
 
         try {
 
-            DiJwtDto responseDto = authorizationService.register(
+            body = authorizationService.register(
                 namedAuthDto.getLogin(), namedAuthDto.getPassword(), namedAuthDto.getIpAddress()
             );
-
-            body = responseDto;
 
             status = HttpStatus.OK;
 
             authorizationLogger.info(
-                "Register with username: " + namedAuthDto.getLogin() + " is successful"
+                "Register with username: {} is successful", namedAuthDto.getLogin()
             );
 
+        } catch (CustomRuntimeException e) {
 
-        } catch (AuthException | InputException e) {
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            ExceptionDto exceptionDto =
-                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
-
-            body = exceptionDto;
-
-            status = e.getClass() == AuthException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
                  
-            authorizationLogger.warn(e.getShortMessage() + ": " + e.getMessage());            
+            authorizationLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
         }
 
@@ -85,12 +77,11 @@ class AuthorizationController {
     @Operation(description = "Post. User login. Requires: NamedAuthDto in body."
             + "Provides: DiJwtDto in body.")
     @PostMapping(
-            value = "/login",
-            consumes = {MediaType.APPLICATION_JSON_VALUE},
-            produces = {MediaType.APPLICATION_JSON_VALUE}
+            value = "/userLogin",
+            consumes = {MediaType.APPLICATION_JSON_VALUE}
     )
     public ResponseEntity<Object> login(
-        @RequestPart @Schema(
+        @RequestBody @Schema(
                 example = "{\"login\":\"testuser\", \"password\":\"testuser\", \"ipAddress\":\"1.1.1.1\"}"
         ) NamedAuthDto namedAuthDto
     ) {
@@ -101,30 +92,29 @@ class AuthorizationController {
 
         try {
 
-            DiJwtDto responseDto = authorizationService.login(
+            body = authorizationService.login(
                 namedAuthDto.getLogin(), namedAuthDto.getPassword(), namedAuthDto.getIpAddress()
             );
-
-            body = responseDto;
 
             status = HttpStatus.OK;
 
             authorizationLogger.info(
-                "Login with username: " + namedAuthDto.getLogin() + " is successful"
+                "Login with username: {} is successful", namedAuthDto.getLogin()
             );
 
-        } catch (AuthException | InputException e) {
+        } catch (CustomRuntimeException e) {
 
-            ExceptionDto exceptionDto =
-                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            body = exceptionDto;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
-            status = e.getClass() == AuthException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
-
-            authorizationLogger.warn(e.getShortMessage() + ": " + e.getMessage());
+            authorizationLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
         }
 
@@ -135,12 +125,11 @@ class AuthorizationController {
     @Operation(description = "Post. Anonymous login. Requires: UnnamedAuthDto in body."
             + "Provides: DiJwtDto in body.")
     @PostMapping(
-            value = "/anonymous",
-            consumes = {MediaType.APPLICATION_JSON_VALUE},
-            produces = {MediaType.APPLICATION_JSON_VALUE}
+            value = "/anonymousLogin",
+            consumes = {MediaType.APPLICATION_JSON_VALUE}
     )
     public ResponseEntity<Object> anonymousLogin(
-        @RequestPart @Schema(
+        @RequestBody @Schema(
                 example = "{\"ipAddress\":\"1.1.1.1\"}"
         ) UnnamedAuthDto unnamedAuthDto
     ) {
@@ -151,28 +140,27 @@ class AuthorizationController {
 
         try {
 
-            DiJwtDto responseDto = authorizationService.anonymousLogin(unnamedAuthDto.getIpAddress());
-
-            body = responseDto;
+            body = authorizationService.anonymousLogin(unnamedAuthDto.getIpAddress());
 
             status = HttpStatus.OK;
 
             authorizationLogger.info(
-                "Anonymus login on ip: " + unnamedAuthDto.getIpAddress() + " is successful"
+                "Anonymous login on ip: {} is successful", unnamedAuthDto.getIpAddress()
             );
 
-        } catch (AuthException | InputException e) {
+        } catch (CustomRuntimeException e) {
 
-            ExceptionDto exceptionDto =
-                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            body = exceptionDto;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
-            status = e.getClass() == AuthException.class ?
-                    HttpStatus.UNAUTHORIZED : e.getClass() == InputException.class ?
-                    HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
-
-            authorizationLogger.warn(e.getShortMessage() + ": " + e.getMessage());        
+            authorizationLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
         }
 
@@ -180,11 +168,10 @@ class AuthorizationController {
 
     }
 
-    @Operation(description = "Get. Get fresh jwt and refresh jwt (jwtr). Requires: jwtr in header."
+    @Operation(description = "Put. Get fresh jwt and refresh jwt (jwtr) (put new tokens). Requires: jwtr in header."
             + "Provides: DiJwtDto in body.")
-    @GetMapping(
-            value = "/refresh",
-            produces = {MediaType.APPLICATION_JSON_VALUE}
+    @PutMapping(
+            value = "/refreshJwt"
     )
     public ResponseEntity<Object> refresh(
             @RequestHeader String jwtr
@@ -196,32 +183,85 @@ class AuthorizationController {
 
         try {
 
-            DiJwtDto responseDto = authorizationService.refresh(jwtr);
-
-            body = responseDto;
+            body = authorizationService.refresh(jwtr);
 
             status = HttpStatus.OK;
 
             authorizationLogger.info(
-                "Refresh token: " + jwtr + " has worked successfully"
+                "Refresh token: {} has worked successfully", jwtr
             );
 
-        } catch (JwtException e) {
+        } catch (CustomRuntimeException e) {
 
-            ExceptionDto exceptionDto =
-                    new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
 
-            body = exceptionDto;
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
 
-            status = e.getClass() == JwtException.class ?
-                    HttpStatus.UNAUTHORIZED : HttpStatus.INTERNAL_SERVER_ERROR;
-        
-            authorizationLogger.warn(e.getShortMessage() + ": " + e.getMessage());
+            authorizationLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
 
         }
 
         return new ResponseEntity<>(body, headers, status);
 
     }
+
+    @Operation(description = "Patch. Change actual account data. Requires: jwt in header. AccountChangesDto in body"
+            + "Provides: StringDto with actual username in body.")
+    @PatchMapping(
+            value = "/changeData"
+    )
+    public ResponseEntity<Object> change(
+            @RequestHeader String jwt,
+            @RequestBody AccountChangesDto accountChangesDto
+    ) {
+
+        Object body;
+        HttpHeaders headers = new HttpHeaders();
+        HttpStatus status;
+
+        try {
+
+            StringDto returnDto = authorizationService.change(jwt,
+                    accountChangesDto.getNewLogin(),
+                    accountChangesDto.getNewPassword(),
+                    accountChangesDto.getOldPassword()
+            );
+
+            body = returnDto;
+
+            status = HttpStatus.OK;
+
+            authorizationLogger.info(
+                    "Account data for actual user: {} has saved successfully", returnDto.getString()
+            );
+
+        } catch (CustomRuntimeException e) {
+
+            body = new ExceptionDto(e.getShortMessage(), e.getMessage(), e.getTimestamp());
+
+            status = e.getClass() == AuthException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == InputException.class ? HttpStatus.BAD_REQUEST
+                    : e.getClass() == JwtException.class ? HttpStatus.UNAUTHORIZED
+                    : e.getClass() == ObjectException.class ? HttpStatus.NOT_FOUND
+                    : e.getClass() == RightsException.class ? HttpStatus.FORBIDDEN
+                    : e.getClass() == StateException.class ? HttpStatus.CONFLICT
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            authorizationLogger.warn("{}: {}", e.getShortMessage(), e.getMessage());
+
+        }
+
+        headers.add("jwt", jwt);
+
+        return new ResponseEntity<>(body, headers, status);
+
+    }
+
 
 }

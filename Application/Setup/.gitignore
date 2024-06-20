@@ -1,4 +1,2 @@
 ### Hidden config info file ###
 deployment.env
-### Hidden kafka SASL config file ###
-kafka_server_jaas.conf

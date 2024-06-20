@@ -19,7 +19,11 @@ public class MafUser {
     }
 
     @Id
-    @Column(name = "LOGIN", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "USER_ID", nullable = false)
+    private Long userId;
+
+    @Column(name = "LOGIN", nullable = false, unique = true)
     private String login;
 
     @Column(name = "PASSWORD", nullable = false)
@@ -30,5 +34,13 @@ public class MafUser {
 
     @OneToMany(mappedBy = "user")
     private List<USession> sessionList;
+
+    @ManyToMany
+    @JoinTable(
+        name = "FLORA_SUBSCRIPTION",
+        joinColumns = @JoinColumn(name = "USER_ID"),
+        inverseJoinColumns = @JoinColumn(name = "FLORA_ID")
+    )
+    private List<Flora> trackedPlants;
 
 }

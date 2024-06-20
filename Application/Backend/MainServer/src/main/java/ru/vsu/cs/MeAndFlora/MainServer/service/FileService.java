@@ -1,14 +1,11 @@
 package ru.vsu.cs.MeAndFlora.MainServer.service;
 
 import org.springframework.core.io.Resource;
-import org.springframework.web.multipart.MultipartFile;
-
-import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.ProcRequest;
 
 public interface FileService {
 
-    Resource getImage(String path, ProcRequest deleteOnException);
+    Resource downloadFileWithAuth(String jwt, String filePath);
 
-    void putImage(MultipartFile image, String path, ProcRequest deleteOnException);
+    Resource downloadFile(String filePath);
 
 }

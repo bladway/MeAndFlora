@@ -10,18 +10,24 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
 public class JwtUtil {
 
+    private static Long createdNumberJwt = 0L;
+
+    private static Long createdNumberJwtR = 0L;
+
     private final JwtPropertiesConfig jwtPropertiesConfig;
 
-    public String generateToken(Long sessionId) {
+    /*public String generateToken(Long sessionId) {
         SecretKey key = Keys.hmacShaKeyFor(jwtPropertiesConfig.getPassword().getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
                 .claim("type", "access")
                 .claim("sessionId", sessionId.toString())
+                .claim("createdTime", Date.from(OffsetDateTime.now().toInstant()))
                 .signWith(key)
                 .compact();
     }
@@ -31,6 +37,27 @@ public class JwtUtil {
         return Jwts.builder()
                 .claim("type", "refresh")
                 .claim("sessionId", sessionId.toString())
+                .claim("createdTime", Date.from(OffsetDateTime.now().toInstant()))
+                .signWith(key)
+                .compact();
+    }*/
+
+    public String generateToken() {
+        SecretKey key = Keys.hmacShaKeyFor(jwtPropertiesConfig.getPassword().getBytes(StandardCharsets.UTF_8));
+        return Jwts.builder()
+                .claim("type", "access")
+                .claim("createdTime", Date.from(OffsetDateTime.now().toInstant()))
+                .claim("createdNumberJwt", createdNumberJwt++)
+                .signWith(key)
+                .compact();
+    }
+
+    public String generateRToken() {
+        SecretKey key = Keys.hmacShaKeyFor(jwtPropertiesConfig.getPasswordr().getBytes(StandardCharsets.UTF_8));
+        return Jwts.builder()
+                .claim("type", "refresh")
+                .claim("createdTime", Date.from(OffsetDateTime.now().toInstant()))
+                .claim("createdNumberJwtR", createdNumberJwtR++)
                 .signWith(key)
                 .compact();
     }
