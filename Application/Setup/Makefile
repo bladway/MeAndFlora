@@ -13,8 +13,6 @@ hard-rm:
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env stop && \
 	docker-compose -f ./docker-compose-MeAndFlora.yml --env-file ./deployment.env rm -f && \
 	docker volume rm MeAndFlora-Database && \
-	docker volume rm MeAndFlora-Mongo && \
-	docker volume rm MeAndFlora-Cachebase && \
 	docker volume rm MeAndFlora-GetImages && \
 	docker volume rm MeAndFlora-ProcImages && \
 	echo ${SERVER_PASSWORD} | sudo -S rm -rf /server/
@@ -22,8 +20,6 @@ hard-rm:
 hard-up:
 	echo ${SERVER_PASSWORD} | sudo -S mkdir /server && \
 	echo ${SERVER_PASSWORD} | sudo -S mkdir /server/MeAndFlora-Database && \
-	echo ${SERVER_PASSWORD} | sudo -S mkdir /server/MeAndFlora-Mongo && \
-	echo ${SERVER_PASSWORD} | sudo -S mkdir /server/MeAndFlora-Cachebase && \
 	echo ${SERVER_PASSWORD} | sudo -S mkdir /server/MeAndFlora-GetImages && \
 	echo ${SERVER_PASSWORD} | sudo -S mkdir /server/MeAndFlora-ProcImages && \
 	docker pull bladway/maf-mainserver && \
