@@ -9,7 +9,6 @@ import 'package:me_and_flora/core/theme/theme.dart';
 
 import '../../../core/app_router/app_router.dart';
 import '../../../core/domain/models/models.dart';
-import '../../../core/presentation/bloc/plant/plant.dart';
 import '../../../core/presentation/bloc/plant_search/plant_search.dart';
 import '../../../core/presentation/widgets/plant_list.dart';
 import '../../../core/presentation/widgets/search_delegate.dart';
