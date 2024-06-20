@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../domain/models/models.dart';
-
 abstract class PlantHistoryEvent extends Equatable {
   const PlantHistoryEvent();
 
@@ -19,11 +17,6 @@ class PlantHistoryListRequested extends PlantHistoryEvent {
   List<Object> get props => [page];
 }
 
-// class PlantHistoryRequested extends PlantHistoryEvent {
-//   final Plant plant;
-//
-//   const PlantHistoryRequested({required this.plant});
-//
-//   @override
-//   List<Object> get props => [plant];
+// class AddPlantHistoryRequested extends PlantHistoryEvent {
+//   const AddPlantHistoryRequested();
 // }

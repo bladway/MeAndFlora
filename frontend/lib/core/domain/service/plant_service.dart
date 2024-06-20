@@ -67,10 +67,17 @@ class PlantService {
     try {
       final File image = File(imagePath);
       final response =
-          await requestClient.requestIdent(point: point, image: image);
+          await requestClient.requestIdent(geoDto: point, image: image);
       return response;
     } on Exception catch (_) {
-      throw IdentLimitException();
+      try {
+        final File image = File(imagePath);
+        final response =
+            await requestClient.requestIdent(geoDto: point, image: image);
+        return response;
+      } on Exception catch (_) {
+        throw IdentLimitException();
+      }
     }
   }
 

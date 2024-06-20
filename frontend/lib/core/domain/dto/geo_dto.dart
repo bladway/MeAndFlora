@@ -4,9 +4,9 @@ part 'geo_dto.g.dart';
 
 @JsonSerializable()
 class GeoDto {
-  const GeoDto({required this.coordinates});
+  const GeoDto({this.type = "Point", required this.coordinates});
 
-  final String type = "Point";
+  final String type;
   final List<double> coordinates;
 
   factory GeoDto.fromJson(Map<String, dynamic> json) =>

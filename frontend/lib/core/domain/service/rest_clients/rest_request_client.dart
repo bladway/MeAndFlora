@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:me_and_flora/core/domain/api/api_key.dart';
@@ -8,9 +7,7 @@ import 'package:me_and_flora/core/domain/dto/answer_dto.dart';
 import 'package:me_and_flora/core/domain/dto/geo_dto.dart';
 import 'package:me_and_flora/core/domain/dto/ident_response_dto.dart';
 import 'package:me_and_flora/core/domain/dto/long_list_dto.dart';
-import 'package:me_and_flora/core/domain/dto/plant_names.dart';
 import 'package:me_and_flora/core/domain/dto/request_dto.dart';
-import 'package:me_and_flora/core/domain/models/models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'rest_request_client.g.dart';
@@ -31,7 +28,7 @@ abstract class RestRequestClient {
   @POST('/request/create')
   @MultiPart()
   Future<IdentResponseDto> requestIdent({
-    @Part() GeoDto? point,
+    @Part() GeoDto? geoDto,
     @Part() required File image,
   });
 
