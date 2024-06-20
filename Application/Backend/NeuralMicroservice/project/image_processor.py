@@ -46,7 +46,6 @@ def process_message():
 
 for message in consumer:
     flora_name = process_message()
-    consumer.commit()
     producer.send(
         return_topic,
         key=message.key,
@@ -54,6 +53,7 @@ for message in consumer:
         headers=message.headers,
         partition=int(message.key.hex(), base=16)
     )
+    consumer.commit()
     print("Сообщение успешно отправлено")
     print("----------------------------------")
     sys.stdout.flush()
