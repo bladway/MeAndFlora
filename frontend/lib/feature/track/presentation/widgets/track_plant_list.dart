@@ -26,7 +26,7 @@ class _TrackPlantListState extends State<TrackPlantList> {
 
     return StreamBuilder<Map<int, Plant>>(
       stream: locator<TrackService>().getStreamTrackPlantsByUser(
-          _pageNumber, _size, const Duration(minutes: 1)),
+          _pageNumber, _size, const Duration(seconds: 10)),
       builder: (_, AsyncSnapshot<Map<int, Plant>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

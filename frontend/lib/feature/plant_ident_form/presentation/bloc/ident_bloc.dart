@@ -15,7 +15,7 @@ class IdentBloc extends Bloc<IdentEvent, IdentState> {
           await _createPlant(event, emit);
         }
         if (event is ImpossibleIdentRequested) {
-          _impossibleIdentPlant(event, emit);
+          await _impossibleIdentPlant(event, emit);
         }
       },
     );

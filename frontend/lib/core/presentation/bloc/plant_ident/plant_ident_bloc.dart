@@ -20,9 +20,6 @@ class PlantIdentBloc extends Bloc<PlantIdentEvent, PlantIdentState> {
         if (event is UserIdentDecesionRequested) {
           await _requestUserDecesion(event, emit);
         }
-        // if (event is PlantBotanicIdentInitial) {
-        //   await _initialSearchByBotanic(event, emit);
-        // }
       },
     );
   }
@@ -62,19 +59,11 @@ class PlantIdentBloc extends Bloc<PlantIdentEvent, PlantIdentState> {
     }
   }
 
-  // Future<void> _initialSearchByBotanic(
-  //     PlantBotanicIdentInitial event, Emitter<PlantIdentState> emit) async {
-  //   emit(PlantSecondIdentInitial());
-  // }
-
   Future<void> _requestPlantSearchByBotanic(
       PlantBotanicIdentRequested event, Emitter<PlantIdentState> emit) async {
-    //emit(PlantSecondIdentInitial());
     emit(PlantIdentLoadInProgress());
     try {
-      //await locator<PlantService>().requestIdentByBotanic(event.isCorrect, event.requestId);
       await locator<PlantService>().sendUserIncorrectDecision(event.requestId);
-      //emit(PlantSecondIdentSend());
     } on Exception catch (_, e) {
       emit(PlantIdentLoadFailure(errorMsg: e.toString()));
     }

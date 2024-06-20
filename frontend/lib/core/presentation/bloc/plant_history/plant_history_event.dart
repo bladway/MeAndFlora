@@ -16,7 +16,3 @@ class PlantHistoryListRequested extends PlantHistoryEvent {
   @override
   List<Object> get props => [page];
 }
-
-// class AddPlantHistoryRequested extends PlantHistoryEvent {
-//   const AddPlantHistoryRequested();
-// }

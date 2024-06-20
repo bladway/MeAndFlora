@@ -92,6 +92,14 @@ class PlantService {
     return plantList;
   }
 
+  Stream<Map<int, Plant>> getStreamUnknownPlantsByBotanic(
+      int page, int size, Duration refreshTime) async* {
+    while (true) {
+      await Future.delayed(refreshTime);
+      yield await getUnknownPlantsByBotanic(page, size);
+    }
+  }
+
   Future<void> sendUserDecision(int requestId, String isCorrect) async {
     await requestClient.postUserDecision(
         answerDto: AnswerDto(requestId: requestId, answer: isCorrect));

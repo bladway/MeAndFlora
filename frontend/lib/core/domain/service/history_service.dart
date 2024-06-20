@@ -6,19 +6,22 @@ import 'package:me_and_flora/core/domain/service/rest_clients/rest_history_clien
 import '../models/models.dart';
 
 class HistoryService {
-  // Future<void> addPlantToHistory(String accountId, Plant plant) async {
-  //   //final response = await Dio().post("path", data: plant);
-  //   historyList.insert(0, plant);
-  // }
-
   final historyClient = RestHistoryClient(AuthService.api);
 
-  Future<List<Plant>> getHistoryPlants(int page, int size) async {
+  Future<Map<int, Plant>> getHistoryPlants(int page, int size) async {
     final publicationIds = await historyClient.getHistory(page, size);
-    List<Plant> plantList = [];
+    Map<int, Plant> plantList = {};
     for (var id in publicationIds.longs) {
-      plantList.add(await locator<PlantService>().getPlantByRequestId(id));
+      plantList[id] = await locator<PlantService>().getPlantByRequestId(id);
     }
     return plantList;
+  }
+
+  Stream<Map<int, Plant>> getStreamHistoryPlants(
+      int page, int size, Duration refreshTime) async* {
+    while (true) {
+      await Future.delayed(refreshTime);
+      yield await getHistoryPlants(page, size);
+    }
   }
 }
