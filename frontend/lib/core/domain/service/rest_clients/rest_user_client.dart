@@ -1,9 +1,6 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:me_and_flora/core/domain/api/api_key.dart';
-import 'package:me_and_flora/core/domain/dto/plant_names.dart';
+import 'package:me_and_flora/core/domain/dto/number_dto.dart';
 import 'package:me_and_flora/core/domain/dto/string_dto.dart';
 import 'package:me_and_flora/core/domain/dto/user_info_dto_list.dart';
 import 'package:me_and_flora/core/domain/models/account.dart';
@@ -17,7 +14,7 @@ abstract class RestUserClient {
   factory RestUserClient(Dio dio, {String baseUrl}) = _RestUserClient;
 
   @POST('/user/seeAdvert')
-  Future<int> seeAdvertisement();
+  Future<NumberDto> seeAdvertisement();
 
   @POST('/user/create')
   Future<Account> createAccountByAdmin({@Body() required Account account});

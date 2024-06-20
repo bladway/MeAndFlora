@@ -71,7 +71,8 @@ class AuthService {
       method: requestOptions.method,
       headers: requestOptions.headers,
     );
-    return AuthService.api.request<dynamic>(requestOptions.path,
+    return AuthService.api.request<dynamic>(
+        requestOptions.baseUrl + requestOptions.path,
         data: requestOptions.data,
         queryParameters: requestOptions.queryParameters,
         options: options);
@@ -93,7 +94,7 @@ class AuthService {
   Future<Account> loadUser() async {
     try {
       if (await hasJwt()) {
-        final response = await api.get('$baseUrl/user/byJwt');
+        final response = await api.get('/user/byJwt');
         final data = response.data as Map<String, dynamic>;
         return Account.fromJson(data);
       } else {
@@ -109,15 +110,17 @@ class AuthService {
     await _storage.delete(key: 'jwtR');
   }
 
-  static Future<bool> refreshToken({String keyStore = 'jwtR'}) async {
-    final refreshToken = await _storage.read(key: keyStore);
+  static Future<bool> refreshToken(
+      {String keyStore = 'jwtR', String url = baseUrl}) async {
+    final refreshJwt = await _storage.read(key: keyStore);
     await _storage.delete(key: 'jwt');
     await _storage.delete(key: 'jwtR');
+    await _storage.delete(key: 'AnonymousRefreshJwt');
 
     final response = await api.put(
       '$baseUrl/auth/refreshJwt',
       options: Options(
-        headers: {'jwtR': refreshToken},
+        headers: {'jwtR': refreshJwt},
       ),
     );
 
@@ -128,13 +131,9 @@ class AuthService {
         await saveAnonymousRefreshJwt(response.data['jwtR']);
       }
       return true;
+    } else if (response.statusCode == 404 && response.data is String) {
+      return await refreshToken(keyStore: keyStore, url: baseUrl2);
     }
-    // } else {
-    //   // await _storage.delete(key: 'jwt');
-    //   // await _storage.delete(key: 'jwtR');
-    //   return false;
-    // }
-
     return false;
   }
 
@@ -150,7 +149,7 @@ class AuthService {
 
   Future<Account> signUp(String login, String password) async {
     final String ipAddress = await getIpAddress();
-    final response = await api.post('$baseUrl/auth/register',
+    final response = await api.post('/auth/register',
         data: jsonEncode(
             {"login": login, "password": password, "ipAddress": ipAddress}));
 
@@ -168,7 +167,7 @@ class AuthService {
 
   Future<Account> signIn(String login, String password) async {
     final String ipAddress = await getIpAddress();
-    final response = await api.post('$baseUrl/auth/userLogin',
+    final response = await api.post('/auth/userLogin',
         data: jsonEncode(
             {"login": login, "password": password, "ipAddress": ipAddress}));
     switch (response.statusCode) {
@@ -189,7 +188,7 @@ class AuthService {
       await refreshToken(keyStore: 'AnonymousRefreshJwt');
     }
     final String ipAddress = await getIpAddress();
-    final response = await api.post('$baseUrl/auth/anonymousLogin',
+    final response = await api.post('/auth/anonymousLogin',
         data: jsonEncode({"ipAddress": ipAddress}));
     switch (response.statusCode) {
       case 200:
@@ -217,7 +216,7 @@ class AuthService {
       "oldPassword": passwordConfirm
     };
     final response =
-        await api.patch("$baseUrl/auth/changeData", data: jsonEncode(data));
+        await api.patch("/auth/changeData", data: jsonEncode(data));
     switch (response.statusCode) {
       case 200:
         return await loadUser();

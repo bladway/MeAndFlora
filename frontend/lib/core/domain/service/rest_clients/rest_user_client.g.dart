@@ -13,7 +13,7 @@ class _RestUserClient implements RestUserClient {
     this._dio, {
     this.baseUrl,
   }) {
-    baseUrl ??= 'https://74f3-5-187-71-141.ngrok-free.app';
+    baseUrl ??= 'https://d93e-5-187-71-221.ngrok-free.app';
   }
 
   final Dio _dio;
@@ -21,28 +21,29 @@ class _RestUserClient implements RestUserClient {
   String? baseUrl;
 
   @override
-  Future<int> seeAdvertisement() async {
+  Future<NumberDto> seeAdvertisement() async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<int>(_setStreamType<int>(Options(
+    final _result = await _dio
+        .fetch<Map<String, dynamic>>(_setStreamType<NumberDto>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
     )
-        .compose(
-          _dio.options,
-          '/user/seeAdvert',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(
-            baseUrl: _combineBaseUrls(
-          _dio.options.baseUrl,
-          baseUrl,
-        ))));
-    final value = _result.data!;
+            .compose(
+              _dio.options,
+              '/user/seeAdvert',
+              queryParameters: queryParameters,
+              data: _data,
+            )
+            .copyWith(
+                baseUrl: _combineBaseUrls(
+              _dio.options.baseUrl,
+              baseUrl,
+            ))));
+    final value = NumberDto.fromJson(_result.data!);
     return value;
   }
 

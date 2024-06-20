@@ -23,15 +23,27 @@ class AppInterceptors extends InterceptorsWrapper {
   Future<dynamic> onError(
       DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
+      String? jwt;
       if (await AuthService.hasRefreshJwt()) {
+        jwt = await AuthService.readRefreshJwt();
+      } else if (await AuthService.hasAnonymousRefreshJwt()) {
+        jwt = await AuthService.readAnonymousRefreshJwt();
+      }
+
+      if (jwt != null && jwt.isNotEmpty) {
         if (await AuthService.refreshToken()) {
           final jwt = await AuthService.readUserJwt();
           err.requestOptions.headers['jwt'] = '$jwt';
-          return handler.resolve(await AuthService.retry(err.requestOptions));
+          if (!err.requestOptions.path.contains('/request/create')) {
+            return handler.resolve(await AuthService.retry(err.requestOptions));
+          }
         } else {
           return;
         }
       }
+    } else if (err.response?.statusCode == 404 && err.response?.data is String) {
+      err.requestOptions.baseUrl = baseUrl2;
+      return handler.resolve(await AuthService.retry(err.requestOptions));
     }
     return handler.next(err);
   }
