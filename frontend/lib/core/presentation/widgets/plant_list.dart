@@ -19,13 +19,13 @@ class PlantList extends StatelessWidget {
       lazy: false,
       create: (_) {
         if (type == PlantType.flower) {
-          return PlantBloc()..add(FlowersRequested());
+          return PlantBloc()..add(const FlowersRequested());
         } else if (type == PlantType.tree) {
-          return PlantBloc()..add(TreesRequested());
+          return PlantBloc()..add(const TreesRequested());
         } else if (type == PlantType.grass) {
-          return PlantBloc()..add(GrassRequested());
+          return PlantBloc()..add(const GrassRequested());
         } else if (type == PlantType.moss) {
-          return PlantBloc()..add(MossRequested());
+          return PlantBloc()..add(const MossRequested());
         }
         return PlantBloc();
       },

@@ -15,8 +15,6 @@ class PlantLoadInProgress extends PlantHistoryState {}
 
 class PlantLoadSuccess extends PlantHistoryState {}
 
-// class PlantAddToHistorySuccess extends PlantHistoryState {}
-
 class PlantHistoryLoadSuccess extends PlantHistoryState {
   final List<Plant> plantList;
   final int page;
