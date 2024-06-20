@@ -17,8 +17,9 @@ class PlantLoadSuccess extends PlantHistoryState {}
 
 class PlantHistoryLoadSuccess extends PlantHistoryState {
   final List<Plant> plantList;
+  final int page;
 
-  const PlantHistoryLoadSuccess({required this.plantList});
+  const PlantHistoryLoadSuccess({required this.plantList, required this.page});
 
   @override
   List<Object> get props => [plantList];

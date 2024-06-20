@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:me_and_flora/core/presentation/bloc/plant_history/plant_history.dart';
+import 'package:me_and_flora/core/domain/models/models.dart';
+import 'package:me_and_flora/core/domain/service/history_service.dart';
+import 'package:me_and_flora/core/domain/service/locator.dart';
+import 'package:me_and_flora/core/presentation/widgets/widgets.dart';
 
-import '../../../../core/domain/models/models.dart';
 import 'history_plant_element.dart';
 
 class PlantGrid extends StatefulWidget {
@@ -13,102 +14,78 @@ class PlantGrid extends StatefulWidget {
 }
 
 class _PlantGridState extends State<PlantGrid> {
-  late bool _isLastPage;
-  late int _pageNumber;
-  late bool _error;
-  late bool _loading;
-  late int _numberOfPostsPerRequest;
-  late ScrollController _scrollController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageNumber = 0;
-    _isLastPage = false;
-    _numberOfPostsPerRequest = 10;
-    _scrollController = ScrollController();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _scrollController.dispose();
-  }
+  bool _isLastPage = false;
+  int _pageNumber = 0;
+  final int _size = 5;
+  final int _nextPageTrigger = 1;
 
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.sizeOf(context).height;
-    _scrollController.addListener(() {
-      var nextPageTrigger = 0.8 * _scrollController.position.maxScrollExtent;
+    List<int> requestIds = [];
+    List<Plant> plants = [];
 
-      if (_scrollController.position.pixels > nextPageTrigger) {
-        BlocProvider.of<PlantHistoryBloc>(context)
-            .add(PlantHistoryListRequested(pageNumber: _pageNumber));
-      }
-    });
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: BlocBuilder<PlantHistoryBloc, PlantHistoryState>(
-          builder: (context, state) {
-        if (state is PlantHistoryLoadSuccess) {
-          return GridView.builder(
-            controller: _scrollController,
-            itemCount: state.plantList.length + (_isLastPage ? 0 : 1),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 10,
+    return StreamBuilder<Map<int, Plant>>(
+      stream: locator<HistoryService>()
+        .getStreamHistoryPlants(_pageNumber, _size, const Duration(seconds: 10)),
+      builder: (_, AsyncSnapshot<Map<int, Plant>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return const Center(
+            child: Text(
+              'Что-то пошло не так :(',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            itemBuilder: (context, index) {
-              if (index == state.plantList.length) {
-                _isLastPage = true;
-                if (state is PlantLoadInProgress) {
-                  return const Center(
-                      child: CircularProgressIndicator());
-                } else {
-                  return const Center();
-                }
-              }
-              return HistoryPlantElement(
-                  plant: state.plantList[index], iconSize: height * 0.3 * 0.15);
-            },
           );
+        } else {
+          if (snapshot.data == null || snapshot.data?.length != _size) {
+            _isLastPage = true;
+          }
+          if (snapshot.data?.isEmpty ?? true && plants.isEmpty) {
+            return const EmptyWidget();
+          } else {
+            final data = snapshot.data;
+            if (_isLastPage && plants.isNotEmpty) {
+              int reloadCount = plants.length % _size;
+              requestIds.removeRange(requestIds.length - reloadCount - 1,
+                  requestIds.length);
+              requestIds.addAll(data?.keys ?? []);
+              plants.removeRange(plants.length - reloadCount - 1,
+                  plants.length);
+              plants.addAll(data?.values ?? []);
+            } else if (plants.isEmpty) {
+              requestIds.addAll(data?.keys ?? []);
+              plants.addAll(data?.values ?? []);
+            }
+            return GridView.builder(
+              itemCount: plants.length + (_isLastPage ? 0 : 1),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 10,
+              ),
+              itemBuilder: (context, index) {
+                if (index == plants.length - _nextPageTrigger && !_isLastPage) {
+                  _pageNumber++;
+                }
+                if (index == plants.length) {
+                  _isLastPage = true;
+                }
+                return index == plants.length
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : HistoryPlantElement(
+                        plant: plants[index], iconSize: height * 0.3 * 0.15);
+              },
+            );
+          }
         }
-        return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(8),
-              child: CircularProgressIndicator(),
-        ));
-      }),
+      },
     );
   }
 }
-
-/*
-class PlantGrid extends StatelessWidget {
-  final List<Plant> _plantList;
-  //late ScrollController _scrollController;
-
-  const PlantGrid({super.key, required List<Plant> plantList})
-      : _plantList = plantList;
-
-  @override
-  Widget build(BuildContext context) {
-    double height = MediaQuery.sizeOf(context).height;
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: GridView.builder(
-        itemCount: _plantList.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 10,
-        ),
-        itemBuilder: (context, index) {
-          return HistoryPlantElement(plant: _plantList[index], iconSize: height * 0.3 * 0.15);
-        },
-      ),
-    );
-  }
-}*/

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:me_and_flora/core/domain/models/models.dart';
+import 'package:me_and_flora/core/domain/dto/geo_dto.dart';
 
 abstract class PlantIdentEvent extends Equatable {
   const PlantIdentEvent();
@@ -9,12 +9,18 @@ abstract class PlantIdentEvent extends Equatable {
 }
 
 class PlantIdentRequested extends PlantIdentEvent {
+  final GeoDto? point;
   final String imagePath;
 
-  const PlantIdentRequested(this.imagePath);
+  const PlantIdentRequested({required this.point, required this.imagePath});
+}
 
-  @override
-  List<Object> get props => [imagePath];
+class UserIdentDecesionRequested extends PlantIdentEvent {
+  final bool isCorrect;
+  final int requestId;
+
+  const UserIdentDecesionRequested(
+      {required this.isCorrect, required this.requestId});
 }
 
 class PlantBotanicIdentInitial extends PlantIdentEvent {
@@ -22,10 +28,9 @@ class PlantBotanicIdentInitial extends PlantIdentEvent {
 }
 
 class PlantBotanicIdentRequested extends PlantIdentEvent {
-  final Plant plant;
+  final bool isCorrect;
+  final int requestId;
 
-  const PlantBotanicIdentRequested(this.plant);
-
-  @override
-  List<Object> get props => [plant];
+  const PlantBotanicIdentRequested(
+      {required this.isCorrect, required this.requestId});
 }

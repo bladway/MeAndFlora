@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:me_and_flora/core/presentation/bloc/plant/plant.dart';
+import 'package:me_and_flora/core/presentation/bloc/plant_track_list/plant_track_list.dart';
 
 import '../../../core/presentation/bloc/plant_track/plant_track.dart';
 
@@ -15,8 +17,16 @@ class TrackWrapperScreen extends StatelessWidget implements AutoRouteWrapper {
 
   @override
   Widget wrappedRoute(BuildContext context) {
-    return BlocProvider(
-        create: (context) => PlantTrackBloc()..add(PlantTrackListRequested()),
-        child: this);
+    return MultiBlocProvider(providers: [
+      BlocProvider<PlantTrackBloc>(
+        lazy: false,
+        create: (context) => PlantTrackBloc(),
+      ),
+      BlocProvider<PlantTrackListBloc>(
+        lazy: false,
+        create: (context) => PlantTrackListBloc()..add(const PlantTrackListRequested()),
+      ),
+      BlocProvider<PlantBloc>(lazy: false, create: (context) => PlantBloc()),
+    ], child: this);
   }
 }

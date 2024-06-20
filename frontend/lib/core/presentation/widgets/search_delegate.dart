@@ -71,11 +71,11 @@ class MySearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     List<String> searchResults = [
-      "Flower1",
-      "Flower2",
-      "Flower3",
-      "Flower4",
-      "Flower5",
+      "Одуванчик",
+      "Астра",
+      "Ананас",
+      "Василек",
+      "Боярышник",
       query
     ].where((element) => element.contains(query)).toList();
 

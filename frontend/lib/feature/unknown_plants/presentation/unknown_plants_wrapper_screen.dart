@@ -17,7 +17,7 @@ class UnknownPlantsWrapperScreen extends StatelessWidget
   @override
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider(
-        create: (context) => UnknownPlantsBloc()..add(UnknownPlantsRequested()),
+        create: (context) => UnknownPlantsBloc()..add(const UnknownPlantsRequested()),
         child: this);
   }
 }

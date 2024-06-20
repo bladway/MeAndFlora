@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:me_and_flora/core/presentation/bloc/plant_ident/plant_ident.dart';
+import 'package:me_and_flora/core/presentation/bloc/plant_ident_history/plant_ident_history.dart';
 
 import '../../../../app_router/app_router.dart';
-import '../../../../domain/models/models.dart';
 import '../../../../theme/theme.dart';
 import '../../../bloc/plant/plant.dart';
 import '../../../bloc/plant_history/plant_history.dart';
@@ -80,6 +80,8 @@ class NavBarAuthUserScreen extends StatelessWidget implements AutoRouteWrapper{
         BlocProvider<PlantTrackBloc>(lazy: false, create: (_) => PlantTrackBloc()),
         BlocProvider<PlantHistoryBloc>(create: (_) => PlantHistoryBloc()),
         BlocProvider<PlantIdentBloc>(create: (_) => PlantIdentBloc()),
+        BlocProvider<PlantIdentHistoryBloc>(
+            create: (_) => PlantIdentHistoryBloc()),
       ],
       child: this,
     );

@@ -11,7 +11,4 @@ class PlantSearchRequested extends PlantSearchEvent {
   final String plantName;
 
   const PlantSearchRequested(this.plantName);
-
-  @override
-  List<Object> get props => [plantName];
 }

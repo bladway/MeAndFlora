@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:me_and_flora/core/presentation/bloc/plant_ident_history/plant_ident_history.dart';
 
 import '../../../../app_router/app_router.dart';
 import '../../../../theme/theme.dart';
@@ -81,6 +82,8 @@ class NavBarBotanicScreen extends StatelessWidget implements AutoRouteWrapper {
             lazy: false, create: (_) => PlantTrackBloc()),
         BlocProvider<PlantHistoryBloc>(create: (_) => PlantHistoryBloc()),
         BlocProvider<PlantIdentBloc>(create: (_) => PlantIdentBloc()),
+        BlocProvider<PlantIdentHistoryBloc>(
+            create: (_) => PlantIdentHistoryBloc()),
       ],
       child: this,
     );

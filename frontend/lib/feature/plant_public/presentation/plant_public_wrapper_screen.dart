@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:me_and_flora/core/presentation/bloc/plant_track_list/plant_track_list.dart';
 
 import '../../../core/presentation/bloc/plant/plant.dart';
 import '../../../core/presentation/bloc/plant_track/plant_track.dart';
@@ -20,7 +21,12 @@ class PlantPublicWrapperScreen extends StatelessWidget
     return MultiBlocProvider(providers: [
       BlocProvider<PlantTrackBloc>(
         lazy: false,
-        create: (context) => PlantTrackBloc()..add(PlantTrackListRequested()),
+        create: (context) => PlantTrackBloc(),
+      ),
+      BlocProvider<PlantTrackListBloc>(
+        lazy: false,
+        create: (context) =>
+            PlantTrackListBloc()..add(const PlantTrackListRequestedByAdmin()),
       ),
       BlocProvider<PlantBloc>(lazy: false, create: (context) => PlantBloc()),
     ], child: this);

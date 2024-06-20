@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
+import 'package:me_and_flora/core/domain/exception/auth_exception.dart';
 import 'package:me_and_flora/core/domain/models/account.dart';
-import 'package:me_and_flora/core/exception/auth_exception.dart';
+import 'package:me_and_flora/core/domain/service/locator.dart';
 
 import '../../../domain/service/auth_service.dart';
 import 'auth.dart';
@@ -8,41 +9,56 @@ import 'auth.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(AuthInitialState()) {
 
+    on<CheckIsLogInRequested>((event, emit) async {
+      emit(AuthLoadingState());
+      try {
+        Account account = await locator<AuthService>().loadUser();
+        emit(AuthSuccessState(account: account));
+        emit(AuthenticatedState(account: account));
+      } on UserNotFoundException catch (e) {
+        emit(AuthErrorState(e.toString()));
+      } on Exception catch (_) {
+        emit(AuthInitialState());
+      }
+    });
+
     on<UnauthRequested>((event, emit) async {
-      //AuthService.logout();
-      Account user = Account();
-      emit(AuthSuccessState(account: user));
-      emit(AuthenticatedState(account: user));
+      emit(AuthLoadingState());
+      try {
+        Account account = await locator<AuthService>().signInAnonymous();
+        emit(AuthSuccessState(account: account));
+        emit(AuthenticatedState(account: account));
+      } on UserNotFoundException catch (e) {
+        emit(AuthErrorState(e.toString()));
+      } on Exception catch (_) {
+        emit(AuthInitialState());
+      }
     });
 
     on<LogOutRequested>((event, emit) async {
-      //AuthService.logout();
+      await locator<AuthService>().logout();
       emit(AuthInitialState());
     });
 
     on<SignInRequested>((event, emit) async {
       emit(AuthLoadingState());
       try {
-        Account user = await AuthService().signIn(event.login, event.password);
-        emit(AuthSuccessState(account: user));
-        emit(AuthenticatedState(account: user));
+        Account account = await locator<AuthService>().signIn(event.login, event.password);
+        emit(AuthSuccessState(account: account));
+        emit(AuthenticatedState(account: account));
       } on UserNotFoundException catch (e) {
         emit(AuthErrorState(e.toString()));
+      } on Exception catch (_) {
+        emit(AuthInitialState());
       }
     });
 
     on<SignUpRequested>((event, emit) async {
       emit(AuthLoadingState());
       try {
-        Account user = await AuthService().signUp(event.login, event.password);
-        /*
-        Account user = Account(
-          login: event.login,
-          password: event.password,
-          accessLevel: AccessLevel.user,
-        );*/
-        emit(AuthSuccessState(account: user));
-        emit(AuthenticatedState(account: user));
+        Account account = await locator<AuthService>().signUp(event.login, event.password);
+        emit(AuthSuccessState(account: account));
+        emit(AuthenticatedState(account: account));
       } catch (e) {
         emit(UnauthenticatedState());
       }

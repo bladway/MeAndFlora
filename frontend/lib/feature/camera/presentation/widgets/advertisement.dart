@@ -33,8 +33,7 @@ class Advertisement extends StatelessWidget {
       actions: <Widget>[
         TextButton(
             onPressed: () {
-              AppMetrica.reportEvent(
-                  'Запрос на просмотр рекламы');
+              AppMetrica.reportEvent('Запрос на просмотр рекламы');
               AutoRouter.of(context).pop();
               AutoRouter.of(context).push(const AdvertisementRoute());
             },

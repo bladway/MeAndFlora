@@ -41,15 +41,17 @@ class TrackPlantInfo extends StatelessWidget {
                   Expanded(
                     child: PlantTile(
                       titleText: plant.lon != null && plant.lat != null
-                          ? "${plant.lon}°, ${plant.lat}°"
-                          : "Местоположение неизвестно",
+                          ? "${plant.lat!.toStringAsPrecision(4)}°, "
+                          "${plant.lon!.toStringAsPrecision(4)}°"
+                          : "Неизвестно",
                       icon: Iconsax.location,
                     ),
                   ),
                   Expanded(
                     child: PlantTile(
                       titleText: plant.date != null
-                          ? plant.date!.day.toString()
+                          ? plant.date!
+                          .toString().substring(0, 10)
                           : "Дата неизвестна",
                       icon: Icons.timer_rounded,
                     ),

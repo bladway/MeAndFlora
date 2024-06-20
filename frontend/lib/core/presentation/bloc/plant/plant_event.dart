@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../domain/models/models.dart';
-
 abstract class PlantEvent extends Equatable {
   const PlantEvent();
 
@@ -11,22 +9,46 @@ abstract class PlantEvent extends Equatable {
 
 class HomePageRequested extends PlantEvent {}
 
-class FlowersRequested extends PlantEvent {}
+class FlowersRequested extends PlantEvent {
+  final int page;
+  final int size;
 
-class TreesRequested extends PlantEvent {}
+  const FlowersRequested({this.page = 0, this.size = 10});
+}
 
-class GrassRequested extends PlantEvent {}
+class TreesRequested extends PlantEvent {
+  final int page;
+  final int size;
 
-class MossRequested extends PlantEvent {}
+  const TreesRequested({this.page = 0, this.size = 10});
+}
 
-class PlantNameRequested extends PlantEvent {}
+class GrassRequested extends PlantEvent {
+  final int page;
+  final int size;
+
+  const GrassRequested({this.page = 0, this.size = 10});
+}
+
+class MossRequested extends PlantEvent {
+  final int page;
+  final int size;
+
+  const MossRequested({this.page = 0, this.size = 10});
+}
+
+class PlantNameRequested extends PlantEvent {
+  final String name;
+
+  const PlantNameRequested({required this.name});
+}
 
 class PlantDetailsRequested extends PlantEvent {}
 
 class PlantRemoveRequested extends PlantEvent {
-  final Plant plant;
+  final int publicId;
 
-  const PlantRemoveRequested({required this.plant});
+  const PlantRemoveRequested({required this.publicId});
 }
 
 /*

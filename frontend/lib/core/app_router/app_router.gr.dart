@@ -33,12 +33,6 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const AdvertisementScreen(),
       );
     },
-    BotanicRegisterRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const BotanicRegisterScreen(),
-      );
-    },
     CameraRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -49,6 +43,12 @@ abstract class _$AppRouter extends RootStackRouter {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: WrappedRoute(child: const CameraWrapperScreen()),
+      );
+    },
+    CreateUserRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const CreateUserScreen(),
       );
     },
     HistoryRoute.name: (routeData) {
@@ -127,6 +127,7 @@ abstract class _$AppRouter extends RootStackRouter {
         child: PlantIdentFormScreen(
           key: args.key,
           plant: args.plant,
+          requestId: args.requestId,
         ),
       );
     },
@@ -230,20 +231,6 @@ class AdvertisementRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [BotanicRegisterScreen]
-class BotanicRegisterRoute extends PageRouteInfo<void> {
-  const BotanicRegisterRoute({List<PageRouteInfo>? children})
-      : super(
-          BotanicRegisterRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'BotanicRegisterRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
-}
-
-/// generated route for
 /// [CameraScreen]
 class CameraRoute extends PageRouteInfo<void> {
   const CameraRoute({List<PageRouteInfo>? children})
@@ -267,6 +254,20 @@ class CameraWrapperRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'CameraWrapperRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [CreateUserScreen]
+class CreateUserRoute extends PageRouteInfo<void> {
+  const CreateUserRoute({List<PageRouteInfo>? children})
+      : super(
+          CreateUserRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'CreateUserRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
@@ -470,12 +471,14 @@ class PlantIdentFormRoute extends PageRouteInfo<PlantIdentFormRouteArgs> {
   PlantIdentFormRoute({
     Key? key,
     required Plant plant,
+    required int requestId,
     List<PageRouteInfo>? children,
   }) : super(
           PlantIdentFormRoute.name,
           args: PlantIdentFormRouteArgs(
             key: key,
             plant: plant,
+            requestId: requestId,
           ),
           initialChildren: children,
         );
@@ -490,15 +493,18 @@ class PlantIdentFormRouteArgs {
   const PlantIdentFormRouteArgs({
     this.key,
     required this.plant,
+    required this.requestId,
   });
 
   final Key? key;
 
   final Plant plant;
 
+  final int requestId;
+
   @override
   String toString() {
-    return 'PlantIdentFormRouteArgs{key: $key, plant: $plant}';
+    return 'PlantIdentFormRouteArgs{key: $key, plant: $plant, requestId: $requestId}';
   }
 }
 

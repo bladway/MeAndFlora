@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../domain/models/models.dart';
-
 abstract class PlantTrackEvent extends Equatable {
   const PlantTrackEvent();
 
@@ -9,14 +7,8 @@ abstract class PlantTrackEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class PlantTrackListRequested extends PlantTrackEvent {
-}
-
 class PlantTrackRequested extends PlantTrackEvent {
-  final Plant plant;
+  final String plantName;
 
-  const PlantTrackRequested(this.plant);
-
-  @override
-  List<Object> get props => [plant];
+  const PlantTrackRequested(this.plantName);
 }

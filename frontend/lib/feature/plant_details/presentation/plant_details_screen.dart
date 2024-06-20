@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:appmetrica_plugin/appmetrica_plugin.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:me_and_flora/core/presentation/widgets/buttons/track_button.dart';
+import 'package:me_and_flora/core/presentation/widgets/plant_image.dart';
 
 import '../../../core/domain/models/models.dart';
 import '../../../core/presentation/bloc/plant_track/plant_track.dart';
@@ -70,20 +69,7 @@ class PlantDetailsScreen extends StatelessWidget {
                 width: width,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20), // Image border
-                  child: Image.file(
-                    File(plant.imageUrl),
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey,
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.camera_alt,
-                          size: height * 0.1,
-                        ),
-                      );
-                    },
-                  ),
+                  child: PlantImage(image: plant.path, size: height * 0.1,),
                 ),
               ),
               SizedBox(

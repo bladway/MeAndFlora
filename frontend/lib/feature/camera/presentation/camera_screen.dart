@@ -6,7 +6,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:me_and_flora/core/app_router/app_router.dart';
-import 'package:me_and_flora/core/presentation/bloc/plant_history/plant_history.dart';
+import 'package:me_and_flora/core/domain/dto/geo_dto.dart';
+import 'package:me_and_flora/core/presentation/bloc/plant_ident_history/plant_ident_history.dart';
 import 'package:me_and_flora/core/theme/strings.dart';
 import 'package:me_and_flora/feature/camera/presentation/bloc/bloc.dart';
 import 'package:me_and_flora/feature/camera/presentation/widgets/advertisement.dart';
@@ -43,43 +44,35 @@ class CameraScreen extends StatelessWidget {
           BlocListener<PlantIdentBloc, PlantIdentState>(
               listener: (context, state) {
             if (state is PlantIdentLoadSuccess) {
-              //imageUrl = state.plant.imageUrl;
+              final Plant plant = state.plant
+                  .copyWith(lon: lon, lat: lat, date: DateTime.now());
               AutoRouter.of(context)
                   .push(PlantIdentDetailsRoute(
-                      plant: state.plant
-                          .copyWith(lon: lon, lat: lat, date: DateTime.now()),
-                      imageUrl: imageUrl!))
+                      plant: plant, imageUrl: state.imagePath))
                   .then((value) => {
                         if (value != null && value == true)
                           {
-                            BlocProvider.of<PlantHistoryBloc>(context).add(
-                                PlantHistoryRequested(
-                                    plant: state.plant.copyWith(
-                                        lon: lon,
-                                        lat: lat,
-                                        date: DateTime.now(),
-                                        imageUrl: imageUrl))),
+                            BlocProvider.of<PlantIdentBloc>(context).add(
+                                UserIdentDecesionRequested(
+                                    isCorrect: true,
+                                    requestId: state.requestId)),
                             BlocProvider.of<CameraBloc>(context)
-                                .add(CameraInitialized())
+                                .add(CameraInitialized()),
                           }
                         else if (value != null)
                           {
-                            BlocProvider.of<PlantIdentBloc>(context)
-                                .add(const PlantBotanicIdentInitial()),
-                          }
+                            BlocProvider.of<PlantIdentBloc>(context).add(
+                                UserIdentDecesionRequested(
+                                    isCorrect: false,
+                                    requestId: state.requestId)),
+                            BlocProvider.of<CameraBloc>(context)
+                                .add(CameraInitialized()),
+                          },
                       });
             }
-            if (state is PlantSecondIdentInitial) {
-              final Plant plant = Plant(
-                  imageUrl: imageUrl!,
-                  date: DateTime.now(),
-                  lat: lat,
-                  lon: lon);
-              BlocProvider.of<PlantIdentBloc>(context)
-                  .add(PlantBotanicIdentRequested(plant));
-              BlocProvider.of<PlantHistoryBloc>(context)
-                  .add(PlantHistoryRequested(plant: plant));
-              BlocProvider.of<CameraBloc>(context).add(CameraInitialized());
+            if (state is PlantUserIdentSuccess) {
+              BlocProvider.of<PlantIdentHistoryBloc>(context)
+                  .add(const AddPlantHistoryRequested());
             }
             if (state is PlantIdentLimitReached) {
               _showNotification(context);
@@ -103,15 +96,24 @@ class CameraScreen extends StatelessWidget {
                   return CameraPreview(state.controller);
                 }
                 if (state is PhotoLoadedSuccess) {
-                  imageUrl = state.imagePath;
+                  final GeoDto point = GeoDto(
+                      coordinates:
+                          (lat != null && lon != null ? [lat!, lon!] : []));
                   BlocProvider.of<PlantIdentBloc>(context)
-                      .add(PlantIdentRequested(state.imagePath));
-                  return Container(
-                    color: Colors.black,
-                    child: Center(
-                      child: Image.file(File(state.imagePath)),
+                      .add(PlantIdentRequested(
+                    point: point,
+                    imagePath: state.imagePath,
+                  ));
+                  return Stack(children: [
+                    Container(
+                      color: Colors.black,
+                      child: Center(
+                        child: Image.file(File(state.imagePath)),
+                      ),
                     ),
-                  );
+                    const Center(
+                        child: CircularProgressIndicator(color: Colors.white))
+                  ]);
                 }
                 if (state is CameraLoadFailure) {
                   return Container(
