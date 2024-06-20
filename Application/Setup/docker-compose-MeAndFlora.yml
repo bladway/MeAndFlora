@@ -1,0 +1,115 @@
+version: "3.8"
+
+services:
+
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: MeAndFlora-Database
+    hostname: postgres
+    restart: always
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    environment:
+      TZ: ${SERVER_TIMEZONE}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - MeAndFlora-Database:/var/lib/postgresql/data
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: MeAndFlora-Zookeeper
+    hostname: zookeeper
+    restart: always
+    environment:
+      TZ: ${SERVER_TIMEZONE}
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_PORT_INTERNAL}
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: MeAndFlora-Kafka
+    hostname: kafka
+    restart: always
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      TZ: ${SERVER_TIMEZONE}
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      ZOOKEEPER_SASL_ENABLED: false
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://${SERVER_IP}:9092,INTERNAL://localhost:9093,CONTAINER://kafka:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:SASL_PLAINTEXT,INTERNAL:SASL_PLAINTEXT,CONTAINER:SASL_PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: CONTAINER
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/home/appuser/kafka_server_jaas.conf"
+      KAFKA_MESSAGE_MAX_BYTES: 41943040
+      KAFKA_REPLICA_FETCH_MAX_BYTES: 41943040
+    depends_on:
+      - zookeeper
+    command: /bin/bash -c "echo -e \"KafkaServer {org.apache.kafka.common.security.plain.PlainLoginModule required username=${KAFKA_USER} password=${KAFKA_PASSWORD} user_${KAFKA_USER}=${KAFKA_PASSWORD};};\" > /home/appuser/kafka_server_jaas.conf; /etc/confluent/docker/run"
+       
+  MainServer:
+    image: bladway/maf-mainserver
+    container_name: MeAndFlora-MainServer
+    hostname: MainServer
+    restart: always
+    ports:
+      - "${MAINSERVER_PORT}:${MAINSERVER_PORT}"
+    environment:
+      TZ: ${SERVER_TIMEZONE}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      KAFKA_USER: ${KAFKA_USER}
+      KAFKA_PASSWORD: ${KAFKA_PASSWORD}
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9094
+      MAINSERVER_PORT: ${MAINSERVER_PORT}
+      MAINSERVER_JWT_LIFETIME: 1m
+    volumes:
+      - MeAndFlora-GetImages:/images/get
+      - MeAndFlora-ProcImages:/images/proc
+    depends_on:
+      - kafka
+      - postgres
+
+  NeuralMicroservice:
+    image: dkotx/detector
+    container_name: MeAndFlora-NeuralMicroservice
+    hostname: NeuralMicroservice
+    restart: always
+    environment:
+      TZ: ${SERVER_TIMEZONE}
+    depends_on:
+      - kafka
+      - MainServer
+
+volumes:
+  MeAndFlora-Database:
+    name: MeAndFlora-Database
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: /server/MeAndFlora-Database
+  MeAndFlora-GetImages:
+    name: MeAndFlora-GetImages
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: /server/MeAndFlora-GetImages
+  MeAndFlora-ProcImages:
+    name: MeAndFlora-ProcImages
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: /server/MeAndFlora-ProcImages
