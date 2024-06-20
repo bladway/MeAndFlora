@@ -38,10 +38,10 @@ class ApiUserBehavior(TaskSet):
 
 class WebsiteUser(HttpUser):
     tasks = [ApiUserBehavior]
-    wait_time = between(6,6)
-    host = 'https://74f3-5-187-71-141.ngrok-free.app'
+    wait_time = between(5,5)
+    host = ''
 
 
 if __name__ == "__main__":
     import os
-    os.system("locust -f main.py --users 6 --spawn-rate 3")
+    os.system("locust -f main.py --users 10 --spawn-rate 1")
