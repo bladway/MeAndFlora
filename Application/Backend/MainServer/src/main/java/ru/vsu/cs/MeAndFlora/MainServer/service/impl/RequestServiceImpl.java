@@ -8,7 +8,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.vsu.cs.MeAndFlora.MainServer.config.component.*;
+import ru.vsu.cs.MeAndFlora.MainServer.config.component.ImageUtil;
+import ru.vsu.cs.MeAndFlora.MainServer.config.component.JsonUtil;
+import ru.vsu.cs.MeAndFlora.MainServer.config.component.JwtUtil;
+import ru.vsu.cs.MeAndFlora.MainServer.config.component.KafkaExchange;
 import ru.vsu.cs.MeAndFlora.MainServer.config.exception.*;
 import ru.vsu.cs.MeAndFlora.MainServer.config.property.ErrorPropertiesConfig;
 import ru.vsu.cs.MeAndFlora.MainServer.config.states.ProcRequestStatus;
@@ -26,19 +29,19 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.RequestService;
 
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @Service
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
+
+    private static int kafkaWaitThreadsCount = 0;
 
     @Value("${application.images.procpath}")
     private String procpath;
@@ -138,13 +141,6 @@ public class RequestServiceImpl implements RequestService {
             );
         }
 
-        if (ManagementFactory.getThreadMXBean().getThreadCount() > 50) {
-            throw new ObjectException(
-                    errorPropertiesConfig.getOverloaded(),
-                    "sorry server is overloaded, try again later."
-            );
-        }
-
         Point geoPos = geoDto == null ? null : jsonUtil.jsonToPoint(geoDto);
 
         ProcRequest procRequest = procRequestRepository.save(new ProcRequest(
@@ -159,22 +155,34 @@ public class RequestServiceImpl implements RequestService {
 
         procRequest.setImagePath(procpath + procRequest.getRequestId() + ".jpg");
 
+        if (kafkaWaitThreadsCount > 10) {
+            procRequestRepository.delete(procRequest);
+            throw new ObjectException(
+                    errorPropertiesConfig.getOverloaded(),
+                    "sorry server is overloaded, try again later."
+            );
+        }
+
+        kafkaWaitThreadsCount++;
         String floraName;
         try {
             floraName = kafkaExchange.processMessage(jwt, image, procRequest);
         } catch (IOException e) {
             procRequestRepository.delete(procRequest);
+            kafkaWaitThreadsCount--;
             throw new ObjectException(
                     errorPropertiesConfig.getImagenotuploaded(),
                     "server can't process provided image"
             );
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
             procRequestRepository.delete(procRequest);
+            kafkaWaitThreadsCount--;
             throw new ObjectException(
                     errorPropertiesConfig.getTimeout(),
                     "timeout for waiting neural network answer"
             );
         }
+        kafkaWaitThreadsCount--;
 
         Optional<Flora> ifflora = floraRepository.findByName(floraName);
 
