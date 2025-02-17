@@ -15,7 +15,6 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.USessionRepository;
 import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 import ru.vsu.cs.MeAndFlora.MainServer.service.FileService;
 
-import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.util.Optional;
 

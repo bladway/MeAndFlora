@@ -8,8 +8,6 @@ import org.apache.kafka.common.header.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.requestreply.CorrelationKey;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
@@ -25,8 +23,7 @@ import ru.vsu.cs.MeAndFlora.MainServer.repository.entity.USession;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -68,6 +65,8 @@ public class KafkaExchange {
                 return new CorrelationKey(procRequest.getRequestId().toString().getBytes());
             }
         });
+
+        replyingKafkaTemplate.waitForAssignment(Duration.ofSeconds(10));
 
         RequestReplyFuture<Integer, byte[], String> replyFuture = replyingKafkaTemplate.sendAndReceive(requestRecord);
         kafkaExchangeLogger.info("message with requestId {} sent to broker", procRequest.getRequestId());
