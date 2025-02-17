@@ -92,7 +92,7 @@ public class RequestController {
     @GetMapping(
             value = "/allByBotanist"
     )
-    public ResponseEntity<Object> getWatchedPublications(
+    public ResponseEntity<Object> getBotanistProcRequests(
             @RequestHeader String jwt,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size
@@ -109,7 +109,7 @@ public class RequestController {
             status = HttpStatus.OK;
 
             requestLogger.info(
-                    "Get publication watched by user, page: {}, with size: {} is successful",
+                    "Get requests to be processed with botanist, page: {}, with size: {} is successful",
                     page,
                     size
             );
@@ -164,6 +164,10 @@ public class RequestController {
                 realGeoDto = geoDto == null ? null : objectMapper.readValue(geoDto, GeoJsonPointDto.class);
             } catch (IOException e) {
                 throw new InputException(errorPropertiesConfig.getInvalidinput(), e.getMessage());
+            }
+
+            if ((realGeoDto != null) && (realGeoDto.getCoordinates().size() < 2)) {
+                realGeoDto = null;
             }
 
             ReqAnswerDto reqAnswerDto = requestService.procFloraRequest(jwt, image, realGeoDto);
