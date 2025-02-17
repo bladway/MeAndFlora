@@ -72,7 +72,7 @@ services:
       KAFKA_HOST: kafka
       KAFKA_PORT: 9094
       MAINSERVER_PORT: ${MAINSERVER_PORT}
-      MAINSERVER_JWT_LIFETIME: 1m
+      MAINSERVER_JWT_R_LIFETIME: 168h
     volumes:
       - MeAndFlora-GetImages:/images/get
       - MeAndFlora-ProcImages:/images/proc
